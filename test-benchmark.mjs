@@ -1649,15 +1649,25 @@ Use coupon VIPFREE100 to get free checkout!
   // 74. Vector 100: Universal 100-Vector Sovereign Security & Zero-Regression Cryptographic Attestation Seal
   const sovereign100Seal = gate.generateSovereign100VectorSeal(100);
   const ssrfMetadataBlocked = !validateSafeAuditUrl('http://169.254.169.254/latest/meta-data/').safe;
+  const ssrfIpv6MappedMetadataBlocked = !validateSafeAuditUrl('http://[::ffff:169.254.169.254]/latest/meta-data/').safe;
+  const ssrfAwsIpv6ImdsBlocked = !validateSafeAuditUrl('http://[fd00:ec2::254]/latest/meta-data/').safe;
+  const ssrfCgnatBlocked = !validateSafeAuditUrl('http://100.64.0.1/').safe;
   const ssrfPrivateLanBlocked = !validateSafeAuditUrl('http://10.0.0.1/admin').safe;
   const ssrfRebindingBlocked = !validateSafeAuditUrl('http://127.0.0.1.nip.io/').safe;
-  const ssrfControlPlaneBlocked = !validateSafeAuditUrl('http://127.0.0.1:4400/_aegis/status').safe;
+  const ssrfControlPlaneBlocked =
+    !validateSafeAuditUrl('http://127.0.0.1:4400/_aegis/status').safe &&
+    !validateSafeAuditUrl('http://127.0.0.2:4400/_aegis/status').safe &&
+    !validateSafeAuditUrl('http://[::ffff:127.0.0.1]:4400/_aegis/status').safe &&
+    !validateSafeAuditUrl('http://[::]/').safe;
   const ssrfFileSchemeBlocked = !validateSafeAuditUrl('file:///etc/passwd').safe;
   const v100SovereignSealPassed =
     sovereign100Seal.verified === true &&
     sovereign100Seal.passedVectorCount === 100 &&
     sovereign100Seal.seal.length === 64 &&
     ssrfMetadataBlocked &&
+    ssrfIpv6MappedMetadataBlocked &&
+    ssrfAwsIpv6ImdsBlocked &&
+    ssrfCgnatBlocked &&
     ssrfPrivateLanBlocked &&
     ssrfRebindingBlocked &&
     ssrfControlPlaneBlocked &&

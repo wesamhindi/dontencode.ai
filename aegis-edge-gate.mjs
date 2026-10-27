@@ -44,11 +44,18 @@ export class AegisEdgeGate {
       ip,
       detail,
     };
+    if (this.telemetryEvents.length >= 500) {
+      this.telemetryEvents.shift();
+    }
     this.telemetryEvents.push(ev);
     return ev;
   }
 
   blockClient(ip, reason, detail = {}) {
+    if (this.blockedIps.size >= 5000 && !this.blockedIps.has(ip)) {
+      const oldestIp = this.blockedIps.keys().next().value;
+      if (oldestIp !== undefined) this.blockedIps.delete(oldestIp);
+    }
     const existing = this.blockedIps.get(ip);
     this.blockedIps.set(ip, {
       reason,
@@ -97,6 +104,10 @@ export class AegisEdgeGate {
 
     // 1. Burst rate detector (catches commerce_probe.py parallel harvest & matrix_probe.py loops)
     const now = Date.now();
+    if (this.ipRateWindow.size >= 5000 && !this.ipRateWindow.has(ip)) {
+      const oldestKey = this.ipRateWindow.keys().next().value;
+      if (oldestKey !== undefined) this.ipRateWindow.delete(oldestKey);
+    }
     const recent = (this.ipRateWindow.get(ip) || []).filter(t => now - t < 2500);
     recent.push(now);
     this.ipRateWindow.set(ip, recent);
@@ -141,6 +152,10 @@ export class AegisEdgeGate {
       this.blockClient(ip, 'REPLAYED_AEGIS_REQUEST_NONCE', { nonce });
       return { ok: false, reason: 'REPLAYED_AEGIS_REQUEST_NONCE' };
     }
+    if (this.seenNonces.size >= 10000) {
+      const oldest = this.seenNonces.values().next().value;
+      if (oldest !== undefined) this.seenNonces.delete(oldest);
+    }
     this.seenNonces.add(nonce);
     return { ok: true };
   }
@@ -149,6 +164,10 @@ export class AegisEdgeGate {
    * Layer 1: Single-Use Cryptographic Tickets for JS Scripts, Cloud Assets & Media Streams
    */
   issueScriptTicket(sessionId, resourcePath, ttlMs = 8000) {
+    if (this.tickets.size >= 5000) {
+      const oldest = this.tickets.keys().next().value;
+      if (oldest !== undefined) this.tickets.delete(oldest);
+    }
     const nonce = crypto.randomBytes(16).toString('hex');
     const sig = crypto.createHmac('sha256', this.secret)
       .update(`${nonce}:${sessionId}:${resourcePath}`)
@@ -165,9 +184,21 @@ export class AegisEdgeGate {
   }
 
   verifyAndConsumeScriptTicket(token, sessionId, scriptPath, reqHeaders = {}, ip = '127.0.0.1') {
-    if (!token || !this.tickets.has(token)) {
+    if (!token || typeof token !== 'string' || !token.includes('.') || !this.tickets.has(token)) {
       this.blockClient(ip, 'MISSING_OR_FORGED_SCRIPT_TICKET', { scriptPath });
       return { ok: false, reason: 'MISSING_OR_FORGED_SCRIPT_TICKET' };
+    }
+    const [nonce, providedSig] = token.split('.');
+    const expectedSig = crypto.createHmac('sha256', this.secret)
+      .update(`${nonce}:${sessionId}:${scriptPath}`)
+      .digest('hex')
+      .slice(0, 24);
+    const sigMatches =
+      providedSig.length === expectedSig.length &&
+      crypto.timingSafeEqual(Buffer.from(providedSig, 'utf8'), Buffer.from(expectedSig, 'utf8'));
+    if (!sigMatches) {
+      this.blockClient(ip, 'FORGED_SCRIPT_TICKET_HMAC', { scriptPath });
+      return { ok: false, reason: 'FORGED_SCRIPT_TICKET_HMAC' };
     }
     const rec = this.tickets.get(token);
     if (rec.used) {
@@ -1078,7 +1109,13 @@ ${scriptTags.join('\n')}`;
     if (actualRpId !== expectedRpId || actualOrigin !== expectedOrigin) {
       return { allowed: false, reason: 'WEBAUTHN_RPID_OR_ORIGIN_PHISHING_MITM_BLOCKED' };
     }
-    if (!challenge || challenge !== expectedChallenge) {
+    const chStr = String(challenge || '');
+    const expStr = String(expectedChallenge || '');
+    const chValid =
+      chStr.length > 0 &&
+      chStr.length === expStr.length &&
+      crypto.timingSafeEqual(Buffer.from(chStr, 'utf8'), Buffer.from(expStr, 'utf8'));
+    if (!chValid) {
       return { allowed: false, reason: 'WEBAUTHN_CHALLENGE_REPLAY_OR_MISMATCH_BLOCKED' };
     }
     if (newSignCount <= prevSignCount) {
@@ -1194,10 +1231,10 @@ ${scriptTags.join('\n')}`;
    * Vector 88: Universal DNS Rebinding (`127.0.0.1.nip.io`) & Private Network Access (RFC1918) Guard
    */
   enforceDnsRebindingAndPnaGuard({ hostHeader = '', originHeader = '' } = {}) {
-    const h = String(hostHeader || '').toLowerCase();
+    const h = String(hostHeader || '').toLowerCase().replace(/^\[|\]$/g, '');
     if (
-      /\b(?:nip\.io|sslip\.io|xip\.io|burpcollaborator\.net|oastify\.com)\b/i.test(h) ||
-      /^(?:127\.|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\])/.test(h)
+      /\b(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|burpcollaborator\.net|oastify\.com|metadata\.google\.internal)\b/i.test(h) ||
+      /^(?:127\.|10\.|169\.254\.|100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|0\.|::1$|::ffff:|fe80:|fc00:|fd00:)/i.test(h)
     ) {
       return { allowed: false, status: 403, reason: 'DNS_REBINDING_OR_PRIVATE_NETWORK_HOST_BLOCKED' };
     }

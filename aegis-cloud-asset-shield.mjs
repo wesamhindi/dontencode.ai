@@ -73,6 +73,10 @@ export class AegisCloudAssetShield {
    * so the real bucket name, region, and presigned signature never touch the client!
    */
   issueCloudAssetTicket(realUrl, sessionId = 'global', ttlMs = 10000) {
+    if (this.assetVault.size >= 5000) {
+      const oldest = this.assetVault.keys().next().value;
+      if (oldest !== undefined) this.assetVault.delete(oldest);
+    }
     const rawId = crypto.randomBytes(12).toString('hex');
     const mac = crypto.createHmac('sha256', this.secret)
       .update(`${rawId}:${sessionId}:${realUrl}`)
@@ -97,9 +101,20 @@ export class AegisCloudAssetShield {
    *   4. Attaches `X-Aegis-Origin-Lock` header when fetching from the upstream AWS S3 bucket.
    */
   redeemCloudAssetTicket(ticket, sessionId = 'global', headers = {}) {
+    if (!ticket || typeof ticket !== 'string' || !ticket.includes('.')) {
+      return { ok: false, status: 403, reason: 'CLOUD_TICKET_NOT_FOUND' };
+    }
+    const [rawId, providedMac] = ticket.split('.');
     const entry = this.assetVault.get(ticket);
     if (!entry) {
       return { ok: false, status: 403, reason: 'CLOUD_TICKET_NOT_FOUND' };
+    }
+    const expectedMac = crypto.createHmac('sha256', this.secret)
+      .update(`${rawId}:${sessionId}:${entry.realUrl}`)
+      .digest('hex')
+      .slice(0, 16);
+    if (!constantTimeEqual(providedMac, expectedMac)) {
+      return { ok: false, status: 403, reason: 'CLOUD_TICKET_HMAC_MISMATCH' };
     }
     if (entry.used || Date.now() > entry.expiresAt) {
       this.assetVault.delete(ticket);
@@ -394,6 +409,10 @@ export class AegisCloudAssetShield {
    */
   createDynamicTransactionSigner(sessionId = 'anon', viewportW = 1440, viewportH = 900) {
     if (!this.txNonceStore) this.txNonceStore = new Map();
+    if (this.txNonceStore.size >= 5000) {
+      const oldest = this.txNonceStore.keys().next().value;
+      if (oldest !== undefined) this.txNonceStore.delete(oldest);
+    }
     const nonce = crypto.randomBytes(16).toString('hex');
     this.txNonceStore.set(nonce, {
       sessionId,
@@ -422,7 +441,7 @@ export class AegisCloudAssetShield {
       return { ok: false, reason: 'TRANSACTION_VIEWPORT_ATTESTATION_MISMATCH' };
     }
     const expected = this.computeExpectedTransactionHeader(nonce, path, method, viewportW, viewportH);
-    if (signature !== expected) {
+    if (!constantTimeEqual(signature, expected)) {
       return { ok: false, reason: 'INVALID_TRANSACTION_SIGNATURE' };
     }
     entry.used = true;
@@ -1141,7 +1160,7 @@ export class AegisCloudAssetShield {
       }
     }
 
-    if (expectedFingerprint && actualFingerprint && expectedFingerprint !== actualFingerprint) {
+    if (expectedFingerprint && actualFingerprint && !constantTimeEqual(expectedFingerprint, actualFingerprint)) {
       return {
         allowed: false,
         reason: 'DEVICE_BOUND_SESSION_FINGERPRINT_MISMATCH_BLOCKED',
@@ -1153,7 +1172,7 @@ export class AegisCloudAssetShield {
         .createHash('sha256')
         .update(String(oauthCodeVerifier || ''))
         .digest('base64url');
-      if (computedChallenge !== oauthCodeChallenge) {
+      if (!constantTimeEqual(computedChallenge, oauthCodeChallenge)) {
         return {
           allowed: false,
           reason: 'OAUTH2_PKCE_S256_VERIFIER_MISMATCH_BLOCKED',
@@ -1175,6 +1194,10 @@ export class AegisCloudAssetShield {
   } = {}) {
     if (!this._atomicLocks) {
       this._atomicLocks = new Set();
+    }
+    if (this._atomicLocks.size >= 10000) {
+      const oldest = this._atomicLocks.values().next().value;
+      if (oldest !== undefined) this._atomicLocks.delete(oldest);
     }
     const lockId = `${actorId}:${operation}:${idempotencyKey}`;
     if (this._atomicLocks.has(lockId)) {

@@ -52,8 +52,17 @@ export function createAegisDemoServer({ rawBundleCode = '', rawHtml = '' } = {})
   const compiled = rawBundleCode ? compileProtectedBundle(rawBundleCode.replace(/\bexport\s+/g, '')) : { stats: {} };
   const apiRateBuckets = new Map();
 
+  // Pre-load static public assets into memory to eliminate synchronous fs.readFileSync event-loop blocking DoS
+  const cachedLandingHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+  const cachedTemplateCss = fs.readFileSync(path.join(__dirname, 'public', 'template.css'));
+  const cachedGeistFont = fs.readFileSync(path.join(__dirname, 'public', 'geist-latin.woff2'));
+
   function checkApiRateLimit(ip) {
     const now = Date.now();
+    if (apiRateBuckets.size >= 5000 && !apiRateBuckets.has(ip)) {
+      const oldestIp = apiRateBuckets.keys().next().value;
+      if (oldestIp !== undefined) apiRateBuckets.delete(oldestIp);
+    }
     const bucket = apiRateBuckets.get(ip) || { count: 0, resetAt: now + 60000 };
     if (now > bucket.resetAt) {
       bucket.count = 0;
@@ -69,37 +78,34 @@ export function createAegisDemoServer({ rawBundleCode = '', rawHtml = '' } = {})
     const pathname = urlObj.pathname;
     const clientIp = req.socket?.remoteAddress || '127.0.0.1';
 
-    // Serve Hardened Landing Page & Static Template Assets
+    // Serve Hardened Landing Page & Static Template Assets from memory cache
     if (pathname === '/' || pathname === '/audit' || pathname === '/index.html') {
-      const landingHtml = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
       res.writeHead(200, {
         ...HARDENED_SECURITY_HEADERS,
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
       });
-      res.end(landingHtml);
+      res.end(cachedLandingHtml);
       return;
     }
 
     if (pathname === '/template.css') {
-      const css = fs.readFileSync(path.join(__dirname, 'public', 'template.css'));
       res.writeHead(200, {
         ...HARDENED_SECURITY_HEADERS,
         'Content-Type': 'text/css; charset=utf-8',
         'Cache-Control': 'public, max-age=3600',
       });
-      res.end(css);
+      res.end(cachedTemplateCss);
       return;
     }
 
     if (pathname === '/geist-latin.woff2') {
-      const font = fs.readFileSync(path.join(__dirname, 'public', 'geist-latin.woff2'));
       res.writeHead(200, {
         ...HARDENED_SECURITY_HEADERS,
         'Content-Type': 'font/woff2',
         'Cache-Control': 'public, max-age=86400',
       });
-      res.end(font);
+      res.end(cachedGeistFont);
       return;
     }
 
@@ -154,7 +160,14 @@ export function createAegisDemoServer({ rawBundleCode = '', rawHtml = '' } = {})
             if (parsed.url) targetUrl = String(parsed.url).trim();
           } catch {}
         }
-        const simulation = auditEngine.simulateAegisShieldOnTarget(targetUrl);
+        const normalizedCandidate = /^https?:\/\//i.test(targetUrl) ? targetUrl : `https://${targetUrl}`;
+        const safety = validateSafeAuditUrl(normalizedCandidate, { allowLocalhostDev: true });
+        if (!safety.safe) {
+          res.writeHead(403, { ...HARDENED_SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ error: `BLOCKED_UNSAFE_TARGET:${safety.reason}` }));
+          return;
+        }
+        const simulation = auditEngine.simulateAegisShieldOnTarget(normalizedCandidate);
         res.writeHead(200, { ...HARDENED_SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8' });
         res.end(JSON.stringify(simulation, null, 2));
       } catch (err) {
@@ -165,8 +178,14 @@ export function createAegisDemoServer({ rawBundleCode = '', rawHtml = '' } = {})
       return;
     }
 
-    // Threat Radar status endpoint
+    // Threat Radar status endpoint (gated by Layer 0 inspection & rate limiter)
     if (pathname === '/_aegis/status') {
+      const statusCheck = gate.inspectRequest(req);
+      if (!statusCheck.allowed) {
+        res.writeHead(statusCheck.status, statusCheck.headers);
+        res.end(statusCheck.body);
+        return;
+      }
       res.writeHead(200, { ...HARDENED_SECURITY_HEADERS, 'Content-Type': 'application/json' });
       res.end(
         JSON.stringify(

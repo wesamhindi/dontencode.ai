@@ -14,6 +14,8 @@
  */
 
 import crypto from 'node:crypto';
+import dns from 'node:dns';
+import net from 'node:net';
 import { compileProtectedBundle } from './aegis-compiler.mjs';
 import { AegisEdgeGate } from './aegis-edge-gate.mjs';
 
@@ -123,6 +125,68 @@ function redactMiddle(str, keepStart = 12, keepEnd = 6) {
   return `${s.slice(0, keepStart)}•••[REDACTED]•••${s.slice(-keepEnd)}`;
 }
 
+/**
+ * Evaluates whether an IPv4 or IPv6 literal belongs to a private, loopback, link-local,
+ * cloud metadata, CGNAT, multicast, or IPv4-mapped IPv6 address space.
+ */
+export function classifyIpAddress(rawIp) {
+  const ip = String(rawIp || '').toLowerCase().replace(/^\[|\]$/g, '').trim();
+  if (!ip) return { isPrivate: false, isLoopback: false };
+
+  // Handle IPv6 (including IPv4-mapped IPv6 in dotted-quad `::ffff:169.254.169.254` or hex `::ffff:a9fe:a9fe`)
+  if (ip.includes(':')) {
+    if (ip === '::1' || ip === '0:0:0:0:0:0:0:1') {
+      return { isPrivate: true, isLoopback: true, reason: 'IPV6_LOOPBACK' };
+    }
+    if (ip === '::' || ip === '0:0:0:0:0:0:0:0') {
+      return { isPrivate: true, isLoopback: false, reason: 'IPV6_UNSPECIFIED_ZERO' };
+    }
+    // Extract embedded IPv4 from `::ffff:a.b.c.d` or `::ffff:xxxx:yyyy`
+    const v4MappedDotted = ip.match(/^(?:0*:)*?:?ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i);
+    if (v4MappedDotted) {
+      return classifyIpAddress(v4MappedDotted[1]);
+    }
+    const v4MappedHex = ip.match(/^(?:0*:)*?:?ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+    if (v4MappedHex) {
+      const hi = parseInt(v4MappedHex[1], 16);
+      const lo = parseInt(v4MappedHex[2], 16);
+      const dotted = `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+      return classifyIpAddress(dotted);
+    }
+    if (/^(?:fe[89ab][0-9a-f]|fc[0-9a-f]{2}|fd[0-9a-f]{2}|ff[0-9a-f]{2}):/i.test(ip)) {
+      return { isPrivate: true, isLoopback: false, reason: 'IPV6_PRIVATE_OR_LINK_LOCAL' };
+    }
+    return { isPrivate: false, isLoopback: false };
+  }
+
+  // Handle standard IPv4 dotted-quad
+  const parts = ip.split('.');
+  if (parts.length === 4 && parts.every((p) => /^\d{1,3}$/.test(p))) {
+    const [a, b, c, d] = parts.map(Number);
+    if ([a, b, c, d].some((n) => n > 255)) {
+      return { isPrivate: true, isLoopback: false, reason: 'INVALID_IPV4_OCTET' };
+    }
+    if (a === 127) {
+      return { isPrivate: true, isLoopback: true, reason: 'IPV4_LOOPBACK_127_8' };
+    }
+    if (
+      a === 0 ||                                      // 0.0.0.0/8
+      a === 10 ||                                     // 10.0.0.0/8 (RFC1918)
+      (a === 100 && b >= 64 && b <= 127) ||           // 100.64.0.0/10 (CGNAT / Alibaba Metadata 100.100.100.200)
+      (a === 169 && b === 254) ||                     // 169.254.0.0/16 (AWS/GCP/Azure Cloud IMDS & Link-Local)
+      (a === 172 && b >= 16 && b <= 31) ||            // 172.16.0.0/12 (RFC1918)
+      (a === 192 && b === 0 && c === 0) ||            // 192.0.0.0/24
+      (a === 192 && b === 168) ||                     // 192.168.0.0/16 (RFC1918)
+      (a === 198 && (b === 18 || b === 19)) ||        // 198.18.0.0/15 (Benchmark)
+      a >= 224                                        // 224.0.0.0/4 Multicast & 240.0.0.0/4 Reserved
+    ) {
+      return { isPrivate: true, isLoopback: false, reason: `IPV4_PRIVATE_OR_METADATA:${ip}` };
+    }
+  }
+
+  return { isPrivate: false, isLoopback: false };
+}
+
 export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) {
   let parsed;
   try {
@@ -140,25 +204,21 @@ export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) 
 
   const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '');
 
-  // Block Cloud Metadata, Link-Local, RFC1918 Private Ranges, Octal/Hex/Int IPs & DNS Rebinding
+  // Block Cloud Metadata hostnames, DNS Rebinding services, and non-standard IP encodings
   if (
-    host === '169.254.169.254' ||
-    host === '100.100.100.200' ||
     host === 'metadata.google.internal' ||
-    host === '0.0.0.0' ||
-    /^169\.254\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
-    /^(?:fe80|fc00|fd00):/i.test(host) ||
-    /\.(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|internal)$/i.test(host) ||
+    host === 'instance-data' ||
+    /\.(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|internal|localhost)$/i.test(host) ||
     /^0x[0-9a-f]+$/i.test(host) ||
-    /^\d{8,10}$/.test(host)
+    /^\d{8,10}$/.test(host) ||
+    /^0\d+\./.test(host)
   ) {
     return { safe: false, reason: `SSRF_FORBIDDEN_HOST:${host}` };
   }
 
-  const isLoopback = host === '127.0.0.1' || host === 'localhost' || host === '::1';
+  const ipClass = classifyIpAddress(host);
+  const isLoopback = ipClass.isLoopback || host === 'localhost';
+
   if (isLoopback) {
     if (!allowLocalhostDev) {
       return { safe: false, reason: 'SSRF_LOOPBACK_FORBIDDEN' };
@@ -166,6 +226,11 @@ export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) 
     if (/^\/(?:_aegis|admin|internal|status|metrics)/i.test(parsed.pathname)) {
       return { safe: false, reason: 'SSRF_INTERNAL_CONTROL_PLANE_FORBIDDEN' };
     }
+    return { safe: true, parsed };
+  }
+
+  if (ipClass.isPrivate) {
+    return { safe: false, reason: `SSRF_FORBIDDEN_HOST:${host}` };
   }
 
   return { safe: true, parsed };
@@ -177,6 +242,19 @@ async function fetchBoundedText(urlStr, { timeoutMs = 4500, maxBytes = 512 * 102
     const check = validateSafeAuditUrl(currentUrl, { allowLocalhostDev });
     if (!check.safe) {
       throw new Error(check.reason);
+    }
+
+    // Resolve DNS before fetching to block custom domains that resolve to 127.0.0.1 / 169.254.169.254 / RFC1918
+    const targetHost = check.parsed.hostname.replace(/^\[|\]$/g, '');
+    const isExplicitLoopback = targetHost === 'localhost' || classifyIpAddress(targetHost).isLoopback;
+    if (!isExplicitLoopback && net.isIP(targetHost) === 0) {
+      const records = await dns.promises.lookup(targetHost, { all: true });
+      for (const rec of records) {
+        const resolvedClass = classifyIpAddress(rec.address);
+        if (resolvedClass.isPrivate || resolvedClass.isLoopback) {
+          throw new Error(`SSRF_DNS_REBINDING_PRIVATE_IP:${rec.address}`);
+        }
+      }
     }
 
     const controller = new AbortController();
@@ -225,10 +303,20 @@ async function fetchBoundedText(urlStr, { timeoutMs = 4500, maxBytes = 512 * 102
   throw new Error('TOO_MANY_REDIRECT_HOPS');
 }
 
+const MAX_CACHED_TARGETS = 64;
+
 export class AegisDiagnosticAuditEngine {
   constructor() {
     this.gate = new AegisEdgeGate('aegis-live-audit-engine-secret-v6');
     this.cachedTargets = new Map();
+  }
+
+  _cacheTarget(key, data) {
+    if (this.cachedTargets.size >= MAX_CACHED_TARGETS && !this.cachedTargets.has(key)) {
+      const oldestKey = this.cachedTargets.keys().next().value;
+      if (oldestKey !== undefined) this.cachedTargets.delete(oldestKey);
+    }
+    this.cachedTargets.set(key, data);
   }
 
   async runLiveUrlAudit(rawInputUrl = 'https://acme-nexus.io', { allowLocalhostDev = true } = {}) {
@@ -389,8 +477,8 @@ export class AegisDiagnosticAuditEngine {
       };
     }
 
-    this.cachedTargets.set(normalizedUrl, targetData);
-    this.cachedTargets.set(cleanKey, targetData);
+    this._cacheTarget(normalizedUrl, targetData);
+    this._cacheTarget(cleanKey, targetData);
     const { rawHtml, rawJs, headers, stack, archetype } = targetData;
 
     // Extract real Page Title & Meta Description from the HTML
