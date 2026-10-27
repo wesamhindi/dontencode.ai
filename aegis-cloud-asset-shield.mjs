@@ -21,6 +21,13 @@
 
 import crypto from 'node:crypto';
 
+function constantTimeEqual(a, b) {
+  const strA = String(a ?? '');
+  const strB = String(b ?? '');
+  if (!strA || !strB || strA.length !== strB.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(strA, 'utf8'), Buffer.from(strB, 'utf8'));
+}
+
 // Binary magic headers targeted by `static_unpack.py` and `rea_app.py`
 const BINARY_MAGIC_SIGNATURES = [
   Buffer.from([0x00, 0x61, 0x73, 0x6d]),                         // WASM: \0asm
@@ -520,7 +527,7 @@ export class AegisCloudAssetShield {
     // 1. Verify ASAR integrity (defeats `asar extract` modification of main.js / preload.js)
     if (asarBuffer && expectedAsarHmac) {
       const actualHmac = crypto.createHmac('sha256', this.secret).update(asarBuffer).digest('hex');
-      if (actualHmac !== expectedAsarHmac) {
+      if (!constantTimeEqual(actualHmac, expectedAsarHmac)) {
         return {
           allowed: false,
           reason: 'ELECTRON_ASAR_INTEGRITY_COMPROMISED_TAMPER_DETECTED',
@@ -639,7 +646,7 @@ export class AegisCloudAssetShield {
     if (PROTECTED_PREFIXES.some((p) => targetKey.startsWith(p))) {
       const overrideKey = headers['x-aegis-master-override'] || '';
       const expectedOverride = crypto.createHmac('sha256', this.secret).update(`override:${targetKey}`).digest('hex');
-      if (overrideKey !== expectedOverride) {
+      if (!constantTimeEqual(overrideKey, expectedOverride)) {
         return {
           allowed: false,
           reason: 'S3_MASTER_ASSET_OVERWRITE_ATTEMPT_BLOCKED',
@@ -648,7 +655,7 @@ export class AegisCloudAssetShield {
     }
 
     // 3. Enforce cryptographic content integrity
-    if (expectedContentSha256 && actualContentSha256 && expectedContentSha256 !== actualContentSha256) {
+    if (expectedContentSha256 && actualContentSha256 && !constantTimeEqual(expectedContentSha256, actualContentSha256)) {
       return {
         allowed: false,
         reason: 'S3_PAYLOAD_SHA256_HASH_MISMATCH',
@@ -1095,7 +1102,7 @@ export class AegisCloudAssetShield {
       .update(`bola:${sessionId}:${tenantId}:${rawId}`)
       .digest('hex')
       .slice(0, 16);
-    if (providedMac !== expectedMac) {
+    if (!constantTimeEqual(providedMac, expectedMac)) {
       return {
         allowed: false,
         status: 403,

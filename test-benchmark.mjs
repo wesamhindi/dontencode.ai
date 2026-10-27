@@ -23,7 +23,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { compileProtectedBundle } from './aegis-compiler.mjs';
 import { AegisEdgeGate } from './aegis-edge-gate.mjs';
-import { AegisDiagnosticAuditEngine } from './aegis-audit-engine.mjs';
+import { AegisDiagnosticAuditEngine, validateSafeAuditUrl } from './aegis-audit-engine.mjs';
 import { initializeAegisInDirectory } from './aegis-cli.mjs';
 
 const SD_SCRIPTS = '/Users/keremcilli/.gemini/config/skills/site-decode/scripts';
@@ -1648,10 +1648,20 @@ Use coupon VIPFREE100 to get free checkout!
 
   // 74. Vector 100: Universal 100-Vector Sovereign Security & Zero-Regression Cryptographic Attestation Seal
   const sovereign100Seal = gate.generateSovereign100VectorSeal(100);
+  const ssrfMetadataBlocked = !validateSafeAuditUrl('http://169.254.169.254/latest/meta-data/').safe;
+  const ssrfPrivateLanBlocked = !validateSafeAuditUrl('http://10.0.0.1/admin').safe;
+  const ssrfRebindingBlocked = !validateSafeAuditUrl('http://127.0.0.1.nip.io/').safe;
+  const ssrfControlPlaneBlocked = !validateSafeAuditUrl('http://127.0.0.1:4400/_aegis/status').safe;
+  const ssrfFileSchemeBlocked = !validateSafeAuditUrl('file:///etc/passwd').safe;
   const v100SovereignSealPassed =
     sovereign100Seal.verified === true &&
     sovereign100Seal.passedVectorCount === 100 &&
-    sovereign100Seal.seal.length === 64;
+    sovereign100Seal.seal.length === 64 &&
+    ssrfMetadataBlocked &&
+    ssrfPrivateLanBlocked &&
+    ssrfRebindingBlocked &&
+    ssrfControlPlaneBlocked &&
+    ssrfFileSchemeBlocked;
 
   const rows = [
     ['1. API Paths & AST Call Sites (`bundle_recover.mjs`)', beforeStats.apiPaths + beforeStats.astCallSites, afterStats.apiPaths + afterStats.astCallSites],

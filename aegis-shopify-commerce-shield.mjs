@@ -249,6 +249,7 @@ export class AegisShopifyCommerceShield {
     const [payload, sig] = token.split('.');
     if (!payload || !sig) return false;
     const expected = crypto.createHmac('sha256', this.hmacSecret).update(payload).digest('hex').slice(0, 24);
-    return sig === expected;
+    if (sig.length !== expected.length) return false;
+    return crypto.timingSafeEqual(Buffer.from(sig, 'utf8'), Buffer.from(expected, 'utf8'));
   }
 }

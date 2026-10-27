@@ -781,7 +781,12 @@ ${scriptTags.join('\n')}`;
       .digest('hex')
       .slice(0, 24);
 
-    if (signature !== expectedSig) {
+    const sigStr = String(signature ?? '');
+    const sigMatches =
+      sigStr.length === expectedSig.length &&
+      crypto.timingSafeEqual(Buffer.from(sigStr, 'utf8'), Buffer.from(expectedSig, 'utf8'));
+
+    if (!sigMatches) {
       return {
         allowed: false,
         reason: 'POSTMESSAGE_HMAC_ENVELOPE_FORGERY_BLOCKED',
@@ -995,8 +1000,12 @@ ${scriptTags.join('\n')}`;
 
     const signedData = `${timestampSec}.${typeof payload === 'string' ? payload : JSON.stringify(payload)}`;
     const expectedSig = crypto.createHmac('sha256', secretToUse).update(signedData).digest('hex');
+    const cleanHeader = String(signatureHeader ?? '').replace(/^v1=/, '');
+    const whValid =
+      cleanHeader.length === expectedSig.length &&
+      crypto.timingSafeEqual(Buffer.from(cleanHeader, 'utf8'), Buffer.from(expectedSig, 'utf8'));
 
-    if (signatureHeader !== expectedSig && signatureHeader !== `v1=${expectedSig}`) {
+    if (!whValid) {
       return {
         allowed: false,
         status: 401,

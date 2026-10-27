@@ -123,25 +123,128 @@ function redactMiddle(str, keepStart = 12, keepEnd = 6) {
   return `${s.slice(0, keepStart)}•••[REDACTED]•••${s.slice(-keepEnd)}`;
 }
 
+export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return { safe: false, reason: 'INVALID_URL_SYNTAX' };
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return { safe: false, reason: `UNSUPPORTED_PROTOCOL:${parsed.protocol}` };
+  }
+  if (parsed.username || parsed.password) {
+    return { safe: false, reason: 'URL_CREDENTIALS_FORBIDDEN' };
+  }
+
+  const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+
+  // Block Cloud Metadata, Link-Local, RFC1918 Private Ranges, Octal/Hex/Int IPs & DNS Rebinding
+  if (
+    host === '169.254.169.254' ||
+    host === '100.100.100.200' ||
+    host === 'metadata.google.internal' ||
+    host === '0.0.0.0' ||
+    /^169\.254\./.test(host) ||
+    /^10\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
+    /^(?:fe80|fc00|fd00):/i.test(host) ||
+    /\.(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|internal)$/i.test(host) ||
+    /^0x[0-9a-f]+$/i.test(host) ||
+    /^\d{8,10}$/.test(host)
+  ) {
+    return { safe: false, reason: `SSRF_FORBIDDEN_HOST:${host}` };
+  }
+
+  const isLoopback = host === '127.0.0.1' || host === 'localhost' || host === '::1';
+  if (isLoopback) {
+    if (!allowLocalhostDev) {
+      return { safe: false, reason: 'SSRF_LOOPBACK_FORBIDDEN' };
+    }
+    if (/^\/(?:_aegis|admin|internal|status|metrics)/i.test(parsed.pathname)) {
+      return { safe: false, reason: 'SSRF_INTERNAL_CONTROL_PLANE_FORBIDDEN' };
+    }
+  }
+
+  return { safe: true, parsed };
+}
+
+async function fetchBoundedText(urlStr, { timeoutMs = 4500, maxBytes = 512 * 1024, allowLocalhostDev = true } = {}) {
+  let currentUrl = urlStr;
+  for (let hop = 0; hop <= 3; hop++) {
+    const check = validateSafeAuditUrl(currentUrl, { allowLocalhostDev });
+    if (!check.safe) {
+      throw new Error(check.reason);
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(currentUrl, {
+        signal: controller.signal,
+        redirect: 'manual',
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 dontencode.ai/1.0',
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      });
+      clearTimeout(timer);
+
+      if ([301, 302, 303, 307, 308].includes(res.status)) {
+        const loc = res.headers.get('location');
+        if (!loc) break;
+        currentUrl = new URL(loc, currentUrl).toString();
+        continue;
+      }
+
+      const reader = res.body?.getReader ? res.body.getReader() : null;
+      let total = 0;
+      const chunks = [];
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          total += value.byteLength;
+          if (total > maxBytes) {
+            chunks.push(value.subarray(0, Math.max(0, maxBytes - (total - value.byteLength))));
+            await reader.cancel().catch(() => {});
+            break;
+          }
+          chunks.push(value);
+        }
+      }
+      const text = reader ? Buffer.concat(chunks).toString('utf8') : (await res.text()).slice(0, maxBytes);
+      return { res, finalUrl: currentUrl, text };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw new Error('TOO_MANY_REDIRECT_HOPS');
+}
+
 export class AegisDiagnosticAuditEngine {
   constructor() {
     this.gate = new AegisEdgeGate('aegis-live-audit-engine-secret-v6');
     this.cachedTargets = new Map();
   }
 
-  async runLiveUrlAudit(rawInputUrl = 'https://acme-nexus.io') {
+  async runLiveUrlAudit(rawInputUrl = 'https://acme-nexus.io', { allowLocalhostDev = true } = {}) {
     const startMs = Date.now();
     let normalizedUrl = String(rawInputUrl || 'https://acme-nexus.io').trim();
     if (!/^https?:\/\//i.test(normalizedUrl)) {
       normalizedUrl = 'https://' + normalizedUrl;
     }
 
+    const urlSafety = validateSafeAuditUrl(normalizedUrl, { allowLocalhostDev });
     let parsedUrl;
-    try {
-      parsedUrl = new URL(normalizedUrl);
-    } catch {
+    if (!urlSafety.safe) {
       parsedUrl = new URL('https://acme-nexus.io');
       normalizedUrl = parsedUrl.toString();
+    } else {
+      parsedUrl = urlSafety.parsed;
     }
 
     const cleanKey = normalizedUrl.replace(/\/+$/, '');
@@ -154,24 +257,17 @@ export class AegisDiagnosticAuditEngine {
     let liveStepLog = [];
 
     // Perform REAL Live HTTP Crawl for any URL not in synthetic presets
-    if (!targetData) {
+    if (!targetData && urlSafety.safe) {
       liveStepLog.push(`Connecting to ${parsedUrl.origin} via TLS/HTTP...`);
       try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 5500);
-        const res = await fetch(normalizedUrl, {
-          signal: controller.signal,
-          redirect: 'follow',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 AegisAudit/6.0',
-            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          },
+        const { res, finalUrl: resolvedFinalUrl, text: html } = await fetchBoundedText(normalizedUrl, {
+          timeoutMs: 5000,
+          maxBytes: 512 * 1024,
+          allowLocalhostDev,
         });
-        clearTimeout(timer);
 
         httpStatus = res.status;
-        finalUrl = res.url || normalizedUrl;
-        const html = await res.text();
+        finalUrl = resolvedFinalUrl || normalizedUrl;
         const headersObj = {};
         res.headers.forEach((v, k) => {
           headersObj[k.toLowerCase()] = v;
@@ -179,15 +275,15 @@ export class AegisDiagnosticAuditEngine {
 
         liveStepLog.push(`HTTP ${httpStatus} received from ${finalUrl} (${html.length.toLocaleString()} bytes HTML)`);
 
-        // Probe /llms.txt on the live origin in parallel
+        // Probe /llms.txt on the live origin via SSRF-safe bounded fetch
         try {
           const llmsUrl = new URL('/llms.txt', finalUrl).toString();
-          const llmsCtrl = new AbortController();
-          const llmsTimer = setTimeout(() => llmsCtrl.abort(), 2000);
-          const llmsRes = await fetch(llmsUrl, { signal: llmsCtrl.signal });
-          clearTimeout(llmsTimer);
+          const { res: llmsRes, text: llmsText } = await fetchBoundedText(llmsUrl, {
+            timeoutMs: 2000,
+            maxBytes: 64 * 1024,
+            allowLocalhostDev,
+          });
           if (llmsRes.ok) {
-            const llmsText = await llmsRes.text();
             if (llmsText && llmsText.length > 10 && !llmsText.trim().startsWith('<!DOCTYPE')) {
               llmsTxtStatus = `200 OK (${llmsText.length} bytes, unsigned)`;
             } else {
@@ -208,7 +304,7 @@ export class AegisDiagnosticAuditEngine {
           const inlineScriptMatches = [...html.matchAll(/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/gi)];
           const inlineScripts = inlineScriptMatches.map((m) => m[1]).join('\n');
 
-          // 2. Crawl up to 5 external <script src="..."> bundles from the live site
+          // 2. Crawl up to 5 external <script src="..."> bundles from the live site via SSRF-safe bounded fetch
           const scriptSrcs = [...html.matchAll(/<script[^>]+src=["']([^"']+)["'][^>]*>/gi)]
             .map((m) => m[1])
             .filter((s) => !s.startsWith('data:'))
@@ -218,12 +314,12 @@ export class AegisDiagnosticAuditEngine {
             scriptSrcs.map(async (src) => {
               try {
                 const absUrl = new URL(src, finalUrl).toString();
-                const scCtrl = new AbortController();
-                const scTimer = setTimeout(() => scCtrl.abort(), 2500);
-                const scRes = await fetch(absUrl, { signal: scCtrl.signal });
-                clearTimeout(scTimer);
+                const { res: scRes, text: txt } = await fetchBoundedText(absUrl, {
+                  timeoutMs: 2500,
+                  maxBytes: 256 * 1024,
+                  allowLocalhostDev,
+                });
                 if (scRes.ok) {
-                  const txt = await scRes.text();
                   discoveredScripts.push({ url: absUrl, sizeBytes: txt.length });
                   return txt;
                 }
