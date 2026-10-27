@@ -1,0 +1,15 @@
+{
+  "name": "dontencode.ai",
+  "version": "1.0.0",
+  "description": "dontencode.ai — Automated Website Security Audit, Source Code Protection, Edge Firewall & AI Search (/llms.txt) Optimization",
+  "type": "module",
+  "bin": {
+    "dontencode": "./aegis-cli.mjs"
+  },
+  "scripts": {
+    "start": "node aegis-edge-server.mjs",
+    "serve": "node aegis-edge-server.mjs",
+    "test": "node test-benchmark.mjs",
+    "demo": "node test-benchmark.mjs"
+  }
+}
