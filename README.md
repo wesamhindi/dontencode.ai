@@ -1,4 +1,4 @@
-# dontencode.ai
+# DoNotEncode.ai
 
 **Automated Website Security Audit, Client Source Code Protection, Edge Firewall & AI Search (`/llms.txt`) Optimization for Modern Web Applications.**
 
@@ -6,9 +6,9 @@
 
 ## Overview
 
-**dontencode.ai** scans any live website URL in seconds to identify exposed client-side JavaScript logic, leaked cloud storage URLs and API tokens, missing HTTP browser security headers, and missing `/llms.txt` manifests for AI search engines (ChatGPT, Perplexity, Claude, and Google AI).
+**DoNotEncode.ai** scans any live website URL in seconds to identify exposed client-side JavaScript logic, leaked cloud storage URLs and API tokens, missing HTTP browser security headers, and missing `/llms.txt` manifests for AI search engines (ChatGPT, Perplexity, Claude, and Google AI).
 
-Beyond auditing, **dontencode.ai** provides a 6-layer edge protection engine and 1-command CLI installer that protects web applications without breaking Server-Side Rendering (SSR) or search engine indexing:
+Beyond auditing, **DoNotEncode.ai** provides a 6-layer edge protection engine and 1-command CLI installer that protects web applications without breaking Server-Side Rendering (SSR) or search engine indexing:
 
 1. **Client Code & API Protection (`aegis-compiler.mjs`)** — Compiles sensitive client-side JavaScript functions into polymorphic stack bytecode (`_aVM`) and seals string constants so automated scrapers and DevTools inspection cannot extract business logic or internal API schemas.
 2. **Cloud Asset, Storage & Realtime Vault (`aegis-cloud-asset-shield.mjs`)** — Wraps direct AWS S3, CloudFront, Supabase, Firebase, and WebSocket (`wss://`) URLs in single-use expiring edge tokens and enforces Subresource Integrity (SRI) on scripts.
@@ -49,7 +49,7 @@ npm test
 
 ## Repository Structure
 
-- `public/index.html` — **dontencode.ai** web application & interactive collapsible URL audit scorecard
+- `public/index.html` — **DoNotEncode.ai** web application & interactive collapsible URL audit scorecard
 - `aegis-edge-server.mjs` — HTTP edge server & REST endpoints (`POST /api/audit`, `POST /api/simulate-shield`, `GET /llms.txt`)
 - `aegis-audit-engine.mjs` — Live URL crawler, script bundle inspector & plain-English diagnostic generator
 - `aegis-compiler.mjs` — Polymorphic stack bytecode compiler & AST protection engine
@@ -58,11 +58,11 @@ npm test
 - `aegis-living-geo.mjs` — Automated `/llms.txt` & `ai-plugin.json` synchronization engine
 - `aegis-shopify-commerce-shield.mjs` — Storefront & SSR hydration state protector
 - `aegis-vuln-autofixer.mjs` — Polyglot vulnerability scanner & auto-remediation engine
-- `aegis-cli.mjs` — 1-command CLI installer (`npx dontencode.ai init`)
+- `aegis-cli.mjs` — 1-command CLI installer (`npx DoNotEncode.ai init`)
 - `test-benchmark.mjs` — End-to-end verification benchmark suite
 
 ---
 
 ## License
 
-© 2026 **dontencode.ai**. All rights reserved.
+© 2026 **DoNotEncode.ai**. All rights reserved.

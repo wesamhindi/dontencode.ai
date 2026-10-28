@@ -347,7 +347,7 @@ async function fetchBoundedText(urlStr, opts = {}) {
         redirect: 'manual',
         headers: {
           'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 dontencode.ai/1.0',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 DoNotEncode.ai/1.0',
           Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         },
       });
@@ -706,7 +706,7 @@ export class AegisDiagnosticAuditEngine {
             value: disclosedHeaders.length > 0 ? disclosedHeaders.join(' • ') : `HTTP ${httpStatus}`,
           },
         ],
-        whyCodingAgentFails: `dontencode.ai injects strict Content-Security-Policy, HSTS, and isolation headers at the edge while hiding server version headers automatically.`,
+        whyCodingAgentFails: `DoNotEncode.ai injects strict Content-Security-Policy, HSTS, and isolation headers at the edge while hiding server version headers automatically.`,
       },
       {
         id: 'AI-SEARCH-LLMS',
@@ -723,7 +723,7 @@ export class AegisDiagnosticAuditEngine {
             value: `${(totalHtmlBytes / 1024).toFixed(1)} KB total HTML vs. ${(visibleText.length / 1024).toFixed(1)} KB readable text (${scriptNoisePct}% markup overhead)`,
           },
         ],
-        whyCodingAgentFails: `dontencode.ai automatically generates and updates a clean /llms.txt file from your live pages so AI search engines cite your website accurately.`,
+        whyCodingAgentFails: `DoNotEncode.ai automatically generates and updates a clean /llms.txt file from your live pages so AI search engines cite your website accurately.`,
       },
       {
         id: 'SOURCE-CODE-EXPOSURE',
@@ -743,7 +743,7 @@ export class AegisDiagnosticAuditEngine {
               `${(rawJs.length / 1024).toFixed(1)} KB of unverified client script`,
           },
         ],
-        whyCodingAgentFails: `Standard minification only shortens variable names—tools easily format it back into readable code. dontencode.ai protects sensitive client logic at the edge without breaking SSR.`,
+        whyCodingAgentFails: `Standard minification only shortens variable names—tools easily format it back into readable code. DoNotEncode.ai protects sensitive client logic at the edge without breaking SSR.`,
       },
       {
         id: 'ASSET-AND-SCRIPT-INTEGRITY',
@@ -765,7 +765,7 @@ export class AegisDiagnosticAuditEngine {
               'Direct unsigned browser asset requests',
           },
         ],
-        whyCodingAgentFails: `dontencode.ai automatically adds integrity hashes to scripts and wraps cloud downloads in single-use expiring tokens.`,
+        whyCodingAgentFails: `DoNotEncode.ai automatically adds integrity hashes to scripts and wraps cloud downloads in single-use expiring tokens.`,
       },
       {
         id: 'SCRAPING-DEFENSE',
@@ -791,7 +791,7 @@ export class AegisDiagnosticAuditEngine {
             value: 'No edge request signing or burst rate-limiting detected',
           },
         ],
-        whyCodingAgentFails: `dontencode.ai filters internal hydration state from public HTML and blocks automated scraping bursts at the edge before they hit your server.`,
+        whyCodingAgentFails: `DoNotEncode.ai filters internal hydration state from public HTML and blocks automated scraping bursts at the edge before they hit your server.`,
       },
     ];
 

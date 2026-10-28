@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * dontencode.ai — Hardened Edge Protection Server, Live URL Scanner & Threat Radar
+ * DoNotEncode.ai — Hardened Edge Protection Server, Live URL Scanner & Threat Radar
  */
 
 import http from 'node:http';
@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 
 const HARDENED_SECURITY_HEADERS = {
   'Content-Security-Policy':
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
@@ -340,6 +340,6 @@ if (process.argv[1] && process.argv[1].endsWith('aegis-edge-server.mjs')) {
   const { server } = createAegisDemoServer();
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, '127.0.0.1', () => {
-    console.log(`🛡️  dontencode.ai Security & AI SEO Server running at http://127.0.0.1:${PORT}`);
+    console.log(`🛡️  DoNotEncode.ai Security & AI SEO Server running at http://127.0.0.1:${PORT}`);
   });
 }

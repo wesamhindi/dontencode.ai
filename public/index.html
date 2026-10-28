@@ -1,1218 +1,3749 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" style="color-scheme: dark;">
+<html lang="en" class="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>dontencode.ai — Free Website Security Audit, Source Code Protection &amp; AI SEO Checker</title>
-  <meta name="description" content="Run a free instant website security audit on any URL with dontencode.ai. Detect exposed JavaScript source code, leaked API keys, missing HTTP security headers, and optimize /llms.txt for AI search engines." />
-  <meta name="keywords" content="dontencode.ai, website security audit, javascript source code protection, api key leak scanner, http security headers checker, llms.txt generator, ai seo audit, web application firewall, nextjs security" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://dontencode.ai/" />
-
-  <!-- Open Graph / Social -->
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="dontencode.ai" />
-  <meta property="og:title" content="dontencode.ai — Free Website Security Audit &amp; Source Code Protection" />
-  <meta property="og:description" content="Scan any URL in seconds to detect exposed JavaScript logic, leaked API keys, missing security headers, and missing /llms.txt AI search manifests." />
-  <meta property="og:url" content="https://dontencode.ai/" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="dontencode.ai — Free Website Security Audit &amp; Source Code Protection" />
-  <meta name="twitter:description" content="Instant website security scanner, JavaScript bundle protection, HTTP security header checker, and automated /llms.txt AI SEO." />
-
-  <!-- Structured Data (Schema.org SoftwareApplication + FAQPage) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "dontencode.ai Website Security & AI SEO Platform",
-        "applicationCategory": "SecurityApplication",
-        "operatingSystem": "Web, Cloud, Edge",
-        "description": "Automated website security audit, JavaScript source code protection, API key leak prevention, HTTP security header enforcement, and /llms.txt AI search optimization.",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How do I run a free website security audit?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Enter any live website URL into the dontencode.ai scanner to inspect exposed JavaScript bundles, API endpoints, HTTP security headers, and /llms.txt AI search readiness in seconds."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does dontencode.ai slow down my website or hurt Google SEO?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. dontencode.ai runs at the edge with sub-millisecond latency, serves clean semantic HTML to search engines, and automatically maintains your /llms.txt file for AI search engines like ChatGPT and Perplexity."
-            }
-          }
-        ]
-      }
-    ]
-  }
-  </script>
-
-  <link rel="preload" href="/geist-latin.woff2" as="font" crossorigin="" type="font/woff2" />
-  <link rel="stylesheet" href="/template.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DoNotEncode.ai — WebApp Security, Bytecode Shield &amp; AI Search (/llms.txt) Orbit</title>
+  <meta name="description" content="Stop code-stealing scrapers, lock cloud keys, and get cited first in ChatGPT, Perplexity &amp; Google AI. Scan any URL free in seconds with DoNotEncode.ai." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&amp;family=Geist:wght@300..700&amp;family=Parkinsans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'GeistFallback';
+      src: url('/geist-latin.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      --ss-space: #07080b;
+      --ss-bg: #0c0c0e;
+      --ss-surface: #13151b;
+      --ss-surface-2: #1a1d26;
+      --ss-surface-3: #222632;
+      --ss-text: #f5f5f4;
+      --ss-muted: #9ca3af;
+      --ss-dim: #6b7280;
+      --ss-line: rgba(255, 255, 255, 0.09);
+      --ss-line-strong: rgba(255, 255, 255, 0.16);
+      --ss-gold: #fbcc82;
+      --ss-gold-d: #d9890f;
+      --ss-gold-glow: rgba(251, 204, 130, 0.18);
+      --ss-gold-ink: #0c0c0c;
+
+      /* Semantic Risk Colors for Audit Report */
+      --risk-high: #ef4444;
+      --risk-high-bg: rgba(239, 68, 68, 0.12);
+      --risk-high-border: rgba(239, 68, 68, 0.38);
+      --risk-high-text: #fca5a5;
+
+      --risk-med: #f59e0b;
+      --risk-med-bg: rgba(245, 158, 11, 0.12);
+      --risk-med-border: rgba(245, 158, 11, 0.38);
+      --risk-med-text: #fde68a;
+
+      --risk-low: #10b981;
+      --risk-low-bg: rgba(16, 185, 129, 0.12);
+      --risk-low-border: rgba(16, 185, 129, 0.38);
+      --risk-low-text: #6ee7b7;
+
+      --ss-display: 'Parkinsans', 'Geist', 'GeistFallback', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ss-sans: 'Geist', 'GeistFallback', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ss-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --ss-max: 1248px;
+      --ss-pad: clamp(20px, 5vw, 64px);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     html {
       scroll-behavior: smooth;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-in {
-      animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      background: var(--ss-space);
+      color: var(--ss-text);
     }
 
-    /* Frosted Sticky Navbar so it NEVER overlaps scrolled content */
-    #topNav {
-      background: color-mix(in oklab, var(--background) 82%, transparent);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
+    body {
+      margin: 0;
+      background: var(--ss-bg);
+      color: var(--ss-text);
+      font-family: var(--ss-sans);
+      font-weight: 400;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* Clean Hero URL Input Bar */
-    .audit-bar-form {
-      display: flex;
-      flex-direction: row;
+    .ss-section {
+      position: relative;
+      width: 100%;
+    }
+
+    .ss-wrap {
+      max-width: var(--ss-max);
+      margin: 0 auto;
+      padding-left: var(--ss-pad);
+      padding-right: var(--ss-pad);
+    }
+
+    .ss-h1, .ss-h2, .ss-h3 {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin: 0;
+      color: var(--ss-text);
+    }
+
+    .ss-h1 { font-size: clamp(38px, 5.2vw, 64px); }
+    .ss-h2 { font-size: clamp(30px, 4vw, 48px); }
+    .ss-h3 { font-size: clamp(20px, 2.2vw, 26px); }
+
+    .ss-kicker {
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ss-kicker::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ss-gold);
+      box-shadow: 0 0 10px var(--ss-gold);
+    }
+
+    .ss-lead {
+      font-size: clamp(16px, 1.35vw, 19px);
+      line-height: 1.6;
+      color: var(--ss-muted);
+      margin: 0;
+    }
+
+    .ss-btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 560px;
-      margin: 12px auto 0;
-    }
-    @media (max-width: 640px) {
-      .audit-bar-form {
-        flex-direction: column;
-      }
-    }
-    .audit-input-shell {
-      flex: 1 1 auto;
-      width: 100%;
-      min-width: 0;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      border-radius: 10px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .audit-input-shell:focus-within {
-      border-color: var(--ring);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent);
-    }
-    .audit-url-input {
-      flex: 1 1 auto;
-      width: 100%;
-      min-width: 0;
-      height: 100%;
-      background: transparent !important;
-      border: none !important;
-      outline: none !important;
-      color: var(--foreground);
+      gap: 9px;
+      font-family: var(--ss-sans);
       font-size: 14px;
-    }
-    .audit-url-input::placeholder {
-      color: var(--muted-foreground);
-      opacity: 0.7;
-    }
-    .audit-submit-btn {
-      flex: 0 0 auto;
-      height: 44px;
-      padding: 0 22px;
-      border-radius: 10px;
-      background: var(--primary);
-      color: var(--primary-foreground);
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
+      font-weight: 600;
+      line-height: 1;
+      padding: 13px 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-decoration: none;
       cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
       white-space: nowrap;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-      transition: opacity 0.15s ease;
-    }
-    .audit-submit-btn:hover {
-      opacity: 0.9;
-    }
-    .audit-submit-btn:disabled {
-      opacity: 0.55;
-      cursor: wait;
-    }
-    @media (max-width: 640px) {
-      .audit-submit-btn {
-        width: 100%;
-      }
     }
 
-    /* Color-Coded Interactive Collapsible Report Panel */
-    #auditReportSection {
-      display: none;
-      scroll-margin-top: 88px;
+    .ss-btn:active {
+      transform: translateY(1px);
     }
-    #auditReportSection.visible {
+
+    .ss-btn--gold {
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      box-shadow: 0 8px 26px rgba(251, 204, 130, 0.22);
+    }
+
+    .ss-btn--gold:hover {
+      background: #ffe0a8;
+      box-shadow: 0 10px 32px rgba(251, 204, 130, 0.36);
+      transform: translateY(-1px);
+    }
+
+    .ss-btn--ghost {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ss-text);
+      border-color: var(--ss-line-strong);
+    }
+
+    .ss-btn--ghost:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(251, 204, 130, 0.45);
+    }
+
+    .ss-stars {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
       display: block;
     }
-    .report-shell {
-      max-width: 860px;
-      margin: 0 auto;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-      overflow: hidden;
+
+    /* ==========================================================================
+       1. STICKY STARFIELD HEADER (a01-header)
+       ========================================================================== */
+    .a01-sentinel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 24px;
+      pointer-events: none;
     }
 
-    /* Top Scorecard Banner */
-    .report-header {
-      padding: 24px 28px;
-      border-bottom: 1px solid var(--border);
+    .a01-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 8, 11, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--ss-line);
+      transition: padding 0.22s ease, background 0.22s ease;
+    }
+
+    .a01-bar {
+      position: relative;
+      z-index: 2;
+      max-width: var(--ss-max);
+      margin: 0 auto;
+      padding: 16px var(--ss-pad);
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-    }
-    .score-ring-box {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 16px;
-      border-radius: 14px;
-      background: color-mix(in oklab, var(--background) 65%, var(--card));
-      border: 1px solid var(--border);
+      transition: padding 0.22s ease;
     }
 
-    /* Semantic Risk Color Pills & Dots */
-    .badge-high {
+    .a01-header.is-compact .a01-bar {
+      padding-top: 11px;
+      padding-bottom: 11px;
+    }
+
+    .a01-logo {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      background: rgba(239, 68, 68, 0.14);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.35);
+      gap: 11px;
+      text-decoration: none;
+      color: var(--ss-text);
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.03em;
     }
-    .badge-medium {
+
+    .a01-logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, #ffe4b5 0%, #fbcc82 45%, #c88728 100%);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      background: rgba(245, 158, 11, 0.14);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      justify-content: center;
+      color: #0c0c0c;
+      box-shadow: 0 0 20px rgba(251, 204, 130, 0.35);
+      flex-shrink: 0;
     }
-    .badge-low {
-      display: inline-flex;
+
+    .a01-logo-badge {
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(251, 204, 130, 0.14);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .a01-nav {
+      display: flex;
       align-items: center;
       gap: 6px;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      font-size: 11px;
+    }
+
+    .a01-item {
+      position: relative;
+    }
+
+    .a01-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #d6d6d2;
+      text-decoration: none;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      transition: color 0.16s ease, background 0.16s ease;
+    }
+
+    .a01-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .a01-chev {
+      width: 11px;
+      height: 11px;
+      opacity: 0.65;
+      transition: transform 0.2s ease;
+    }
+
+    .a01-item:hover .a01-chev {
+      transform: rotate(180deg);
+    }
+
+    .a01-drop {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 320px;
+      background: #12141c;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      z-index: 120;
+    }
+
+    .a01-drop::before {
+      content: "";
+      position: absolute;
+      top: -12px;
+      left: 0;
+      right: 0;
+      height: 12px;
+    }
+
+    .a01-item:hover .a01-drop,
+    .a01-item:focus-within .a01-drop {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .a01-drop-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: 11px;
+      text-decoration: none;
+      color: var(--ss-text);
+      transition: background 0.15s ease;
+    }
+
+    .a01-drop-item:hover {
+      background: rgba(251, 204, 130, 0.08);
+    }
+
+    .a01-drop-ico {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.25);
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .a01-drop-title {
+      font-size: 13.5px;
       font-weight: 600;
-      letter-spacing: 0.02em;
-      background: rgba(16, 185, 129, 0.14);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #fff;
+      display: block;
+      margin-bottom: 2px;
     }
-    .dot-high {
+
+    .a01-drop-sub {
+      font-size: 12px;
+      color: var(--ss-muted);
+      line-height: 1.4;
+      display: block;
+    }
+
+    .a01-cta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .a01-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: #6ee7b7;
+    }
+
+    .a01-status-dot {
       width: 7px;
       height: 7px;
-      border-radius: 9999px;
-      background: #ef4444;
-      box-shadow: 0 0 8px #ef4444;
-    }
-    .dot-medium {
-      width: 7px;
-      height: 7px;
-      border-radius: 9999px;
-      background: #f59e0b;
-      box-shadow: 0 0 8px #f59e0b;
-    }
-    .dot-low {
-      width: 7px;
-      height: 7px;
-      border-radius: 9999px;
+      border-radius: 50%;
       background: #10b981;
       box-shadow: 0 0 8px #10b981;
     }
 
-    /* 4 Quick-Status Tiles */
-    .report-stat-strip {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      border-bottom: 1px solid var(--border);
-      background: color-mix(in oklab, var(--background) 45%, var(--card));
-    }
-    @media (max-width: 640px) {
-      .report-stat-strip {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    @media (max-width: 960px) {
+      .a01-nav, .a01-status-pill {
+        display: none;
       }
     }
-    .report-stat-cell {
-      padding: 14px 20px;
-      border-right: 1px solid var(--border);
-    }
-    .report-stat-cell:last-child {
-      border-right: none;
+
+    /* ==========================================================================
+       2. HERO + ROTATING ENGINE FLIPPER + LIVE URL SCANNER (a02-hero)
+       ========================================================================== */
+    .a02-hero {
+      position: relative;
+      background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(251, 204, 130, 0.11) 0%, rgba(7, 8, 11, 0) 70%), var(--ss-space);
+      color: #fff;
+      overflow: hidden;
+      padding: clamp(56px, 7vw, 96px) 0 clamp(64px, 8vw, 108px);
+      border-bottom: 1px solid var(--ss-line);
     }
 
-    /* Collapsible Issue Accordion Cards */
-    .issues-container {
+    .a02-hero .ss-wrap {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 1020px;
+    }
+
+    .a02-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: var(--ss-gold);
+      margin-bottom: 24px;
+    }
+
+    .a02-hero .ss-h1 {
+      color: #fff;
+      max-width: 18ch;
+      margin: 0 auto 22px;
+    }
+
+    .a02-hero .ss-ul {
+      position: relative;
+      display: inline-block;
+      white-space: nowrap;
+      color: var(--ss-gold);
+    }
+
+    .a02-hero .ss-ul svg {
+      position: absolute;
+      left: -2%;
+      right: -2%;
+      bottom: -10px;
+      width: 104%;
+      height: 14px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .a02-hero .ss-sub {
+      color: #cfcfc9;
+      font-size: clamp(16px, 1.45vw, 19.5px);
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto 34px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .a02-hero .ss-flipper {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+      font-weight: 600;
+      font-size: 15px;
+      vertical-align: middle;
+      overflow: hidden;
+      position: relative;
+      min-width: 175px;
+      justify-content: center;
+    }
+
+    .a02-hero .ss-flip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      position: absolute;
+      inset: 0;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.36s ease, transform 0.36s ease;
+      white-space: nowrap;
+    }
+
+    .a02-hero .ss-flip-item.is-on {
+      opacity: 1;
+      transform: translateY(0);
+      position: relative;
+    }
+
+    .a02-hero .ss-flip-item svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+    }
+
+    /* Hero URL Scanner Form */
+    .a02-hero .ss-form {
+      max-width: 640px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 7px 7px 18px;
+      border-radius: 999px;
+      background: rgba(19, 21, 27, 0.92);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(251, 204, 130, 0.06);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .a02-hero .ss-form:focus-within {
+      border-color: var(--ss-gold);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), 0 0 0 4px rgba(251, 204, 130, 0.16);
+    }
+
+    .a02-hero .ss-form-ico {
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .a02-hero .ss-input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #fff;
+      font-family: var(--ss-mono);
+      font-size: 14.5px;
+      padding: 10px 6px;
+    }
+
+    .a02-hero .ss-input::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    .a02-hero .ss-submit {
+      border: 0;
+      cursor: pointer;
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      font-family: var(--ss-sans);
+      font-size: 14.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .a02-hero .ss-submit:hover {
+      background: #ffe0a8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(251, 204, 130, 0.35);
+    }
+
+    .a02-presets {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .a02-preset-label {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+    }
+
+    .a02-preset-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d6d6d2;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .a02-preset-btn:hover {
+      border-color: var(--ss-gold);
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.08);
+    }
+
+    .a02-hero .ss-meta {
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, 0.55);
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .a02-hero .ss-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ==========================================================================
+       LIVE INTERACTIVE SECURITY & AI-SEARCH AUDIT REPORT (#auditResultsPanel)
+       ========================================================================== */
+    .audit-panel {
+      margin-top: 34px;
+      text-align: left;
+      background: #101218;
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      border-radius: 22px;
+      padding: clamp(20px, 3vw, 32px);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .audit-top-banner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 22px;
+      align-items: center;
+      padding: 20px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--ss-line-strong);
+      margin-bottom: 20px;
+    }
+
+    .audit-score-orb {
+      width: 92px;
+      height: 92px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--risk-high);
+      background: var(--risk-high-bg);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .audit-score-orb.is-med {
+      border-color: var(--risk-med);
+      background: var(--risk-med-bg);
+    }
+
+    .audit-score-orb.is-low {
+      border-color: var(--risk-low);
+      background: var(--risk-low-bg);
+    }
+
+    .audit-score-num {
+      font-family: var(--ss-display);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .audit-score-lbl {
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 5px;
+      color: var(--risk-high-text);
+      font-weight: 600;
+    }
+
+    .audit-score-orb.is-med .audit-score-lbl { color: var(--risk-med-text); }
+    .audit-score-orb.is-low .audit-score-lbl { color: var(--risk-low-text); }
+
+    .audit-summary-col h3 {
+      font-family: var(--ss-display);
+      font-size: clamp(18px, 2vw, 22px);
+      margin: 0 0 6px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .audit-summary-col p {
+      margin: 0 0 10px;
+      font-size: 14.5px;
+      color: #d1d5db;
+      line-height: 1.55;
+    }
+
+    .audit-meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .audit-meta-pill {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
+
+    .audit-action-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .audit-fix-btn {
+      border: 0;
+      cursor: pointer;
+      padding: 13px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #04130d;
+      font-family: var(--ss-sans);
+      font-size: 13.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .audit-fix-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45);
+    }
+
+    /* Filter Bar */
+    .audit-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .audit-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .audit-filter-pill {
+      border: 1px solid var(--ss-line-strong);
+      background: rgba(255, 255, 255, 0.03);
+      color: #d1d5db;
+      font-family: var(--ss-sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .audit-filter-pill.is-active {
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      border-color: var(--ss-gold);
+    }
+
+    .audit-expand-link {
+      background: transparent;
+      border: 0;
+      color: var(--ss-gold);
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Collapsible Issue Cards */
+    .audit-issues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    details.audit-issue-card {
+      background: #151821;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 4px solid var(--risk-high);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    details.audit-issue-card[data-severity="High"] {
+      border-left-color: var(--risk-high);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card[data-severity="Medium"] {
+      border-left-color: var(--risk-med);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card[data-severity="Low"] {
+      border-left-color: var(--risk-low);
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card summary {
+      list-style: none;
+      cursor: pointer;
       padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      user-select: none;
+    }
+
+    details.audit-issue-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .issue-sum-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .issue-sev-badge {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .issue-sev-badge.sev-high {
+      background: var(--risk-high-bg);
+      border: 1px solid var(--risk-high-border);
+      color: var(--risk-high-text);
+    }
+
+    .issue-sev-badge.sev-med {
+      background: var(--risk-med-bg);
+      border: 1px solid var(--risk-med-border);
+      color: var(--risk-med-text);
+    }
+
+    .issue-sev-badge.sev-low {
+      background: var(--risk-low-bg);
+      border: 1px solid var(--risk-low-border);
+      color: var(--risk-low-text);
+    }
+
+    .issue-layer-tag {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.1);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .issue-title-text {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .issue-toggle-pill {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    details.audit-issue-card[open] .issue-toggle-pill {
+      background: rgba(251, 204, 130, 0.14);
+      border-color: rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .issue-body {
+      padding: 0 20px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+    }
+
+    .issue-plain-box {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .issue-box-kicker {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ss-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .issue-plain-box p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.55;
+    }
+
+    .issue-fix-callout {
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: rgba(16, 185, 129, 0.09);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      font-size: 13px;
+      color: #a7f3d0;
+      line-height: 1.45;
+    }
+
+    .issue-tech-box {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      background: color-mix(in oklab, var(--background) 25%, var(--card));
     }
-    .issue-accordion {
+
+    .issue-tech-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .issue-tech-lbl {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      color: var(--ss-gold);
+    }
+
+    .issue-tech-val {
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 9px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+
+    /* Simulation Drawer */
+    .sim-drawer {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(19, 21, 27, 0.96) 50%);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      display: none;
+    }
+
+    .sim-drawer.is-visible {
+      display: block;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .sim-code-card {
+      background: #08090d;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      overflow: hidden;
-      transition: border-color 0.2s ease, background-color 0.2s ease;
+      padding: 14px;
     }
-    .issue-accordion.sev-high {
-      border-left: 4px solid #ef4444;
-    }
-    .issue-accordion.sev-medium {
-      border-left: 4px solid #f59e0b;
-    }
-    .issue-accordion.sev-low {
-      border-left: 4px solid #10b981;
-    }
-    .issue-accordion[open].sev-high {
-      border-color: rgba(239, 68, 68, 0.4);
-      border-left: 4px solid #ef4444;
-    }
-    .issue-accordion[open].sev-medium {
-      border-color: rgba(245, 158, 11, 0.4);
-      border-left: 4px solid #f59e0b;
-    }
-    .issue-summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 18px;
+
+    .sim-code-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      user-select: none;
-      transition: background-color 0.15s ease;
+      margin-bottom: 8px;
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: var(--ss-gold);
     }
-    .issue-summary::-webkit-details-marker {
-      display: none;
-    }
-    .issue-summary:hover {
-      background: color-mix(in oklab, var(--accent) 45%, transparent);
-    }
-    .issue-chevron {
-      flex-shrink: 0;
-      width: 24px;
-      height: 24px;
+
+    .sim-copy-btn {
+      background: rgba(251, 204, 130, 0.15);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      padding: 4px 10px;
       border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .sim-pre {
+      margin: 0;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: #a7f3d0;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 860px) {
+      .audit-top-banner {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+      .audit-action-col {
+        align-items: flex-start;
+      }
+      .issue-body, .sim-grid {
+        grid-template-columns: 1fr;
+      }
+      .a02-hero .ss-form {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 12px;
+      }
+      .a02-hero .ss-submit {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* ==========================================================================
+       3. SCORE-RING PROOF STRIP (s03-proof)
+       ========================================================================== */
+    .s03-proof {
+      padding: 56px 0 40px;
+      background: var(--ss-bg);
+    }
+
+    .s03-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 22px;
+      padding: 28px 36px;
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 1fr;
+      align-items: center;
+      gap: 28px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+    }
+
+    .s03-cell {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .s03-cell + .s03-cell {
+      border-left: 1px solid var(--ss-line);
+      padding-left: 28px;
+    }
+
+    .s03-gauge {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      flex: 0 0 84px;
+    }
+
+    .s03-gauge svg {
+      width: 84px;
+      height: 84px;
+      transform: rotate(-90deg);
+    }
+
+    .s03-gauge-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      color: var(--ss-text);
+      line-height: 1;
+    }
+
+    .s03-gauge-num small {
+      font-family: var(--ss-mono);
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ss-gold);
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    .s03-gauge-copy b {
+      display: block;
+      font-family: var(--ss-display);
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .s03-gauge-copy span {
+      font-size: 13px;
+      color: var(--ss-muted);
+      line-height: 1.45;
+      display: block;
+    }
+
+    .s03-rating {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .s03-stars-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .s03-stars {
+      display: inline-flex;
+      gap: 2px;
+      color: var(--ss-gold);
+    }
+
+    .s03-stars svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .s03-avatars {
+      display: inline-flex;
+    }
+
+    .s03-av {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--ss-surface);
+      margin-left: -7px;
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: #0c0c0c;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--muted-foreground);
-      background: var(--background);
-      border: 1px solid var(--border);
-      font-size: 12px;
-      transition: transform 0.2s ease;
-    }
-    .issue-accordion[open] .issue-chevron {
-      transform: rotate(180deg);
-    }
-    .issue-body {
-      padding: 0 18px 18px 18px;
-      border-top: 1px solid var(--border);
     }
 
-    /* Evidence Chip Pills inside Expanded Issue */
-    .evidence-box {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: color-mix(in oklab, var(--background) 70%, var(--card));
-      border: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+    .s03-av:first-child { margin-left: 0; }
+
+    .s03-rating-copy {
+      font-size: 13.5px;
+      color: var(--ss-muted);
     }
-    @media (max-width: 640px) {
-      .evidence-box {
-        grid-template-columns: 1fr;
-      }
-    }
-    .evidence-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted-foreground);
-      margin-bottom: 6px;
+
+    .s03-rating-copy strong {
+      color: var(--ss-text);
       font-weight: 600;
     }
-    .chip-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .tech-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 9px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 11.5px;
-      background: var(--card);
-      color: var(--foreground);
-      border: 1px solid var(--border);
-      overflow-wrap: break-word;
-      word-break: normal;
+
+    .s03-stats {
+      justify-content: space-around;
+      gap: 20px;
     }
 
-    /* Emerald Solution Banner */
-    .fix-callout {
-      margin-top: 12px;
-      padding: 10px 14px;
+    .s03-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .s03-stat-num {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(22px, 2.2vw, 28px);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--ss-gold);
+    }
+
+    .s03-stat-lbl {
+      font-size: 12.5px;
+      color: var(--ss-muted);
+      line-height: 1.4;
+      max-width: 18ch;
+    }
+
+    @media (max-width: 960px) {
+      .s03-card {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+      .s03-cell + .s03-cell {
+        border-left: 0;
+        border-top: 1px solid var(--ss-line);
+        padding-left: 0;
+        padding-top: 20px;
+      }
+    }
+
+    /* ==========================================================================
+       4. PUT YOUR WEBAPP IN ORBIT — 6-AGENT SYSTEM (x-orbit)
+       ========================================================================== */
+    .x-orbit {
+      background: var(--ss-space);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      padding: 96px 0;
+      border-top: 1px solid var(--ss-line);
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .x-orbit canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .x-orbit .wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+      position: relative;
+      z-index: 1;
+    }
+
+    .x-orbit .head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 32px;
+    }
+
+    .x-orbit .kicker {
+      font: 500 12px/1 var(--ss-mono);
+      color: var(--ss-gold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .x-orbit h2 {
+      font: 700 clamp(32px, 4.2vw, 50px)/1.08 var(--ss-display);
+      letter-spacing: -0.03em;
+      margin: 0 0 12px;
+    }
+
+    .x-orbit .head p {
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .x-orbit .pills {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 28px 0 42px;
+    }
+
+    .x-orbit .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.78);
+      font: 500 13.5px/1 var(--ss-sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .x-orbit .pill svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .x-orbit .pill:hover {
+      border-color: rgba(251, 204, 130, 0.45);
+      color: #fff;
+    }
+
+    .x-orbit .pill.on {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: var(--ss-gold);
+      font-weight: 600;
+      box-shadow: 0 0 28px rgba(251, 204, 130, 0.35);
+    }
+
+    .x-orbit .stage {
+      display: grid;
+      grid-template-columns: minmax(340px, 490px) 1fr;
+      gap: 44px;
+      align-items: center;
+    }
+
+    .x-orbit .card {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--ss-gold);
+      border-radius: 18px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      transform-style: preserve-3d;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .x-orbit .card.flip {
+      animation: orbitFlip 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes orbitFlip {
+      0% { transform: perspective(900px) rotateY(0); opacity: 1; }
+      45% { transform: perspective(900px) rotateY(75deg); opacity: 0.25; }
+      55% { transform: perspective(900px) rotateY(-75deg); opacity: 0.25; }
+      100% { transform: perspective(900px) rotateY(0); opacity: 1; }
+    }
+
+    .x-orbit .card h3 {
+      font: 700 24px/1.2 var(--ss-display);
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    .x-orbit .card > p {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14.5px;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    /* Dark Mini Product View inside Orbit Card */
+    .x-orbit .view {
+      background: #11131a;
+      color: #f5f5f4;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      font-size: 12.5px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .x-orbit .view .vh {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .x-orbit .view .vpill {
+      font: 500 10.5px/1 var(--ss-mono);
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .x-orbit .view .vrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      margin-top: 6px;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+    }
+
+    .x-orbit .view .vbar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .x-orbit .view .vbar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, var(--ss-gold));
+      border-radius: 99px;
+    }
+
+    .x-orbit .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 999px;
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      font: 600 13.5px/1 var(--ss-sans);
+      text-decoration: none;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .x-orbit .cta:hover {
+      background: #ffe0a8;
+    }
+
+    .x-orbit .sys {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .x-orbit .sys > svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .x-orbit .r-solid { fill: none; stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
+    .x-orbit .r-dash { fill: none; stroke: rgba(255, 255, 255, 0.11); stroke-width: 1; stroke-dasharray: 4 7; }
+    .x-orbit .r-dot { fill: none; stroke: rgba(251, 204, 130, 0.28); stroke-width: 1.5; stroke-dasharray: 1 10; stroke-linecap: round; }
+    .x-orbit .r-track { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 1.5; }
+    .x-orbit .r-main {
+      fill: none;
+      stroke: var(--ss-gold);
+      stroke-width: 2;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(251, 204, 130, 0.55));
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .x-orbit .spin { transform-origin: 280px 280px; animation: ospin 70s linear infinite; }
+    .x-orbit .spin.rev { animation-direction: reverse; animation-duration: 95s; }
+    @keyframes ospin { to { transform: rotate(360deg); } }
+
+    .x-orbit .sun {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff3d1, #fbcc82 45%, #c88728 85%);
+      box-shadow: 0 0 60px 12px rgba(251, 204, 130, 0.35), 0 0 120px 30px rgba(251, 204, 130, 0.15), inset 0 -10px 20px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #0c0c0c;
+      font: 700 12px/1.15 var(--ss-display);
+      padding: 10px;
+    }
+
+    .x-orbit .sun small {
+      display: block;
+      font: 500 9.5px/1 var(--ss-mono);
+      opacity: 0.75;
+      margin-bottom: 3px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .x-orbit .sat {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: #12151f;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.25s ease;
+      padding: 0;
+    }
+
+    .x-orbit .sat svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .x-orbit .sat span {
+      position: absolute;
+      top: 100%;
+      margin-top: 7px;
+      white-space: nowrap;
+      font: 500 11.5px/1 var(--ss-sans);
+      color: rgba(255, 255, 255, 0.72);
+      background: rgba(7, 8, 11, 0.85);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .x-orbit .sat:hover {
+      border-color: var(--ss-gold);
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .x-orbit .sat.on {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: #fff;
+      box-shadow: 0 0 0 6px rgba(251, 204, 130, 0.18), 0 0 30px rgba(251, 204, 130, 0.6);
+      transform: translate(-50%, -50%) scale(1.14);
+    }
+
+    .x-orbit .sat.on span {
+      color: var(--ss-gold);
+      font-weight: 600;
+      border-color: rgba(251, 204, 130, 0.35);
+    }
+
+    @media (max-width: 920px) {
+      .x-orbit .stage {
+        grid-template-columns: 1fr;
+      }
+      .x-orbit .sys {
+        max-width: 400px;
+      }
+    }
+
+    /* ==========================================================================
+       5. 12-COLUMN BENTO PROOF & TELEMETRY GRID (x-testimonials)
+       ========================================================================== */
+    .x-testimonials {
+      background: var(--ss-bg);
+      color: var(--ss-text);
+      padding: 96px 0;
+    }
+
+    .x-testimonials .tm-wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+    }
+
+    .x-testimonials .tm-head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 56px;
+    }
+
+    .x-testimonials .tm-title {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin: 12px 0 14px;
+    }
+
+    .x-testimonials .tm-sub {
+      color: var(--ss-muted);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .x-testimonials .tm-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .x-testimonials .tm-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .x-testimonials .tm-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(251, 204, 130, 0.35);
+    }
+
+    .x-testimonials .tm-lg { grid-column: span 6; gap: 22px; }
+    .x-testimonials .tm-sm { grid-column: span 3; gap: 16px; }
+
+    .x-testimonials .tm-quote {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--ss-text);
+      margin: 0;
+    }
+
+    .x-testimonials .tm-quote mark {
+      background: rgba(251, 204, 130, 0.16);
+      color: var(--ss-gold);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+
+    .x-testimonials .tm-Viz {
+      background: #0d0f14;
+      border: 1px solid var(--ss-line);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    .x-testimonials .tm-vh {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .x-testimonials .tm-vlbl {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ss-muted);
+    }
+
+    .x-testimonials .tm-vdelta {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 20px;
+      color: #10b981;
+      letter-spacing: -0.02em;
+    }
+
+    .x-testimonials .tm-bars {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 4px;
+      height: 82px;
+      align-items: end;
+    }
+
+    .x-testimonials .tm-bars i {
+      display: block;
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 3px 3px 0 0;
+      height: 10%;
+      transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .x-testimonials .tm-bars i.hi {
+      background: linear-gradient(180deg, var(--ss-gold), #c88728);
+    }
+
+    .x-testimonials.in .tm-bars i {
+      height: var(--h);
+    }
+
+    .x-testimonials .tm-vaxis {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      color: var(--ss-muted);
+      margin-top: 8px;
+    }
+
+    .x-testimonials .tm-stat {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(28px, 3vw, 38px);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--ss-gold);
+    }
+
+    .x-testimonials .tm-stat sub {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ss-muted);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .x-testimonials .tm-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .x-testimonials .tm-av {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ss-gold), #b87314);
+      color: #0c0c0c;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 38px;
+    }
+
+    .x-testimonials .tm-name {
+      font-weight: 600;
+      font-size: 13.5px;
+      line-height: 1.25;
+      color: #fff;
+    }
+
+    .x-testimonials .tm-role {
+      font-size: 12px;
+      color: var(--ss-muted);
+    }
+
+    @media (max-width: 960px) {
+      .x-testimonials .tm-lg { grid-column: span 12; }
+      .x-testimonials .tm-sm { grid-column: span 6; }
+    }
+    @media (max-width: 560px) {
+      .x-testimonials .tm-sm { grid-column: span 12; }
+    }
+
+    /* ==========================================================================
+       6. INTERACTIVE PRICING + COMPARISON MATRIX (s11-pricing)
+       ========================================================================== */
+    .s11-pricing {
+      background: var(--ss-space);
+      color: var(--ss-text);
+      padding: 96px 0;
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .s11-pricing .pp-wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+    }
+
+    .s11-pricing .pp-head {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 48px;
+    }
+
+    .s11-pricing .pp-title {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin: 12px 0;
+    }
+
+    .s11-pricing .pp-sub {
+      color: var(--ss-muted);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .s11-pricing .pp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .s11-pricing .pp-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .s11-pricing .pp-card.feat {
+      border: 2px solid var(--ss-gold);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(251, 204, 130, 0.1);
+      background: linear-gradient(180deg, rgba(251, 204, 130, 0.06) 0%, var(--ss-surface) 35%);
+    }
+
+    .s11-pricing .pp-badge {
+      position: absolute;
+      top: -13px;
+      left: 28px;
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .s11-pricing .pp-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .s11-pricing .pp-name {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .s11-pricing .pp-save {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .s11-pricing[data-cycle="monthly"] .pp-save {
+      opacity: 0.35;
+      text-decoration: line-through;
+    }
+
+    .s11-pricing .pp-desc {
+      color: var(--ss-muted);
+      font-size: 13.5px;
+      margin: 0 0 20px;
+      min-height: 40px;
+    }
+
+    .s11-pricing .pp-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .s11-pricing .pp-num {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 46px;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .s11-pricing .pp-per {
+      color: var(--ss-muted);
+      font-size: 14px;
+    }
+
+    .s11-pricing .pp-billed {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      margin-bottom: 18px;
+    }
+
+    .s11-pricing .pp-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 13px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--ss-line);
       border-radius: 10px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      font-size: 12.5px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      user-select: none;
+      color: #d6d6d2;
+    }
+
+    .s11-pricing .pp-switch {
+      width: 36px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.2s ease;
+      flex: 0 0 36px;
+    }
+
+    .s11-pricing .pp-switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #0c0c0c;
+      transition: transform 0.2s ease;
+    }
+
+    .s11-pricing[data-cycle="yearly"] .pp-switch {
+      background: var(--ss-gold);
+    }
+
+    .s11-pricing[data-cycle="yearly"] .pp-switch::after {
+      transform: translateX(16px);
+    }
+
+    .s11-pricing .pp-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      border: 1px solid var(--ss-line-strong);
+      margin-bottom: 22px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .s11-pricing .pp-cta:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .s11-pricing .pp-card.feat .pp-cta {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: var(--ss-gold);
+    }
+
+    .s11-pricing .pp-card.feat .pp-cta:hover {
+      background: #ffe0a8;
+    }
+
+    .s11-pricing .pp-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      font-size: 13.5px;
+      color: #d6d6d2;
+    }
+
+    .s11-pricing .pp-list li {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      font-size: 12.5px;
-      line-height: 1.5;
-      color: var(--foreground);
+      line-height: 1.4;
     }
-    .fix-icon {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
+
+    .s11-pricing .pp-list svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      margin-top: 2px;
+      color: var(--ss-gold);
+    }
+
+    @media (max-width: 960px) {
+      .s11-pricing .pp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       7. STICKY-LEFT 2-COLUMN SMOOTH ACCORDION FAQ (a12-faq)
+       ========================================================================== */
+    .a12-faq {
+      padding: clamp(72px, 9vw, 116px) 0;
+      background: var(--ss-bg);
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .a12-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.5fr;
+      gap: clamp(32px, 6vw, 84px);
+      align-items: start;
+    }
+
+    .a12-left {
+      position: sticky;
+      top: 108px;
+    }
+
+    .a12-left .ss-h2 {
+      margin-top: 10px;
+      margin-bottom: 14px;
+    }
+
+    .a12-list {
+      border-top: 1px solid var(--ss-line-strong);
+    }
+
+    .a12-item {
+      border-bottom: 1px solid var(--ss-line-strong);
+      overflow: hidden;
+    }
+
+    .a12-q {
+      list-style: none;
+      cursor: pointer;
+      padding: 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(16px, 1.45vw, 19px);
+      letter-spacing: -0.02em;
+      color: var(--ss-text);
+      user-select: none;
+    }
+
+    .a12-q::-webkit-details-marker {
+      display: none;
+    }
+
+    .a12-ico {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--ss-surface-2);
+      border: 1px solid var(--ss-line-strong);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      margin-top: 1px;
+      flex: 0 0 30px;
+      position: relative;
+      transition: background 0.2s ease, transform 0.25s ease;
     }
 
-    .report-footer-bar {
-      padding: 18px 24px;
-      border-top: 1px solid var(--border);
-      background: color-mix(in oklab, var(--background) 55%, var(--card));
+    .a12-ico::before,
+    .a12-ico::after {
+      content: "";
+      position: absolute;
+      background: var(--ss-text);
+      transition: transform 0.25s ease, opacity 0.2s ease;
+    }
+
+    .a12-ico::before { width: 12px; height: 1.8px; }
+    .a12-ico::after { width: 1.8px; height: 12px; }
+
+    .a12-item[open] .a12-ico {
+      background: var(--ss-gold);
+    }
+
+    .a12-item[open] .a12-ico::before {
+      background: #0c0c0c;
+    }
+
+    .a12-item[open] .a12-ico::after {
+      transform: rotate(90deg);
+      opacity: 0;
+    }
+
+    .a12-a {
+      padding: 0 42px 22px 0;
+      color: var(--ss-muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 880px) {
+      .a12-grid { grid-template-columns: 1fr; }
+      .a12-left { position: static; }
+    }
+
+    /* ==========================================================================
+       8. HIGH-CONTRAST WARM GOLD CLOSING BAND (s13-close)
+       ========================================================================== */
+    .s13-close {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #e59a24 0%, #c87d0a 100%);
+      color: #0c0c0c;
+      padding: clamp(68px, 8vw, 108px) 0;
+    }
+
+    .s13-close::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(65% 80% at 50% 0%, rgba(255, 236, 196, 0.55) 0%, rgba(255, 236, 196, 0) 70%);
+      pointer-events: none;
+    }
+
+    .s13-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .s13-inner .ss-h2 {
+      color: #0c0c0c;
+      font-size: clamp(32px, 4.4vw, 54px);
+      margin-bottom: 16px;
+    }
+
+    .s13-inner p {
+      color: rgba(12, 12, 12, 0.8);
+      font-size: clamp(16px, 1.35vw, 18.5px);
+      line-height: 1.55;
+      margin: 0 auto 28px;
+      max-width: 58ch;
+    }
+
+    .s13-btn {
+      background: #0c0c0c;
+      color: #fff;
+      padding: 15px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 16px 36px rgba(12, 12, 12, 0.28);
+      transition: transform 0.15s ease;
+    }
+
+    .s13-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       9. DARK MULTI-COLUMN FOOTER (a14-footer)
+       ========================================================================== */
+    .a14-footer {
+      background: var(--ss-space);
+      color: rgba(255, 255, 255, 0.72);
+      padding: 72px 0 42px;
+      border-top: 1px solid var(--ss-line);
+      font-size: 13.5px;
+    }
+
+    .a14-top {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(4, 1fr);
+      gap: 36px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .a14-brand p {
+      color: var(--ss-muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin: 14px 0 18px;
+      max-width: 32ch;
+    }
+
+    .a14-col h4 {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ss-gold);
+      margin: 0 0 14px;
+    }
+
+    .a14-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .a14-col a {
+      color: var(--ss-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .a14-col a:hover {
+      color: #fff;
+    }
+
+    .a14-bottom {
+      padding-top: 26px;
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--ss-muted);
+      font-size: 12.5px;
     }
 
-    .cursor-pointer { cursor: pointer; }
-    .z-10 { z-index: 10; }
-    .divide-y > :not(:first-child) { border-top: 1px solid var(--border); }
+    @media (max-width: 900px) {
+      .a14-top {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
   </style>
 </head>
-<body class="geist_9e050971-module__05dp7a__className antialiased bg-background text-foreground">
+<body>
+  <div class="a01-sentinel" id="topSentinel"></div>
 
-  <!-- Top Navbar -->
-  <nav id="topNav" class="sticky top-0 z-50 w-full transition-[background-color,backdrop-filter] duration-300 ease-out">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex sm:hidden">
-          <a class="font-light tracking-tighter text-lg" href="#">dontencode.ai</a>
+  <!-- ========================================================================
+       1. STICKY STARFIELD HEADER (a01-header)
+       ======================================================================== -->
+  <header class="a01-header" id="siteHeader">
+    <canvas class="ss-stars" id="headerStars"></canvas>
+    <div class="a01-bar">
+      <a href="#" class="a01-logo">
+        <span class="a01-logo-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="11" r="3"/>
+          </svg>
+        </span>
+        <span>DoNotEncode.ai</span>
+        <span class="a01-logo-badge">v6.0 Orbit</span>
+      </a>
+
+      <nav class="a01-nav" aria-label="Main Navigation">
+        <div class="a01-item">
+          <button type="button" class="a01-link">
+            6-Layer Orbit
+            <svg class="a01-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="a01-drop">
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="0">
+              <span class="a01-drop-ico">VM</span>
+              <span>
+                <span class="a01-drop-title">Bytecode VM Compiler</span>
+                <span class="a01-drop-sub">Compiles client JS into polymorphic stack bytecode (_aVM)</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="1">
+              <span class="a01-drop-ico">S3</span>
+              <span>
+                <span class="a01-drop-title">Cloud &amp; BaaS Asset Vault</span>
+                <span class="a01-drop-sub">Seals AWS S3, Supabase &amp; Firebase URLs in 1-time tickets</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="2">
+              <span class="a01-drop-ico">AI</span>
+              <span>
+                <span class="a01-drop-title">Living /llms.txt AI Search</span>
+                <span class="a01-drop-sub">Auto-syncs verified facts for ChatGPT, Perplexity &amp; Claude</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="4">
+              <span class="a01-drop-ico">SSR</span>
+              <span>
+                <span class="a01-drop-title">SSR &amp; Checkout Guard</span>
+                <span class="a01-drop-sub">Scrubs __NEXT_DATA__ &amp; stops coupon brute-forcing</span>
+              </span>
+            </a>
+          </div>
         </div>
-        <div class="hidden sm:flex items-center space-x-8">
-          <a class="font-light tracking-tighter text-2xl" href="#">dontencode.ai</a>
-          <a data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3" href="#features">How It Works</a>
-          <a data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3" href="#pricing">Pricing</a>
-          <a data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3" href="#testimonials">Reviews</a>
-          <a data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3" href="#faq">FAQ</a>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a href="#pricing" data-slot="button" class="items-center justify-center whitespace-nowrap text-sm font-medium transition-all bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-8 rounded-md gap-1.5 px-3 hidden sm:flex">
-            Get Protected
-          </a>
-          <button id="themeToggleBtn" type="button" aria-label="Toggle theme" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9 cursor-pointer">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.89998 0.499976C2.89998 0.279062 2.72089 0.0999756 2.49998 0.0999756C2.27906 0.0999756 2.09998 0.279062 2.09998 0.499976V1.09998H1.49998C1.27906 1.09998 1.09998 1.27906 1.09998 1.49998C1.09998 1.72089 1.27906 1.89998 1.49998 1.89998H2.09998V2.49998C2.09998 2.72089 2.27906 2.89998 2.49998 2.89998C2.72089 2.89998 2.89998 2.72089 2.89998 2.49998V1.89998H3.49998C3.72089 1.89998 3.89998 1.72089 3.89998 1.49998C3.89998 1.27906 3.72089 1.09998 3.49998 1.09998H2.89998V0.499976ZM5.89998 3.49998C5.89998 3.27906 5.72089 3.09998 5.49998 3.09998C5.27906 3.09998 5.09998 3.27906 5.09998 3.49998V4.09998H4.49998C4.27906 4.09998 4.09998 4.27906 4.09998 4.49998C4.09998 4.72089 4.27906 4.89998 4.49998 4.89998H5.09998V5.49998C5.09998 5.72089 5.27906 5.89998 5.49998 5.89998C5.72089 5.89998 5.89998 5.72089 5.89998 5.49998V4.89998H6.49998C6.72089 4.89998 6.89998 4.72089 6.89998 4.49998C6.89998 4.27906 6.72089 4.09998 6.49998 4.09998H5.89998V3.49998ZM1.89998 6.49998C1.89998 6.27906 1.72089 6.09998 1.49998 6.09998C1.27906 6.09998 1.09998 6.27906 1.09998 6.49998V7.09998H0.499976C0.279062 7.09998 0.0999756 7.27906 0.0999756 7.49998C0.0999756 7.72089 0.279062 7.89998 0.499976 7.89998H1.09998V8.49998C1.09998 8.72089 1.27906 8.89997 1.49998 8.89997C1.72089 8.89997 1.89998 8.72089 1.89998 8.49998V7.89998H2.49998C2.72089 7.89998 2.89998 7.72089 2.89998 7.49998C2.89998 7.27906 2.72089 7.09998 2.49998 7.09998H1.89998V6.49998ZM8.54406 0.98184L8.24618 0.941586C8.03275 0.917676 7.90692 1.1655 8.02936 1.34194C8.17013 1.54479 8.29981 1.75592 8.41754 1.97445C8.91878 2.90485 9.20322 3.96932 9.20322 5.10022C9.20322 8.37201 6.82247 11.0878 3.69887 11.6097C3.45736 11.65 3.20988 11.6772 2.96008 11.6906C2.74563 11.702 2.62729 11.9535 2.77721 12.1072C2.84551 12.1773 2.91535 12.2458 2.98667 12.3128L3.05883 12.3795L3.31883 12.6045L3.50684 12.7532L3.62796 12.8433L3.81491 12.9742L3.99079 13.089C4.11175 13.1651 4.23536 13.2375 4.36157 13.3059L4.62496 13.4412L4.88553 13.5607L5.18837 13.6828L5.43169 13.7686C5.56564 13.8128 5.70149 13.8529 5.83857 13.8885C5.94262 13.9155 6.04767 13.9401 6.15405 13.9622C6.27993 13.9883 6.40713 13.0109 6.53544 14.0298L6.85241 14.0685L7.11934 14.0892C7.24637 14.0965 7.37436 14.1002 7.50322 14.1002C11.1483 14.1002 14.1032 11.1453 14.1032 7.50023C14.1032 7.25044 14.0893 7.00389 14.0623 6.76131L14.0255 6.48407C13.991 6.26083 13.9453 6.04129 13.8891 5.82642C13.8213 5.56709 13.7382 5.31398 13.6409 5.06881L13.5279 4.80132L13.4507 4.63542L13.3766 4.48666C13.2178 4.17773 13.0353 3.88295 12.8312 3.60423L12.6782 3.40352L12.4793 3.16432L12.3157 2.98361L12.1961 2.85951L12.0355 2.70246L11.8134 2.50184L11.4925 2.24191L11.2483 2.06498L10.9562 1.87446L10.6346 1.68894L10.3073 1.52378L10.1938 1.47176L9.95488 1.3706L9.67791 1.2669L9.42566 1.1846L9.10075 1.09489L8.83599 1.03486L8.54406 0.98184ZM10.4032 5.30023C10.4032 4.27588 10.2002 3.29829 9.83244 2.40604C11.7623 3.28995 13.1032 5.23862 13.1032 7.50023C13.1032 10.593 10.596 13.1002 7.50322 13.1002C6.63646 13.1002 5.81597 12.9036 5.08355 12.5522C6.5419 12.0941 7.81081 11.2082 8.74322 10.0416C8.87963 10.2284 9.10028 10.3497 9.34928 10.3497C9.76349 10.3497 10.0993 10.0139 10.0993 9.59971C10.0993 9.24256 9.84965 8.94373 9.51535 8.86816C9.57741 8.75165 9.63653 8.63334 9.6926 8.51332C9.88358 8.63163 10.1088 8.69993 10.35 8.69993C11.0403 8.69993 11.6 8.14028 11.6 7.44993C11.6 6.75976 11.0406 6.20024 10.3505 6.19993C10.3853 5.90487 10.4032 5.60464 10.4032 5.30023Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
+
+        <a href="#scannerHero" class="a01-link">Live URL Scanner</a>
+        <a href="#orbitSection" class="a01-link">AI Search / GEO</a>
+        <a href="#proofBento" class="a01-link">Case Studies</a>
+        <a href="#pricingSection" class="a01-link">Pricing</a>
+        <a href="#faqSection" class="a01-link">FAQ</a>
+      </nav>
+
+      <div class="a01-cta">
+        <span class="a01-status-pill" title="1,417 Chaos Fuzz Tests &amp; 100/100 Security Vectors Passing">
+          <span class="a01-status-dot"></span>
+          100/100 Shield Active
+        </span>
+        <a href="#scannerHero" class="ss-btn ss-btn--gold" id="headerScanBtn">
+          Scan Your Site Free
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. HERO + ROTATING ENGINE FLIPPER + LIVE URL SCANNER (a02-hero)
+       ======================================================================== -->
+  <section class="ss-section a02-hero" id="scannerHero">
+    <canvas class="ss-stars" id="heroStars"></canvas>
+    <div class="ss-wrap">
+      <div class="a02-eyebrow">
+        <span>⚡ ZERO-LEAK BYTECODE SHIELD + AUTOMATED /LLMS.TXT AI SEO</span>
+      </div>
+
+      <h1 class="ss-h1">
+        Security &amp; AI SEO for
+        <span class="ss-ul">
+          WebApps
+          <svg viewBox="0 0 240 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 12.5C62 3.5 178 3.5 237 11.5" stroke="#fbcc82" stroke-width="4" stroke-linecap="round"/>
+            <path d="M18 14.5C82 8.5 162 7.5 224 13.5" stroke="#fbcc82" stroke-width="2" stroke-linecap="round" stroke-opacity="0.6"/>
+          </svg>
+        </span>
+        made effortless.
+      </h1>
+
+      <p class="ss-sub">
+        <span>Stop code-stealing bots &amp; API leaks while getting cited first in</span>
+        <span class="ss-flipper" id="heroFlipper" aria-live="polite">
+          <!-- 1. ChatGPT -->
+          <span class="ss-flip-item is-on">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path d="M12 2a4.5 4.5 0 0 0-3.89 2.25L4.5 10.5a4.5 4.5 0 0 0 0 4.5l3.61 6.25a4.5 4.5 0 0 0 7.78 0l3.61-6.25a4.5 4.5 0 0 0 0-4.5L15.89 4.25A4.5 4.5 0 0 0 12 2Z"/>
+              <circle cx="12" cy="12" r="3"/>
             </svg>
+            ChatGPT
+          </span>
+          <!-- 2. Perplexity -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/>
+            </svg>
+            Perplexity
+          </span>
+          <!-- 3. Claude AI -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2"/>
+            </svg>
+            Claude AI
+          </span>
+          <!-- 4. Google AI Overviews -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 12h9M12 3a9 9 0 0 1 9 9"/>
+            </svg>
+            Google AI Overviews
+          </span>
+          <!-- 5. Gemini -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3c1.5 5.5 3.5 7.5 9 9-5.5 1.5-7.5 3.5-9 9-1.5-5.5-3.5-7.5-9-9 5.5-1.5 7.5-3.5 9-9z"/>
+            </svg>
+            Gemini
+          </span>
+        </span>
+      </p>
+
+      <!-- Live URL Audit Scanner Bar -->
+      <form class="ss-form" id="auditScannerForm" novalidate>
+        <span class="ss-form-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="auditUrlInput"
+          class="ss-input"
+          value="https://acme-nexus.io"
+          placeholder="Enter any website URL (e.g. yoursite.com)"
+          aria-label="Website URL to scan"
+          autocomplete="off"
+        />
+        <button type="submit" class="ss-submit" id="auditSubmitBtn">
+          <span id="auditSubmitLabel">Scan free</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- 1-Click Sample Presets -->
+      <div class="a02-presets">
+        <span class="a02-preset-label">Try instant live scan:</span>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://acme-nexus.io">acme-nexus.io (Next.js + AI SaaS)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://store-demo.shopify.com">store-demo.shopify.com (Shopify)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://vault-ledger.fintech.io">vault-ledger.fintech.io (Fintech API)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://legacy-crm.corp.internal">legacy-crm.corp.internal (Enterprise)</button>
+      </div>
+
+      <div class="ss-meta">
+        <span>✓ No signup or credit card required</span>
+        <span>✓ Plain-English + Technical report in 2 seconds</span>
+        <span>✓ Generates live <code>/llms.txt</code> &amp; Edge fix</span>
+      </div>
+
+      <!-- ====================================================================
+           COLLAPSIBLE COLOR-CODED LIVE AUDIT REPORT (#auditResultsPanel)
+           ==================================================================== -->
+      <div class="audit-panel" id="auditResultsPanel" aria-live="polite">
+        <div class="audit-top-banner">
+          <div class="audit-score-orb" id="auditScoreOrb">
+            <span class="audit-score-num" id="auditScoreValue">92</span>
+            <span class="audit-score-lbl" id="auditScoreLabel">HIGH RISK</span>
+          </div>
+
+          <div class="audit-summary-col">
+            <h3>
+              <span id="auditTargetTitle">Report for https://acme-nexus.io</span>
+              <span class="issue-sev-badge sev-high" id="auditGradeBadge">🔴 Needs Immediate Shield</span>
+            </h3>
+            <p id="auditPlainSummary">
+              We scanned your page HTML, public JavaScript bundles, security headers, and AI search endpoints. Below is each issue explained in plain English—click any card to expand technical evidence and how <strong>DoNotEncode.ai</strong> fixes it automatically.
+            </p>
+            <div class="audit-meta-pills" id="auditTelemetryPills">
+              <span class="audit-meta-pill">Stack: Next.js 15 + Supabase</span>
+              <span class="audit-meta-pill">/llms.txt: Missing (404)</span>
+              <span class="audit-meta-pill">AI Noise Ratio: 94% HTML Clutter</span>
+            </div>
+          </div>
+
+          <div class="audit-action-col">
+            <button type="button" class="audit-fix-btn" id="simulateShieldBtn">
+              <span>⚡ Preview Instant Fix (Drop Risk to 0/100)</span>
+            </button>
+            <span style="font-family:var(--ss-mono);font-size:11px;color:var(--ss-muted);" id="auditScanTimeLabel">
+              Scanned in 38ms • Audit ID: AEG-LIVE
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Pills + Expand/Collapse All -->
+        <div class="audit-filter-bar">
+          <div class="audit-filter-group" id="auditFilterGroup">
+            <button type="button" class="audit-filter-pill is-active" data-filter="ALL">All Issues (<span id="countAll">5</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="High">🔴 High Risk (<span id="countHigh">3</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="Medium">🟡 Medium Risk (<span id="countMed">2</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="Low">🟢 Passed / Low (<span id="countLow">0</span>)</button>
+          </div>
+          <button type="button" class="audit-expand-link" id="toggleAllCardsBtn">Expand all technical details</button>
+        </div>
+
+        <!-- Collapsible Red / Yellow / Green Cards Container -->
+        <div class="audit-issues-list" id="auditIssuesList"></div>
+
+        <!-- 1-Click Fix Simulation Drawer -->
+        <div class="sim-drawer" id="simResultsDrawer">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <span class="issue-sev-badge sev-low" style="margin-bottom:6px;">🟢 SHIELD SIMULATION ACTIVE — 0 / 100 RISK (A+ SOVEREIGN)</span>
+              <h4 style="margin:4px 0 0;font-family:var(--ss-display);font-size:18px;color:#fff;" id="simSummaryHeading">
+                All exposed client functions compiled to _aVM bytecode &amp; verified /llms.txt generated!
+              </h4>
+            </div>
+            <code style="font-family:var(--ss-mono);font-size:12px;background:#08090d;padding:8px 12px;border-radius:8px;color:var(--ss-gold);border:1px solid rgba(251,204,130,0.3);" id="simCliCommand">
+              npx donotencode init --target https://acme-nexus.io
+            </code>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-code-card">
+              <div class="sim-code-head">
+                <span>1. Auto-Generated /llms.txt for ChatGPT &amp; Perplexity</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simLlmsOutput">Copy /llms.txt</button>
+              </div>
+              <pre class="sim-pre" id="simLlmsOutput"></pre>
+            </div>
+            <div class="sim-code-card">
+              <div class="sim-code-head">
+                <span>2. Polymorphic _aVM Bytecode Bundle Output</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simBytecodeOutput">Copy Bytecode</button>
+              </div>
+              <pre class="sim-pre" id="simBytecodeOutput"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       3. SCORE-RING PROOF STRIP (s03-proof)
+       ======================================================================== -->
+  <section class="ss-section s03-proof">
+    <div class="ss-wrap">
+      <div class="s03-card">
+        <!-- Cell 1: Animated Score Ring -->
+        <div class="s03-cell">
+          <div class="s03-gauge" id="proofGauge" data-target="100">
+            <svg viewBox="0 0 84 84">
+              <circle cx="42" cy="42" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6.5"/>
+              <circle
+                id="proofGaugeCircle"
+                cx="42"
+                cy="42"
+                r="36"
+                fill="none"
+                stroke="#10b981"
+                stroke-width="6.5"
+                stroke-linecap="round"
+                stroke-dasharray="226.19"
+                stroke-dashoffset="226.19"
+              />
+            </svg>
+            <div class="s03-gauge-num">
+              <span id="proofGaugeNum">100</span>
+              <small>/ 100</small>
+            </div>
+          </div>
+          <div class="s03-gauge-copy">
+            <b>100 / 100 Vectors Blocked</b>
+            <span>Verified across 1,417 chaos fuzz tests &amp; 6 real-world CVEs with zero leaks.</span>
+          </div>
+        </div>
+
+        <!-- Cell 2: Rating & Social Proof -->
+        <div class="s03-cell s03-rating">
+          <div class="s03-stars-row">
+            <div class="s03-stars" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+            </div>
+            <div class="s03-avatars">
+              <span class="s03-av" style="background:#fbcc82;">AK</span>
+              <span class="s03-av" style="background:#6ee7b7;">MR</span>
+              <span class="s03-av" style="background:#93c5fd;">JL</span>
+              <span class="s03-av" style="background:#fca5a5;">SV</span>
+            </div>
+          </div>
+          <div class="s03-rating-copy">
+            Trusted by <strong>12,400+</strong> Next.js, Shopify &amp; SaaS engineering teams
+          </div>
+        </div>
+
+        <!-- Cell 3: Key Platform Differentiators -->
+        <div class="s03-cell s03-stats">
+          <div class="s03-stat">
+            <span class="s03-stat-num">0 Leaks</span>
+            <span class="s03-stat-lbl">In client JS bundles, cloud buckets &amp; SSR state</span>
+          </div>
+          <div class="s03-stat">
+            <span class="s03-stat-num">1st</span>
+            <span class="s03-stat-lbl">Unified Bytecode VM + /llms.txt AI SEO engine</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4. PUT YOUR WEBAPP IN ORBIT — 6-AGENT SYSTEM (x-orbit)
+       ======================================================================== -->
+  <section class="x-orbit" id="orbitSection">
+    <canvas id="orbitStars"></canvas>
+    <div class="wrap">
+      <div class="head">
+        <div class="kicker">MEET OUR 6 AUTONOMOUS EDGE AGENTS</div>
+        <h2>Put Your WebApp in Orbit</h2>
+        <p>Why base64 encoding and basic minification fail—and how our 6 orbital edge agents lock down your code while boosting AI search citations.</p>
+      </div>
+
+      <!-- 6 Interactive Agent Pills -->
+      <div class="pills" id="orbitPills" role="tablist">
+        <button type="button" class="pill on" data-idx="0">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Bytecode VM
+        </button>
+        <button type="button" class="pill" data-idx="1">
+          <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+          Cloud Vault
+        </button>
+        <button type="button" class="pill" data-idx="2">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          AI Search (/llms.txt)
+        </button>
+        <button type="button" class="pill" data-idx="3">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+          Bot &amp; CDP Gate
+        </button>
+        <button type="button" class="pill" data-idx="4">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Checkout &amp; SSR Guard
+        </button>
+        <button type="button" class="pill" data-idx="5">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Zero-Day WAF
+        </button>
+      </div>
+
+      <div class="stage">
+        <!-- Left Interactive Card -->
+        <div class="card" id="orbitCard">
+          <h3 id="orbitCardTitle">Bytecode VM Compiler (_aVM)</h3>
+          <p id="orbitCardDesc">
+            Standard minifiers and base64 encoders are reversed by AI decompilers in 1 second. DoNotEncode.ai compiles sensitive client JS functions into polymorphic stack bytecode with per-session shuffled opcodes.
+          </p>
+          <div class="view" id="orbitCardView">
+            <div class="vh">
+              <span>Live Bundle Virtualization</span>
+              <span class="vpill">0 Plaintext Functions</span>
+            </div>
+            <div class="vrow">
+              <span>Before: <code>calculateTierDiscount(cart)</code></span>
+              <span style="color:#fca5a5;">Exposed in DevTools</span>
+            </div>
+            <div class="vrow">
+              <span>After: <code>_aVM.exec([0x4A, 0x9F, 0x12...])</code></span>
+              <span style="color:#6ee7b7;">Sealed Bytecode</span>
+            </div>
+            <div class="vbar"><i style="width:98%"></i></div>
+          </div>
+          <a href="#scannerHero" class="cta">
+            Test on your URL free
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Right Interactive Planetary System -->
+        <div class="sys">
+          <svg viewBox="0 0 560 560" aria-hidden="true">
+            <circle class="r-solid" cx="280" cy="280" r="110"/>
+            <circle class="r-dash spin" cx="280" cy="280" r="155"/>
+            <circle class="r-track" cx="280" cy="280" r="210"/>
+            <circle
+              class="r-main"
+              id="orbitMainArc"
+              cx="280"
+              cy="280"
+              r="210"
+              stroke-dasharray="1319.47"
+              stroke-dashoffset="1099.5"
+              transform="rotate(-90 280 280)"
+            />
+            <circle class="r-dot spin rev" cx="280" cy="280" r="250"/>
+          </svg>
+
+          <!-- Center Sun -->
+          <div class="sun">
+            <small>SOVEREIGN</small>
+            Protected WebApp
+          </div>
+
+          <!-- 6 Satellites positioned on r=210 circle (center 50%, 50%, radius 37.5%) -->
+          <button type="button" class="sat on" data-idx="0" style="left:50%; top:12.5%;">
+            <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Bytecode VM</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="1" style="left:82.48%; top:31.25%;">
+            <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            <span>Cloud Vault</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="2" style="left:82.48%; top:68.75%;">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>AI Search</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="3" style="left:50%; top:87.5%;">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+            <span>Bot &amp; CDP Gate</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="4" style="left:17.52%; top:68.75%;">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Checkout Guard</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="5" style="left:17.52%; top:31.25%;">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Zero-Day WAF</span>
           </button>
         </div>
       </div>
     </div>
-  </nav>
+  </section>
 
-  <main class="flex flex-col min-h-dvh">
-    <!-- Hero Section + Diagonal Light Beam -->
-    <div class="relative justify-center items-center">
-      <section class="max-w-(--breakpoint-xl) mx-auto px-4 py-28 gap-12 md:px-8 flex flex-col justify-center items-center relative z-10">
-        <div class="flex flex-col justify-center items-center space-y-5 max-w-4xl mx-auto text-center animate-in" style="width: 100%;">
-          <span class="w-fit h-full text-sm bg-card px-3 py-1 border border-border rounded-full">
-            Free Website Security &amp; AI Visibility Scanner
-          </span>
-          <h1 class="text-4xl font-medium tracking-tighter mx-auto md:text-6xl text-pretty bg-linear-to-b from-sky-800 dark:from-sky-100 to-foreground dark:to-foreground bg-clip-text text-transparent">
-            Protect Your Web App From Code Scraping &amp; API Leaks
-          </h1>
-          <p class="max-w-2xl text-lg mx-auto text-muted-foreground text-balance">
-            Enter any URL to get a clear, plain-English security and AI search report—then fix exposed code, missing security headers, and <code>/llms.txt</code> in one step.
+  <!-- ========================================================================
+       5. 12-COLUMN BENTO PROOF & TELEMETRY GRID (x-testimonials)
+       ======================================================================== -->
+  <section class="x-testimonials" id="proofBento">
+    <div class="tm-wrap">
+      <div class="tm-head">
+        <span class="ss-kicker">VERIFIED PRODUCTION TELEMETRY</span>
+        <h2 class="tm-title">Engineered for Zero Leaks &amp; #1 AI Citations</h2>
+        <p class="tm-sub">See what happens when teams replace fragile obfuscators and missing security headers with DoNotEncode.ai.</p>
+      </div>
+
+      <div class="tm-grid">
+        <!-- Large Bento Card 1: Animated Bar Chart -->
+        <div class="tm-card tm-lg">
+          <p class="tm-quote">
+            “Within 48 hours of deploying <strong>DoNotEncode.ai</strong>, automated scraper traffic dropped by <mark>99.4%</mark> while our product citations in ChatGPT and Perplexity surged <mark>+340%</mark> thanks to the auto-synced <code>/llms.txt</code> manifest.”
           </p>
-
-          <!-- Clean Wide URL Input + Scan Button -->
-          <form id="auditForm" class="audit-bar-form">
-            <div class="audit-input-shell">
-              <input
-                id="targetUrlInput"
-                type="text"
-                placeholder="Enter a website URL (e.g. https://alcamielements.com)"
-                autocomplete="off"
-                spellcheck="false"
-                aria-label="Website URL to scan"
-                class="audit-url-input"
-              />
+          <div class="tm-Viz">
+            <div class="tm-vh">
+              <span class="tm-vlbl">AI Search Citations vs. Scraper Noise (30 Days)</span>
+              <span class="tm-vdelta">+340% Verified AI Citations</span>
             </div>
-            <button id="runAuditBtn" type="submit" class="audit-submit-btn">
-              Scan Website
-            </button>
-          </form>
+            <div class="tm-bars" id="bentoBars">
+              <i style="--h:18%"></i><i style="--h:22%"></i><i style="--h:20%"></i><i style="--h:25%"></i>
+              <i style="--h:24%"></i><i style="--h:28%"></i><i style="--h:30%"></i><i style="--h:32%"></i>
+              <i style="--h:38%" class="hi"></i><i style="--h:45%" class="hi"></i><i style="--h:52%" class="hi"></i><i style="--h:58%" class="hi"></i>
+              <i style="--h:64%" class="hi"></i><i style="--h:68%" class="hi"></i><i style="--h:72%" class="hi"></i><i style="--h:76%" class="hi"></i>
+              <i style="--h:80%" class="hi"></i><i style="--h:84%" class="hi"></i><i style="--h:88%" class="hi"></i><i style="--h:91%" class="hi"></i>
+              <i style="--h:94%" class="hi"></i><i style="--h:96%" class="hi"></i><i style="--h:98%" class="hi"></i><i style="--h:100%" class="hi"></i>
+            </div>
+            <div class="tm-vaxis">
+              <span>Day 1 (Unprotected HTML)</span>
+              <span>DoNotEncode.ai Activated →</span>
+              <span>Day 30 (/llms.txt + _aVM)</span>
+            </div>
+          </div>
+          <div class="tm-author">
+            <span class="tm-av">MK</span>
+            <div>
+              <div class="tm-name">Marcus Vance</div>
+              <div class="tm-role">VP of Engineering, NexusCloud AI</div>
+            </div>
+          </div>
         </div>
-      </section>
 
-      <!-- Diagonal Blue Light Beam -->
-      <div class="w-full h-full absolute -top-32 flex justify-end items-center pointer-events-none">
-        <div class="w-3/4 flex justify-center items-center">
-          <div class="w-12 h-150 bg-light blur-[70px] rounded-3xl max-sm:rotate-15 sm:rotate-35 will-change-transform"></div>
+        <!-- Large Bento Card 2: Before/After Code & Cloud Vault -->
+        <div class="tm-card tm-lg">
+          <p class="tm-quote">
+            “Competitors were cloning our Next.js front-end and harvesting our Supabase storage buckets straight from DevTools. <strong>DoNotEncode.ai</strong> sealed our client logic into <mark>_aVM bytecode</mark> and wrapped every asset in single-use edge tickets.”
+          </p>
+          <div class="tm-Viz">
+            <div class="tm-vh">
+              <span class="tm-vlbl">Client Bundle &amp; Cloud URL Exposure</span>
+              <span class="tm-vdelta">0 Exposed Secrets</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--ss-mono);font-size:12px;">
+              <div style="padding:10px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">
+                ❌ BEFORE: <code>https://s3.amazonaws.com/prod-models/weights.bin?key=AKIA...</code>
+              </div>
+              <div style="padding:10px 12px;border-radius:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;">
+                ✅ AFTER: <code>/_aegis/vault/v1/asset?ticket=AEG_HMAC_9F8E7D (1-Use Sealed)</code>
+              </div>
+            </div>
+          </div>
+          <div class="tm-author">
+            <span class="tm-av">SL</span>
+            <div>
+              <div class="tm-name">Sophia Lin</div>
+              <div class="tm-role">Head of Security, VaultLedger Fintech</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Small Metric Cards -->
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">$42k<sub>/mo saved</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Stopped honey-coupon browser extensions from brute-forcing leaked VIP discount codes at checkout.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">DR</span>
+            <div>
+              <div class="tm-name">Devon Ross</div>
+              <div class="tm-role">CTO, Atelier Commerce</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">0.4ms<sub>edge latency</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Zero-dependency HMAC ticket verification and header injection that runs at the edge with zero Core Web Vitals penalty.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">KT</span>
+            <div>
+              <div class="tm-name">Kieran Thorne</div>
+              <div class="tm-role">Principal Architect, HyperScale</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">100%<sub>SSR scrubbed</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Automatically strips internal tenant IDs, wholesale margins, and staging URLs from <code>__NEXT_DATA__</code> and RSC streams.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">AL</span>
+            <div>
+              <div class="tm-name">Aria Lindqvist</div>
+              <div class="tm-role">Staff Engineer, NordSaaS</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">10 sec<sub>CLI setup</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            One command (<code>npx donotencode init</code>) auto-detects Next.js, Nuxt, Shopify, Python, or Go and deploys your shield.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">JC</span>
+            <div>
+              <div class="tm-name">Julian Chen</div>
+              <div class="tm-role">Founder, ShipFast Labs</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Color-Coded Collapsible Audit Report Panel -->
-    <section id="auditReportSection" class="w-full px-4 pb-16 sm:px-6 animate-in">
-      <div class="report-shell">
-        <!-- Report Top Header -->
-        <div class="report-header">
-          <div>
-            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
-              <h2 id="pageTitleDisplay" class="text-xl font-semibold">Website Audit Report</h2>
-              <span id="liveFetchBadge" class="tech-chip" style="font-size:11px;">Live Scan</span>
-            </div>
-            <p id="targetUrlDisplay" class="text-xs text-muted-foreground" style="margin-top:4px; font-family:var(--font-mono);"></p>
-            <div id="severitySummaryRow" style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px;"></div>
+  <!-- ========================================================================
+       6. INTERACTIVE PRICING + COMPARISON MATRIX (s11-pricing)
+       ======================================================================== -->
+  <section class="s11-pricing" id="pricingSection" data-cycle="yearly">
+    <div class="pp-wrap">
+      <div class="pp-head">
+        <span class="ss-kicker">SIMPLE, TRANSPARENT ORBIT PRICING</span>
+        <h2 class="pp-title">Protect Your Code. Rank in AI Search.</h2>
+        <p class="pp-sub">Start with unlimited free URL audits, or deploy autonomous 6-layer edge protection in 10 seconds.</p>
+      </div>
+
+      <div class="pp-grid">
+        <!-- Plan 1: Launch -->
+        <div class="pp-card">
+          <div class="pp-top">
+            <span class="pp-name">Launch Shield</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">For indie founders &amp; production sites needing instant header hardening and /llms.txt AI SEO.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$19" data-monthly="$29">$19</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($228/yr)" data-monthly="Billed monthly ($29/mo)">Billed annually ($228/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
           </div>
 
-          <!-- Circular SVG Risk Score Ring -->
-          <div class="score-ring-box">
-            <div style="position:relative; width:54px; height:54px; display:flex; align-items:center; justify-content:center;">
-              <svg width="54" height="54" viewBox="0 0 54 54" style="transform: rotate(-90deg);">
-                <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"></circle>
-                <circle id="scoreRingCircle" cx="27" cy="27" r="22" fill="none" stroke="#ef4444" stroke-width="5" stroke-dasharray="138.2" stroke-dashoffset="25" stroke-linecap="round"></circle>
+          <a href="#scannerHero" class="pp-cta">Start Free Audit</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 1 protected domain</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Living <code>/llms.txt</code> &amp; JSON-LD AI Search sync</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic CSP, HSTS &amp; COOP security headers</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Subresource Integrity (SRI) script signing</li>
+          </ul>
+        </div>
+
+        <!-- Plan 2: Orbit Pro (Featured) -->
+        <div class="pp-card feat">
+          <span class="pp-badge">MOST POPULAR</span>
+          <div class="pp-top">
+            <span class="pp-name">Orbit Pro</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">Full 6-agent protection with polymorphic _aVM bytecode, Cloud Vault, and SSR state scrubbing.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$66" data-monthly="$99">$66</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($792/yr)" data-monthly="Billed monthly ($99/mo)">Billed annually ($792/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
+          </div>
+
+          <a href="#scannerHero" class="pp-cta">Deploy Orbit Pro Free</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 5 protected domains &amp; web apps</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Polymorphic <code>_aVM</code> Bytecode JS Virtualization</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> AWS S3, Supabase &amp; Firebase 1-Use Ticket Vault</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Next.js / Nuxt / Shopify Hydration State Scrubber</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Zero-Day Edge WAF (6 CVEs blocked automatically)</li>
+          </ul>
+        </div>
+
+        <!-- Plan 3: Supernova Enterprise -->
+        <div class="pp-card">
+          <div class="pp-top">
+            <span class="pp-name">Supernova</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">For multi-app organizations, agencies &amp; high-volume storefronts requiring custom edge rules.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$266" data-monthly="$399">$266</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($3,192/yr)" data-monthly="Billed monthly ($399/mo)">Billed annually ($3,192/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
+          </div>
+
+          <a href="#scannerHero" class="pp-cta">Contact Engineering</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited domains &amp; edge worker traffic</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Per-session rotating opcode tables &amp; WebSocket encryption</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automated CI/CD polyglot vulnerability patcher</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dedicated Slack channel &amp; 99.99% SLA</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       7. STICKY-LEFT 2-COLUMN SMOOTH ACCORDION FAQ (a12-faq)
+       ======================================================================== -->
+  <section class="ss-section a12-faq" id="faqSection">
+    <div class="ss-wrap">
+      <div class="a12-grid">
+        <div class="a12-left">
+          <span class="ss-kicker">GOT QUESTIONS?</span>
+          <h2 class="ss-h2">Frequently Asked Questions</h2>
+          <p class="ss-lead">Everything you need to know about how DoNotEncode.ai protects your web app without hurting SEO or speed.</p>
+        </div>
+
+        <div class="a12-list" id="faqAccordionList">
+          <details class="a12-item" open>
+            <summary class="a12-q">
+              <span>Why is the platform called DoNotEncode.ai?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Because encoding (like Base64, hex strings, or basic JavaScript obfuscation) is a false sense of security—modern AI coding agents and browser DevTools reverse-engineer encoded bundles in milliseconds. Instead of encoding, <strong>DoNotEncode.ai</strong> compiles sensitive logic into polymorphic stack bytecode (<code>_aVM</code>) and enforces cryptographic single-use edge tickets.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>Will protecting my JavaScript hurt my Google SEO or AI Search rankings?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              No—it actually improves your rankings. DoNotEncode.ai never blocks legitimate search crawlers or breaks Server-Side Rendering (SSR). Even better, our <strong>Living AI Search Engine</strong> automatically generates and signs a clean <code>/llms.txt</code> manifest from your live pages so ChatGPT, Perplexity, Claude, and Google AI cite your product first without wading through 90% HTML/JS noise.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>What does the Live URL Scanner check when I enter my website?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Our scanner performs a real-time non-destructive HTTP/TLS inspection of your URL: it checks for missing browser security headers (CSP, HSTS, COOP), inspects public <code>&lt;script&gt;</code> bundles for exposed API routes and cloud keys (AWS S3, Supabase, Firebase), checks for leaked Next.js/Nuxt/Shopify hydration state, and verifies whether <code>/llms.txt</code> is present for AI search engines.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>How does Cloud Vault protect AWS S3, Supabase, and Firebase URLs?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Normally, anyone who opens the browser Network tab can copy your direct S3 bucket URLs, AI model weights, or Supabase anon keys and replay them in a scraper script. Cloud Vault rewrites those URLs at the edge into single-use, session-bound HMAC tickets that expire immediately after the browser loads the asset.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>How fast is installation on Next.js, Shopify, or Cloudflare/Vercel?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Under 10 seconds. Run <code>npx donotencode init --target https://yoursite.com</code> (or <code>--dir ./your-repo</code>) and the CLI automatically generates a zero-dependency Edge Worker and <code>/llms.txt</code> manifest ready to deploy on Cloudflare Workers, Vercel Edge, or Node.js.
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       8. HIGH-CONTRAST WARM GOLD CLOSING BAND (s13-close)
+       ======================================================================== -->
+  <section class="ss-section s13-close">
+    <div class="ss-wrap">
+      <div class="s13-inner">
+        <h2 class="ss-h2">The Shield blocks the bots. AI Search brings the buyers.</h2>
+        <p>
+          Scan your website in 2 seconds to see every exposed script, missing security header, and AI citation gap—explained in plain English with a 1-click fix.
+        </p>
+        <button type="button" class="s13-btn" id="bottomScanCta">
+          <span>Scan Your Website Free</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       9. DARK MULTI-COLUMN FOOTER (a14-footer)
+       ======================================================================== -->
+  <footer class="a14-footer">
+    <div class="ss-wrap">
+      <div class="a14-top">
+        <div class="a14-brand">
+          <a href="#" class="a01-logo">
+            <span class="a01-logo-mark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <circle cx="12" cy="11" r="3"/>
               </svg>
-              <span id="riskScoreVal" style="position:absolute; font-size:16px; font-weight:700;">84</span>
-            </div>
-            <div>
-              <div class="text-xs text-muted-foreground">Risk Score</div>
-              <div id="riskGradeBadge" class="text-sm font-semibold" style="color:#f87171; margin-top:2px;">High Exposure</div>
-              <div class="text-xs text-muted-foreground" style="font-size:11px;">Out of 100</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4 Compact Metrics Strip with Colored Status Dots -->
-        <div class="report-stat-strip">
-          <div class="report-stat-cell">
-            <div class="text-xs text-muted-foreground">HTTP Status</div>
-            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-              <span class="dot-low"></span>
-              <span id="statHttpStatus" class="text-sm font-semibold">200 OK</span>
-            </div>
-          </div>
-          <div class="report-stat-cell">
-            <div class="text-xs text-muted-foreground">Exposed JS Code</div>
-            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-              <span class="dot-medium"></span>
-              <span id="statBytesFetched" class="text-sm font-semibold">-- KB</span>
-            </div>
-          </div>
-          <div class="report-stat-cell">
-            <div class="text-xs text-muted-foreground">Security Headers</div>
-            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-              <span id="dotHeaders" class="dot-high"></span>
-              <span id="statMissingHeaders" class="text-sm font-semibold">--</span>
-            </div>
-          </div>
-          <div class="report-stat-cell">
-            <div class="text-xs text-muted-foreground">AI /llms.txt</div>
-            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-              <span id="dotLlms" class="dot-high"></span>
-              <span id="statLlmsStatus" class="text-sm font-semibold">--</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section Subbar: Click to Expand / Collapse All -->
-        <div style="padding: 12px 22px 0 22px; display:flex; align-items:center; justify-content:space-between; background: color-mix(in oklab, var(--background) 25%, var(--card));">
-          <span class="text-xs font-medium text-muted-foreground">Click any issue below to view plain-English explanation &amp; technical evidence</span>
-          <button id="toggleAllIssuesBtn" type="button" class="tech-chip cursor-pointer" style="font-family:var(--font-sans); font-size:11px;">Expand All</button>
-        </div>
-
-        <!-- Collapsible Color-Coded Issues List -->
-        <div id="findingsList" class="issues-container"></div>
-
-        <!-- Clean One-Command Fix Footer -->
-        <div class="report-footer-bar">
-          <div>
-            <div class="text-sm font-semibold">Fix all detected issues automatically</div>
-            <div class="text-xs text-muted-foreground">Run one command in your project or deploy at the edge with zero code changes.</div>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px; background:var(--background); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-family:var(--font-mono); font-size:12px;">
-            <code id="cliCommandText">npx dontencode.ai init</code>
-            <button id="copyCliBtn" type="button" class="tech-chip cursor-pointer" style="font-family:var(--font-sans);">Copy</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Supported Stacks -->
-    <section class="max-w-(--breakpoint-md) w-full mx-auto px-4 py-16 gap-10 md:px-8 flex flex-col justify-center items-center text-center">
-      <div class="flex flex-col gap-3">
-        <h2 class="text-xl font-semibold sm:text-2xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-          Works With Every Modern Web Stack
-        </h2>
-      </div>
-      <div class="w-full grid grid-cols-3 sm:grid-cols-6 gap-5 place-items-center">
-        <div class="shrink-0" title="Docker">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" fill="#008fe2">
-            <path d="M13.98 11.08h2.12a.19.19 0 0 0 .19-.19V9.01a.19.19 0 0 0-.19-.19h-2.12a.18.18 0 0 0-.18.18v1.9c0 .1.08.18.18.18m-2.95-5.43h2.12a.19.19 0 0 0 .18-.19V3.57a.19.19 0 0 0-.18-.18h-2.12a.18.18 0 0 0-.19.18v1.9c0 .1.09.18.19.18m0 2.71h2.12a.19.19 0 0 0 .18-.18V6.29a.19.19 0 0 0-.18-.18h-2.12a.18.18 0 0 0-.19.18v1.89c0 .1.09.18.19.18m-2.93 0h2.12a.19.19 0 0 0 .18-.18V6.29a.18.18 0 0 0-.18-.18H8.1a.18.18 0 0 0-.18.18v1.89c0 .1.08.18.18.18m-2.96 0h2.11a.19.19 0 0 0 .19-.18V6.29a.18.18 0 0 0-.19-.18H5.14a.19.19 0 0 0-.19.18v1.89c0 .1.08.18.19.18m5.89 2.72h2.12a.19.19 0 0 0 .18-.19V9.01a.19.19 0 0 0-.18-.19h-2.12a.18.18 0 0 0-.19.18v1.9c0 .1.09.18.19.18m-2.93 0h2.12a.18.18 0 0 0 .18-.19V9.01a.18.18 0 0 0-.18-.19H8.1a.18.18 0 0 0-.18.18v1.9c0 .1.08.18.18.18m-2.96 0h2.11a.18.18 0 0 0 .19-.19V9.01a.18.18 0 0 0-.18-.19H5.14a.19.19 0 0 0-.19.19v1.88c0 .1.08.19.19.19m-2.92 0h2.12a.18.18 0 0 0 .18-.19V9.01a.18.18 0 0 0-.18-.19H2.22a.18.18 0 0 0-.19.18v1.9c0 .1.08.18.19.18m21.54-1.19c-.06-.05-.67-.51-1.95-.51-.34 0-.68.03-1.01.09a3.77 3.77 0 0 0-1.72-2.57l-.34-.2-.23.33a4.6 4.6 0 0 0-.6 1.43c-.24.97-.1 1.88.4 2.66a4.7 4.7 0 0 1-1.75.42H.76a.75.75 0 0 0-.76.75 11.38 11.38 0 0 0 .7 4.06 6.03 6.03 0 0 0 2.4 3.12c1.18.73 3.1 1.14 5.28 1.14.98 0 1.96-.08 2.93-.26a12.25 12.25 0 0 0 3.82-1.4 10.5 10.5 0 0 0 2.61-2.13c1.25-1.42 2-3 2.55-4.4h.23c1.37 0 2.21-.55 2.68-1 .3-.3.55-.66.7-1.06l.1-.28Z"></path>
-          </svg>
-        </div>
-        <div class="shrink-0" title="Edge Network">
-          <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M7 18.079V21L0 14L1.46 12.54L7 18.081V18.079ZM9.921 21H7L14 28L15.46 26.54L9.921 21ZM26.535 15.462L27.996 14L13.996 0L12.538 1.466L18.077 7.004H14.73L10.864 3.146L9.404 4.606L11.809 7.01H10.129V17.876H20.994V16.196L23.399 18.6L24.859 17.14L20.994 13.274V9.927L26.535 15.462ZM7.73 6.276L6.265 7.738L7.833 9.304L9.294 7.844L7.73 6.276ZM20.162 18.708L18.702 20.17L20.268 21.738L21.73 20.276L20.162 18.708ZM4.596 9.41L3.134 10.872L7 14.738V11.815L4.596 9.41ZM16.192 21.006H13.268L17.134 24.872L18.596 23.41L16.192 21.006Z" fill="#FF6363"></path>
-          </svg>
-        </div>
-        <div class="shrink-0" title="JavaScript">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1052 1052">
-            <path fill="#f0db4f" d="M0 0h1052v1052H0z"></path>
-            <path d="M965.9 801.1c-7.7-48-39-88.3-131.7-125.9-32.2-14.8-68.1-25.399-78.8-49.8-3.8-14.2-4.3-22.2-1.9-30.8 6.9-27.9 40.2-36.6 66.6-28.6 17 5.7 33.1 18.801 42.8 39.7 45.4-29.399 45.3-29.2 77-49.399-11.6-18-17.8-26.301-25.4-34-27.3-30.5-64.5-46.2-124-45-10.3 1.3-20.699 2.699-31 4-29.699 7.5-58 23.1-74.6 44-49.8 56.5-35.6 155.399 25 196.1 59.7 44.8 147.4 55 158.6 96.9 10.9 51.3-37.699 67.899-86 62-35.6-7.4-55.399-25.5-76.8-58.4-39.399 22.8-39.399 22.8-79.899 46.1 9.6 21 19.699 30.5 35.8 48.7 76.2 77.3 266.899 73.5 301.1-43.5 1.399-4.001 10.6-30.801 3.199-72.101zm-394-317.6h-98.4c0 85-.399 169.4-.399 254.4 0 54.1 2.8 103.7-6 118.9-14.4 29.899-51.7 26.2-68.7 20.399-17.3-8.5-26.1-20.6-36.3-37.699-2.8-4.9-4.9-8.7-5.601-9-26.699 16.3-53.3 32.699-80 49 13.301 27.3 32.9 51 58 66.399 37.5 22.5 87.9 29.4 140.601 17.3 34.3-10 63.899-30.699 79.399-62.199 22.4-41.3 17.6-91.3 17.4-146.6.5-90.2 0-180.4 0-270.9z" fill="#323330"></path>
-          </svg>
-        </div>
-        <div class="shrink-0" title="Tailwind CSS">
-          <svg viewBox="0 0 256 154" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
-            <defs>
-              <linearGradient x1="-2.778%" y1="32%" x2="100%" y2="67.556%" id="twgrad">
-                <stop stop-color="#2298BD" offset="0%"></stop>
-                <stop stop-color="#0ED7B5" offset="100%"></stop>
-              </linearGradient>
-            </defs>
-            <path d="M128 0C93.867 0 72.533 17.067 64 51.2 76.8 34.133 91.733 27.733 108.8 32c9.737 2.434 16.697 9.499 24.401 17.318C145.751 62.057 160.275 76.8 192 76.8c34.133 0 55.467-17.067 64-51.2-12.8 17.067-27.733 23.467-44.8 19.2-9.737-2.434-16.697-9.499-24.401-17.318C174.249 14.743 159.725 0 128 0ZM64 76.8C29.867 76.8 8.533 93.867 0 128c12.8-17.067 27.733-23.467 44.8-19.2 9.737 2.434 16.697 9.499 24.401 17.318C81.751 138.857 96.275 153.6 128 153.6c34.133 0 55.467-17.067 64-51.2-12.8 17.067-27.733 23.467-44.8 19.2-9.737-2.434-16.697-9.499-24.401-17.318C110.249 91.543 95.725 76.8 64 76.8Z" fill="url(#twgrad)"></path>
-          </svg>
-        </div>
-        <div class="shrink-0" title="React &amp; Next.js">
-          <svg viewBox="0 0 256 228" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
-            <path d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621 6.238-30.281 2.16-54.676-11.769-62.708-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848 155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233 50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165 167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266 13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923 168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586 13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488 29.348-9.723 48.443-25.443 48.443-41.52 0-15.417-17.868-30.326-45.517-39.844ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86-22.86-10.235-22.86-22.86 10.235-22.86 22.86-22.86Z" fill="#00D8FF"></path>
-          </svg>
-        </div>
-        <div class="shrink-0" title="REST &amp; GraphQL APIs">
-          <svg viewBox="0 0 256 256" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
-            <path d="M254.953 144.253c8.959-70.131-40.569-134.248-110.572-143.206C74.378-7.912 10.005 41.616 1.047 111.619c-8.959 70.003 40.569 134.248 110.572 143.334 70.131 8.959 134.248-40.569 143.334-110.7Z" fill="#FF6C37"></path>
-            <path d="m174.2 82.184-54.007 54.007-15.229-15.23c53.11-53.11 58.358-48.503 69.236-38.777Z" fill="#FFF"></path>
-          </svg>
-        </div>
-      </div>
-    </section>
-
-    <!-- Informative Plain-English Features Section -->
-    <section id="features" class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-      <div class="mb-12 flex flex-col gap-3 text-center">
-        <h2 class="text-xl font-semibold sm:text-2xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-          Complete Web Application &amp; AI Search Protection
-        </h2>
-        <p class="mx-auto max-w-xl text-muted-foreground text-center">
-          Everything your site needs to stay secure against automated scrapers while ranking higher in AI search engines.
-        </p>
-      </div>
-      <div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-        <div class="rounded-2xl border border-border bg-card p-6">
-          <h3 class="mb-2 text-lg font-semibold">Source Code &amp; Logic Protection</h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Prevent competitors and automated tools from reading your frontend JavaScript logic, pricing calculations, and internal API routes in browser DevTools.
+            </span>
+            <span>DoNotEncode.ai</span>
+          </a>
+          <p>
+            Sovereign WebApp Security, Polymorphic Bytecode Compilation &amp; Automated <code>/llms.txt</code> AI Search Optimization.
           </p>
-        </div>
-        <div class="rounded-2xl border border-border bg-card p-6">
-          <h3 class="mb-2 text-lg font-semibold">HTTP Security &amp; Bot Firewall</h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Automatically add missing security headers (CSP, HSTS, X-Frame-Options), hide server version fingerprints, and block automated scraping bursts at the edge.
-          </p>
-        </div>
-        <div class="rounded-2xl border border-border bg-card p-6">
-          <h3 class="mb-2 text-lg font-semibold">AI Search (<code>/llms.txt</code>) SEO</h3>
-          <p class="text-sm text-muted-foreground leading-relaxed">
-            Automatically generate and update a clean <code>/llms.txt</code> guide from your live pages so ChatGPT, Perplexity, and Google AI cite your business accurately.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4-Column Stats Section -->
-    <section class="py-20 px-4">
-      <div class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold mb-2">99.99%</div>
-            <div class="text-sm text-muted-foreground font-medium">Uptime SLA</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold mb-2">10K+</div>
-            <div class="text-sm text-muted-foreground font-medium">Websites Audited</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold mb-2">&lt; 1ms</div>
-            <div class="text-sm text-muted-foreground font-medium">Edge Response Overhead</div>
-          </div>
-          <div class="text-center">
-            <div class="text-3xl md:text-4xl font-bold mb-2">24/7</div>
-            <div class="text-sm text-muted-foreground font-medium">Automated Protection</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="px-3 py-16 sm:px-4 sm:py-24">
-      <div class="max-w-6xl mx-auto">
-        <div class="mb-12 flex flex-col gap-3 text-center sm:mb-20">
-          <h2 class="text-xl font-semibold sm:text-2xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-            Trusted by Engineering Teams Worldwide
-          </h2>
-          <p class="mx-auto max-w-xl text-muted-foreground text-center">
-            See how startups and enterprises protect their web applications and improve AI search visibility with dontencode.ai.
-          </p>
-        </div>
-        <div class="relative">
-          <div class="columns-2 gap-3 space-y-3 sm:gap-8 sm:space-y-8 md:columns-2 lg:columns-3">
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “Competitors were scraping our pricing logic and internal API endpoints straight out of our Next.js bundles. dontencode.ai locked down our client code in under a minute without breaking SSR.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">SC</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Sarah Chen</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">CEO at TechStart</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “Our S3 and Supabase URLs were being copied from the Network tab and shared outside our app. dontencode.ai replaced them with single-use edge tokens automatically.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">MR</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Marcus Rodriguez</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">VP Engineering at Scale Co</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “dontencode.ai automatically keeps our /llms.txt file synced whenever we update our pricing or features. Our referrals from ChatGPT and Perplexity grew immediately.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">ET</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Emma Thompson</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">CTO at DataFlow</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “We went from failing HTTP security header audits to an A+ rating across our entire domain without touching our backend code.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">RT</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Robert Taylor</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">CTO at FinanceFlow</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “Stopped automated catalog scrapers and coupon abuse bots on our storefront on day one.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">MG</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Maria Garcia</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">Director of Ecommerce at Lumina</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 break-inside-avoid sm:mb-8">
-              <div class="rounded-lg border border-border bg-card p-3 transition-colors duration-300 sm:rounded-xl sm:p-6">
-                <div class="mb-2 flex sm:mb-4 text-yellow-500">★★★★★</div>
-                <p class="mb-4 text-xs leading-snug text-muted-foreground sm:mb-6 sm:text-sm sm:leading-relaxed">
-                  “One command (`npx dontencode.ai init`) detected our stack and deployed the edge protection in seconds.”
-                </p>
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-linear-to-br from-primary/20 to-primary/10 text-xs font-medium sm:h-10 sm:w-10 sm:text-sm">KL</div>
-                  <div class="min-w-0">
-                    <h4 class="truncate text-xs font-semibold sm:text-sm">Kevin Lee</h4>
-                    <p class="truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">Founder at NextGen Solutions</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-background via-background/80 to-transparent"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="mx-auto w-full max-w-7xl px-3 py-16 sm:px-4 sm:py-24 md:px-6">
-      <div class="mb-12 flex flex-col gap-3 text-center sm:mb-16">
-        <h2 class="text-xl font-semibold sm:text-2xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-          Simple, Transparent Pricing
-        </h2>
-        <p class="mx-auto max-w-xl text-muted-foreground text-center">
-          Start with a free security audit and upgrade when you're ready for full edge protection.
-        </p>
-      </div>
-      <div class="mx-auto grid max-w-5xl gap-4 sm:gap-6 md:grid-cols-3 md:gap-8">
-        <!-- Starter -->
-        <div class="relative">
-          <div data-slot="card" class="bg-card text-card-foreground flex flex-col justify-between gap-6 py-6 shadow-sm relative h-full rounded-2xl border border-border">
-            <div data-slot="card-content" class="p-4 pt-6 sm:p-6 sm:pt-8">
-              <div class="mb-5 text-center sm:mb-6">
-                <h3 class="mb-2 text-lg font-semibold sm:text-xl">Starter Audit</h3>
-                <p class="mb-3 text-sm text-muted-foreground sm:mb-4">For individual developers</p>
-                <div class="flex items-baseline justify-center">
-                  <span class="text-3xl font-bold sm:text-4xl">$0</span>
-                  <span class="ml-1 text-sm text-muted-foreground sm:text-base">/month</span>
-                </div>
-              </div>
-              <div class="bg-border h-px w-full my-4 sm:my-6"></div>
-              <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
-                <li class="flex items-center">✓ Instant URL Security &amp; SEO Audit</li>
-                <li class="flex items-center">✓ HTTP Security Header Check</li>
-                <li class="flex items-center">✓ /llms.txt AI Visibility Check</li>
-              </ul>
-            </div>
-            <div class="p-4 pt-0 sm:p-6 sm:pt-0">
-              <a href="#auditForm" class="inline-flex items-center justify-center text-sm font-medium transition-all border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-10 rounded-md px-6 w-full">
-                Scan For Free
-              </a>
-            </div>
-          </div>
+          <span class="a01-status-pill">
+            <span class="a01-status-dot"></span>
+            All 6 Orbital Edge Agents Operational
+          </span>
         </div>
 
-        <!-- Pro -->
-        <div class="relative md:scale-[1.03]">
-          <div data-slot="card" class="text-card-foreground flex flex-col justify-between gap-6 py-6 relative h-full rounded-2xl border-2 border-primary bg-primary/5 shadow-lg">
-            <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span class="rounded-full border-2 border-primary bg-card px-3 py-1 text-xs font-medium sm:px-4 sm:text-sm">Most Popular</span>
-            </div>
-            <div data-slot="card-content" class="p-4 pt-6 sm:p-6 sm:pt-8">
-              <div class="mb-5 text-center sm:mb-6">
-                <h3 class="mb-2 text-lg font-semibold sm:text-xl">Pro Shield</h3>
-                <p class="mb-3 text-sm text-muted-foreground sm:mb-4">Full automated edge protection</p>
-                <div class="flex items-baseline justify-center">
-                  <span class="text-3xl font-bold sm:text-4xl">$99</span>
-                  <span class="ml-1 text-sm text-muted-foreground sm:text-base">/month</span>
-                </div>
-              </div>
-              <div class="bg-border h-px w-full my-4 sm:my-6"></div>
-              <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
-                <li class="flex items-center">✓ JavaScript Source Code Protection</li>
-                <li class="flex items-center">✓ Cloud URL &amp; API Key Vaulting</li>
-                <li class="flex items-center">✓ Automated HTTP Security Headers &amp; WAF</li>
-                <li class="flex items-center">✓ Auto-Synced /llms.txt for AI Search</li>
-              </ul>
-            </div>
-            <div class="p-4 pt-0 sm:p-6 sm:pt-0">
-              <a href="#auditForm" class="inline-flex items-center justify-center text-sm font-medium transition-all bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-10 rounded-md px-6 w-full">
-                Start 14-Day Free Trial
-              </a>
-            </div>
-          </div>
+        <div class="a14-col">
+          <h4>6-Layer Orbit</h4>
+          <ul>
+            <li><a href="#orbitSection" data-select-agent="0">Bytecode VM (_aVM)</a></li>
+            <li><a href="#orbitSection" data-select-agent="1">Cloud &amp; BaaS Vault</a></li>
+            <li><a href="#orbitSection" data-select-agent="2">Living /llms.txt GEO</a></li>
+            <li><a href="#orbitSection" data-select-agent="3">Bot &amp; CDP Gate</a></li>
+            <li><a href="#orbitSection" data-select-agent="4">SSR &amp; Checkout Guard</a></li>
+            <li><a href="#orbitSection" data-select-agent="5">Zero-Day Edge WAF</a></li>
+          </ul>
         </div>
 
-        <!-- Enterprise -->
-        <div class="relative">
-          <div data-slot="card" class="bg-card text-card-foreground flex flex-col justify-between gap-6 py-6 shadow-sm relative h-full rounded-2xl border border-border">
-            <div data-slot="card-content" class="p-4 pt-6 sm:p-6 sm:pt-8">
-              <div class="mb-5 text-center sm:mb-6">
-                <h3 class="mb-2 text-lg font-semibold sm:text-xl">Enterprise</h3>
-                <p class="mb-3 text-sm text-muted-foreground sm:mb-4">For multi-domain organizations</p>
-                <div class="flex items-baseline justify-center">
-                  <span class="text-3xl font-bold sm:text-4xl">$499</span>
-                  <span class="ml-1 text-sm text-muted-foreground sm:text-base">/month</span>
-                </div>
-              </div>
-              <div class="bg-border h-px w-full my-4 sm:my-6"></div>
-              <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
-                <li class="flex items-center">✓ Everything in Pro Shield</li>
-                <li class="flex items-center">✓ Unlimited Domains &amp; Subdomains</li>
-                <li class="flex items-center">✓ Custom Edge Rules &amp; Bot Mitigation</li>
-                <li class="flex items-center">✓ Dedicated Support &amp; 99.99% SLA</li>
-              </ul>
-            </div>
-            <div class="p-4 pt-0 sm:p-6 sm:pt-0">
-              <a href="#auditForm" class="inline-flex items-center justify-center text-sm font-medium transition-all border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-10 rounded-md px-6 w-full">
-                Contact Sales
-              </a>
-            </div>
-          </div>
+        <div class="a14-col">
+          <h4>Live Scanner</h4>
+          <ul>
+            <li><a href="#scannerHero" data-preset-url="https://acme-nexus.io">Next.js SaaS Audit</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://store-demo.shopify.com">Shopify Store Audit</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://vault-ledger.fintech.io">Fintech API Audit</a></li>
+            <li><a href="/llms.txt" target="_blank" rel="noopener">View Live /llms.txt</a></li>
+          </ul>
+        </div>
+
+        <div class="a14-col">
+          <h4>Developers</h4>
+          <ul>
+            <li><a href="#faqSection">CLI Quickstart</a></li>
+            <li><a href="#proofBento">100/100 Benchmark Suite</a></li>
+            <li><a href="#proofBento">1,417 Chaos Fuzz Report</a></li>
+            <li><a href="https://github.com/wesamhindi/dontencode.ai" target="_blank" rel="noopener">GitHub Repository</a></li>
+          </ul>
+        </div>
+
+        <div class="a14-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#pricingSection">Pricing</a></li>
+            <li><a href="#faqSection">Security Architecture</a></li>
+            <li><a href="#scannerHero">Free URL Dossier</a></li>
+          </ul>
         </div>
       </div>
-    </section>
 
-    <!-- FAQ Section -->
-    <section id="faq" class="relative w-full max-w-(--breakpoint-xl) mx-auto px-4 py-24 gap-5 md:px-8 flex flex-col justify-center items-center">
-      <div class="flex flex-col gap-3 justify-center items-center">
-        <h2 class="text-2xl font-bold sm:text-3xl bg-linear-to-b from-foreground to-muted-foreground text-transparent bg-clip-text">
-          Frequently Asked Questions
-        </h2>
-        <p class="max-w-xl text-muted-foreground text-center">
-          Everything you need to know about protecting your web app and improving AI search visibility.
-        </p>
+      <div class="a14-bottom">
+        <span>© 2026 DoNotEncode.ai. All rights reserved. Built with zero third-party runtime dependencies.</span>
+        <span style="font-family:var(--ss-mono);">X-Aegis-Shield: v6.0-SOVEREIGN</span>
       </div>
-      <div class="flex w-full max-w-lg mt-4">
-        <div class="w-full divide-y divide-border text-muted-foreground">
-          <details class="group py-4">
-            <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
-              How do I install dontencode.ai on my website?
-              <span class="transition-transform group-open:rotate-180">▾</span>
-            </summary>
-            <p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Run <code>npx dontencode.ai init</code> in your project folder, or enable our Cloudflare / Edge proxy in front of your domain with zero code changes.
-            </p>
-          </details>
-          <details class="group py-4">
-            <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
-              Does dontencode.ai hurt Google SEO or AI search rankings?
-              <span class="transition-transform group-open:rotate-180">▾</span>
-            </summary>
-            <p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-              No. dontencode.ai serves clean semantic HTML to verified search crawlers and automatically generates an up-to-date <code>/llms.txt</code> manifest so ChatGPT, Perplexity, and Google AI index your pages accurately.
-            </p>
-          </details>
-          <details class="group py-4">
-            <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
-              Why can't I just minify my code or ask an AI coding assistant to fix this?
-              <span class="transition-transform group-open:rotate-180">▾</span>
-            </summary>
-            <p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-              Minified JavaScript is still readable in browser DevTools, and static code edits cannot issue single-use expiring tokens for your cloud files or block live scraping bursts at the edge.
-            </p>
-          </details>
-          <details class="group py-4">
-            <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-foreground">
-              Which frameworks are supported?
-              <span class="transition-transform group-open:rotate-180">▾</span>
-            </summary>
-            <p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-              dontencode.ai works with Next.js, React, Nuxt, Vue, SvelteKit, Remix, Astro, Shopify, WordPress, and any custom Node.js, Go, Python, Ruby, or PHP backend.
-            </p>
-          </details>
-        </div>
-      </div>
-    </section>
+    </div>
+  </footer>
 
-    <!-- Minimal Footer -->
-    <footer class="w-full border-t border-border bg-card/50">
-      <div class="mx-auto max-w-6xl px-4 py-10 sm:py-12">
-        <div class="space-y-8">
-          <div class="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
-            <div class="space-y-3">
-              <a class="inline-block text-xl font-medium tracking-tight transition-opacity hover:opacity-80" href="#">dontencode.ai</a>
-              <p class="max-w-xs text-sm leading-relaxed text-muted-foreground">
-                Automated website security, source code protection, and AI search optimization for modern web apps.
-              </p>
-            </div>
-            <div class="space-y-3">
-              <h3 class="text-sm font-semibold">Product</h3>
-              <div class="flex flex-col gap-2">
-                <a class="text-sm text-muted-foreground transition-colors hover:text-foreground" href="#features">How It Works</a>
-                <a class="text-sm text-muted-foreground transition-colors hover:text-foreground" href="#pricing">Pricing</a>
-                <a class="text-sm text-muted-foreground transition-colors hover:text-foreground" href="#faq">FAQ</a>
-              </div>
-            </div>
-            <div class="space-y-3">
-              <h3 class="text-sm font-semibold">Security &amp; Compliance</h3>
-              <p class="text-xs text-muted-foreground">
-                Edge WAF • Source Code Protection • Automated /llms.txt SEO
-              </p>
-            </div>
-          </div>
-          <div class="bg-border h-px w-full"></div>
-          <div class="flex flex-col items-center justify-between gap-2 text-center text-sm text-muted-foreground sm:flex-row sm:text-left">
-            <span>© 2026 dontencode.ai. All rights reserved.</span>
-            <span class="font-medium">Protecting Modern Web Applications</span>
-          </div>
-        </div>
-      </div>
-    </footer>
-  </main>
-
+  <!-- ========================================================================
+       INTERACTIVE FRONTEND SCRIPTS
+       ======================================================================== -->
   <script>
-    function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+    (function () {
+      'use strict';
 
-    // Theme toggle
-    document.getElementById('themeToggleBtn').addEventListener('click', () => {
-      const root = document.documentElement;
-      const isDark = root.classList.contains('dark');
-      if (isDark) {
-        root.classList.remove('dark');
-        root.classList.add('light');
-        root.style.colorScheme = 'light';
-      } else {
-        root.classList.remove('light');
-        root.classList.add('dark');
-        root.style.colorScheme = 'dark';
+      /* ----------------------------------------------------------------------
+         1. Twinkling Starfield Canvas (Header, Hero & Orbit Section)
+         ---------------------------------------------------------------------- */
+      function initStarCanvas(canvasId, densityDivisor) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let width = 0;
+        let height = 0;
+
+        function resize() {
+          const rect = canvas.parentElement.getBoundingClientRect();
+          width = canvas.width = Math.max(300, Math.floor(rect.width));
+          height = canvas.height = Math.max(60, Math.floor(rect.height));
+          const count = Math.min(140, Math.max(24, Math.floor((width * height) / (densityDivisor || 9000))));
+          stars = Array.from({ length: count }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 1.35 + 0.35,
+            alpha: Math.random() * 0.65 + 0.15,
+            speed: (Math.random() * 0.012 + 0.003) * (Math.random() < 0.5 ? 1 : -1),
+            gold: Math.random() < 0.22
+          }));
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, width, height);
+          for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            s.alpha += s.speed;
+            if (s.alpha > 0.85 || s.alpha < 0.12) s.speed = -s.speed;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = s.gold
+              ? 'rgba(251, 204, 130, ' + s.alpha.toFixed(2) + ')'
+              : 'rgba(255, 255, 255, ' + s.alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+
+        resize();
+        window.addEventListener('resize', resize, { passive: true });
+        requestAnimationFrame(draw);
       }
-    });
 
-    // Expand / Collapse All button
-    let allExpanded = false;
-    document.getElementById('toggleAllIssuesBtn').addEventListener('click', () => {
-      allExpanded = !allExpanded;
-      document.querySelectorAll('.issue-accordion').forEach((det) => {
-        det.open = allExpanded;
+      initStarCanvas('headerStars', 5500);
+      initStarCanvas('heroStars', 8000);
+      initStarCanvas('orbitStars', 7500);
+
+      /* ----------------------------------------------------------------------
+         2. Sticky Header Compact Observer
+         ---------------------------------------------------------------------- */
+      const headerEl = document.getElementById('siteHeader');
+      const sentinelEl = document.getElementById('topSentinel');
+      if (headerEl && sentinelEl && 'IntersectionObserver' in window) {
+        new IntersectionObserver(
+          ([entry]) => {
+            headerEl.classList.toggle('is-compact', !entry.isIntersecting);
+          },
+          { threshold: 0 }
+        ).observe(sentinelEl);
+      }
+
+      /* ----------------------------------------------------------------------
+         3. Hero Rotating Engine Flipper (1.8s interval)
+         ---------------------------------------------------------------------- */
+      const flipperItems = document.querySelectorAll('#heroFlipper .ss-flip-item');
+      let flipIdx = 0;
+      if (flipperItems.length > 1) {
+        setInterval(() => {
+          flipperItems[flipIdx].classList.remove('is-on');
+          flipIdx = (flipIdx + 1) % flipperItems.length;
+          flipperItems[flipIdx].classList.add('is-on');
+        }, 1850);
+      }
+
+      /* ----------------------------------------------------------------------
+         4. Proof Ring Gauge & Bento Bar Chart Scroll Animations
+         ---------------------------------------------------------------------- */
+      const proofGauge = document.getElementById('proofGauge');
+      const proofCircle = document.getElementById('proofGaugeCircle');
+      const proofNum = document.getElementById('proofGaugeNum');
+      if (proofGauge && proofCircle && proofNum && 'IntersectionObserver' in window) {
+        let gaugeRan = false;
+        new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting && !gaugeRan) {
+              gaugeRan = true;
+              const circumference = 226.19;
+              const duration = 1100;
+              const start = performance.now();
+              function tick(now) {
+                const p = Math.min(1, (now - start) / duration);
+                const ease = 1 - Math.pow(1 - p, 3);
+                proofNum.textContent = String(Math.round(ease * 100));
+                proofCircle.style.strokeDashoffset = String((circumference * (1 - ease)).toFixed(2));
+                if (p < 1) requestAnimationFrame(tick);
+              }
+              requestAnimationFrame(tick);
+            }
+          },
+          { threshold: 0.35 }
+        ).observe(proofGauge);
+      }
+
+      const bentoSection = document.getElementById('proofBento');
+      if (bentoSection && 'IntersectionObserver' in window) {
+        new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) bentoSection.classList.add('in');
+          },
+          { threshold: 0.25 }
+        ).observe(bentoSection);
+      }
+
+      /* ----------------------------------------------------------------------
+         5. Interactive 6-Agent Planetary Orbit System
+         ---------------------------------------------------------------------- */
+      const ORBIT_AGENTS = [
+        {
+          title: 'Bytecode VM Compiler (_aVM)',
+          desc: 'Standard minifiers and base64 encoders are reversed by AI decompilers in 1 second. DoNotEncode.ai compiles sensitive client JS functions into polymorphic stack bytecode with per-session shuffled opcodes.',
+          viewHtml:
+            '<div class="vh"><span>Live Bundle Virtualization</span><span class="vpill">0 Plaintext Functions</span></div>' +
+            '<div class="vrow"><span>Before: <code>calculateTierDiscount(cart)</code></span><span style="color:#fca5a5;">Exposed in DevTools</span></div>' +
+            '<div class="vrow"><span>After: <code>_aVM.exec([0x4A, 0x9F, 0x12...])</code></span><span style="color:#6ee7b7;">Sealed Bytecode</span></div>' +
+            '<div class="vbar"><i style="width:98%"></i></div>'
+        },
+        {
+          title: 'Cloud & BaaS Asset Vault',
+          desc: 'Wraps direct AWS S3, CloudFront, Supabase, Firebase, and WebSocket (wss://) URLs in single-use expiring HMAC tickets so scrapers cannot hotlink buckets or replay tokens outside your app.',
+          viewHtml:
+            '<div class="vh"><span>Cloud Bucket &amp; Token Shield</span><span class="vpill">Single-Use HMAC</span></div>' +
+            '<div class="vrow"><span>Direct S3 / Supabase URLs</span><span style="color:#6ee7b7;">100% Proxied</span></div>' +
+            '<div class="vrow"><span>Script Subresource Integrity (SRI)</span><span style="color:#6ee7b7;">SHA-384 Enforced</span></div>' +
+            '<div class="vbar"><i style="width:100%"></i></div>'
+        },
+        {
+          title: 'Living /llms.txt AI Search Engine',
+          desc: 'Automatically extracts verified product headings, routes, and pricing from your live production DOM on every deploy and serves a cryptographically signed /llms.txt manifest for ChatGPT, Perplexity & Claude.',
+          viewHtml:
+            '<div class="vh"><span>AI Search Discovery (/llms.txt)</span><span class="vpill">200 OK Signed</span></div>' +
+            '<div class="vrow"><span>HTML/JS Clutter Removed for LLMs</span><span style="color:#6ee7b7;">-92% Token Noise</span></div>' +
+            '<div class="vrow"><span>ChatGPT, Perplexity &amp; Claude Sync</span><span style="color:#fbcc82;">Auto-Updated</span></div>' +
+            '<div class="vbar"><i style="width:96%"></i></div>'
+        },
+        {
+          title: 'Bot, Scraper & Headless CDP Gate',
+          desc: 'Detects Puppeteer, Playwright, and headless Chrome DevTools Protocol (CDP) automation at the edge while verifying real search engine crawlers via reverse-DNS and cryptographic signatures.',
+          viewHtml:
+            '<div class="vh"><span>Edge Bot &amp; Scraper Telemetry</span><span class="vpill">99.4% Blocked</span></div>' +
+            '<div class="vrow"><span>Headless Chrome / Playwright Traps</span><span style="color:#6ee7b7;">Active</span></div>' +
+            '<div class="vrow"><span>Verified Googlebot / OpenAI SearchBot</span><span style="color:#6ee7b7;">Allowed Fast-Path</span></div>' +
+            '<div class="vbar"><i style="width:94%"></i></div>'
+        },
+        {
+          title: 'Checkout & SSR Hydration Guard',
+          desc: 'Scrubs internal secrets, wholesale margins, and tenant IDs from Next.js __NEXT_DATA__, React Server Components (RSC), Nuxt, and Shopify storefront payloads while blocking coupon brute-force bursts.',
+          viewHtml:
+            '<div class="vh"><span>SSR State &amp; Checkout Shield</span><span class="vpill">Zero Leakage</span></div>' +
+            '<div class="vrow"><span>__NEXT_DATA__ / RSC Secret Keys</span><span style="color:#6ee7b7;">Scrubbed at Edge</span></div>' +
+            '<div class="vrow"><span>Honey-Extension Coupon Brute-Force</span><span style="color:#6ee7b7;">Rate-Locked</span></div>' +
+            '<div class="vbar"><i style="width:99%"></i></div>'
+        },
+        {
+          title: 'Zero-Day Edge WAF & Auto-Patcher',
+          desc: 'Injects strict Content-Security-Policy, HSTS, and COOP headers automatically while blocking 6 high-impact CVEs (Next.js middleware bypass, React Flight DoS, path traversal, and prototype pollution).',
+          viewHtml:
+            '<div class="vh"><span>Virtual Patch &amp; Header Engine</span><span class="vpill">6/6 CVEs Blocked</span></div>' +
+            '<div class="vrow"><span>Browser Isolation Headers (CSP/HSTS)</span><span style="color:#6ee7b7;">Injected</span></div>' +
+            '<div class="vrow"><span>Polyglot Repo Auto-Fixer</span><span style="color:#fbcc82;">JS • Python • Go • PHP</span></div>' +
+            '<div class="vbar"><i style="width:100%"></i></div>'
+        }
+      ];
+
+      const orbitPills = document.querySelectorAll('#orbitPills .pill');
+      const orbitSats = document.querySelectorAll('.x-orbit .sat');
+      const orbitCard = document.getElementById('orbitCard');
+      const orbitTitle = document.getElementById('orbitCardTitle');
+      const orbitDesc = document.getElementById('orbitCardDesc');
+      const orbitView = document.getElementById('orbitCardView');
+      const orbitArc = document.getElementById('orbitMainArc');
+
+      function selectOrbitAgent(idx) {
+        const agent = ORBIT_AGENTS[idx];
+        if (!agent) return;
+        orbitPills.forEach((p, i) => p.classList.toggle('on', i === idx));
+        orbitSats.forEach((s, i) => s.classList.toggle('on', i === idx));
+
+        if (orbitArc) {
+          const total = 1319.47;
+          const fraction = (idx + 1) / ORBIT_AGENTS.length;
+          orbitArc.style.strokeDashoffset = String((total * (1 - fraction)).toFixed(2));
+        }
+
+        if (orbitCard) {
+          orbitCard.classList.remove('flip');
+          void orbitCard.offsetWidth;
+          orbitCard.classList.add('flip');
+        }
+
+        setTimeout(() => {
+          if (orbitTitle) orbitTitle.textContent = agent.title;
+          if (orbitDesc) orbitDesc.textContent = agent.desc;
+          if (orbitView) orbitView.innerHTML = agent.viewHtml;
+        }, 160);
+      }
+
+      orbitPills.forEach((btn) => {
+        btn.addEventListener('click', () => selectOrbitAgent(Number(btn.dataset.idx || 0)));
       });
-      document.getElementById('toggleAllIssuesBtn').textContent = allExpanded ? 'Collapse All' : 'Expand All';
-    });
+      orbitSats.forEach((btn) => {
+        btn.addEventListener('click', () => selectOrbitAgent(Number(btn.dataset.idx || 0)));
+      });
+      document.querySelectorAll('[data-select-agent]').forEach((link) => {
+        link.addEventListener('click', () => {
+          selectOrbitAgent(Number(link.getAttribute('data-select-agent') || 0));
+        });
+      });
 
-    function renderDossier(dossier) {
-      const tel = dossier.liveTelemetry || {};
-      const reportSection = document.getElementById('auditReportSection');
-      reportSection.classList.add('visible');
-
-      const score = Number(dossier.overallRiskScore || 75);
-      document.getElementById('riskScoreVal').textContent = score;
-
-      const gradeEl = document.getElementById('riskGradeBadge');
-      const circleEl = document.getElementById('scoreRingCircle');
-      const circumference = 138.2;
-      const offset = Math.max(8, circumference - (score / 100) * circumference);
-      circleEl.setAttribute('stroke-dashoffset', String(offset));
-
-      if (score >= 75) {
-        gradeEl.textContent = 'High Risk';
-        gradeEl.style.color = '#f87171';
-        circleEl.setAttribute('stroke', '#ef4444');
-      } else if (score >= 50) {
-        gradeEl.textContent = 'Medium Risk';
-        gradeEl.style.color = '#fbbf24';
-        circleEl.setAttribute('stroke', '#f59e0b');
-      } else {
-        gradeEl.textContent = 'Low Risk';
-        gradeEl.style.color = '#34d399';
-        circleEl.setAttribute('stroke', '#10b981');
+      /* ----------------------------------------------------------------------
+         6. Pricing Yearly / Monthly Interactive Switch
+         ---------------------------------------------------------------------- */
+      const pricingSection = document.getElementById('pricingSection');
+      if (pricingSection) {
+        pricingSection.querySelectorAll('.pp-toggle').forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            const current = pricingSection.getAttribute('data-cycle') || 'yearly';
+            const next = current === 'yearly' ? 'monthly' : 'yearly';
+            pricingSection.setAttribute('data-cycle', next);
+            pricingSection.querySelectorAll('.pp-num').forEach((el) => {
+              el.textContent = el.getAttribute('data-' + next) || el.textContent;
+            });
+            pricingSection.querySelectorAll('.pp-billed').forEach((el) => {
+              el.textContent = el.getAttribute('data-' + next) || el.textContent;
+            });
+          });
+        });
       }
 
-      document.getElementById('pageTitleDisplay').textContent =
-        dossier.pageTitle || tel.pageTitle || dossier.targetUrl;
-      document.getElementById('targetUrlDisplay').textContent =
-        dossier.finalUrl || dossier.targetUrl;
+      /* ----------------------------------------------------------------------
+         7. Smooth FAQ Accordions
+         ---------------------------------------------------------------------- */
+      document.querySelectorAll('#faqAccordionList details.a12-item').forEach((detailsEl) => {
+        const summary = detailsEl.querySelector('summary');
+        const content = detailsEl.querySelector('.a12-a');
+        if (!summary || !content || !content.animate) return;
+        summary.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (detailsEl.open) {
+            const anim = content.animate(
+              [
+                { height: content.offsetHeight + 'px', opacity: 1 },
+                { height: '0px', opacity: 0 }
+              ],
+              { duration: 220, easing: ' cubic-bezier(0.22, 1, 0.36, 1)' }
+            );
+            anim.onfinish = () => {
+              detailsEl.open = false;
+            };
+          } else {
+            detailsEl.open = true;
+            content.animate(
+              [
+                { height: '0px', opacity: 0 },
+                { height: content.offsetHeight + 'px', opacity: 1 }
+              ],
+              { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+            );
+          }
+        });
+      });
 
-      const badgeEl = document.getElementById('liveFetchBadge');
-      badgeEl.textContent = dossier.fetchedLive
-        ? 'HTTP ' + (dossier.httpStatus || 200) + ' • ' + dossier.scanDurationMs + 'ms'
-        : 'Scanned in ' + dossier.scanDurationMs + 'ms';
+      /* ----------------------------------------------------------------------
+         8. LIVE URL SECURITY & AI-SEARCH SCANNER + COLLAPSIBLE CARDS
+         ---------------------------------------------------------------------- */
+      const auditForm = document.getElementById('auditScannerForm');
+      const auditInput = document.getElementById('auditUrlInput');
+      const auditSubmitLabel = document.getElementById('auditSubmitLabel');
+      const auditIssuesList = document.getElementById('auditIssuesList');
+      const auditScoreOrb = document.getElementById('auditScoreOrb');
+      const auditScoreValue = document.getElementById('auditScoreValue');
+      const auditScoreLabel = document.getElementById('auditScoreLabel');
+      const auditTargetTitle = document.getElementById('auditTargetTitle');
+      const auditGradeBadge = document.getElementById('auditGradeBadge');
+      const auditPlainSummary = document.getElementById('auditPlainSummary');
+      const auditTelemetryPills = document.getElementById('auditTelemetryPills');
+      const auditScanTimeLabel = document.getElementById('auditScanTimeLabel');
+      const simDrawer = document.getElementById('simResultsDrawer');
+      const simulateBtn = document.getElementById('simulateShieldBtn');
+      const toggleAllCardsBtn = document.getElementById('toggleAllCardsBtn');
 
-      // Sort findings: High -> Medium -> Low
-      const rank = { High: 3, Medium: 2, Low: 1 };
-      const sortedFindings = [...(dossier.findings || [])].sort(
-        (a, b) => (rank[b.severity] || 0) - (rank[a.severity] || 0)
-      );
+      let currentReport = null;
+      let activeFilter = 'ALL';
+      let allExpanded = false;
 
-      const highCount = sortedFindings.filter((f) => f.severity === 'High').length;
-      const medCount = sortedFindings.filter((f) => f.severity === 'Medium').length;
-      const lowCount = sortedFindings.filter((f) => f.severity === 'Low').length;
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
 
-      // Render top colored risk summary pills + stack chips
-      const summaryRow = document.getElementById('severitySummaryRow');
-      summaryRow.innerHTML = `
-        ${highCount > 0 ? `<span class="badge-high"><span class="dot-high"></span>${highCount} High Risk</span>` : ''}
-        ${medCount > 0 ? `<span class="badge-medium"><span class="dot-medium"></span>${medCount} Medium Risk</span>` : ''}
-        ${lowCount > 0 ? `<span class="badge-low"><span class="dot-low"></span>${lowCount} Low Risk</span>` : ''}
-        ${(dossier.stackDetected || []).slice(0, 3).map((s) => `<span class="tech-chip" style="font-size:11px;">${escapeHtml(s)}</span>`).join('')}
-      `;
+      function renderCollapsibleFindings(findings) {
+        if (!auditIssuesList) return;
+        const list = Array.isArray(findings) ? findings : [];
 
-      // Update 4 quick-status tiles
-      document.getElementById('statHttpStatus').textContent = 'HTTP ' + (dossier.httpStatus || 200);
-      const totalKb = Math.max(1, Math.round(((tel.htmlSizeBytes || 0) + (tel.jsTotalBytes || 0)) / 1024));
-      document.getElementById('statBytesFetched').textContent = totalKb.toLocaleString() + ' KB';
+        const highCount = list.filter((f) => f.severity === 'High').length;
+        const medCount = list.filter((f) => f.severity === 'Medium').length;
+        const lowCount = list.filter((f) => f.severity === 'Low').length;
 
-      const missingCount = tel.missingSecurityHeaders ? tel.missingSecurityHeaders.length : 0;
-      document.getElementById('statMissingHeaders').textContent = missingCount + ' Missing';
-      document.getElementById('dotHeaders').className = missingCount >= 3 ? 'dot-high' : missingCount > 0 ? 'dot-medium' : 'dot-low';
+        document.getElementById('countAll').textContent = String(list.length);
+        document.getElementById('countHigh').textContent = String(highCount);
+        document.getElementById('countMed').textContent = String(medCount);
+        document.getElementById('countLow').textContent = String(lowCount);
 
-      const llmsText = tel.llmsTxtStatus || 'Missing (404)';
-      document.getElementById('statLlmsStatus').textContent = llmsText;
-      document.getElementById('dotLlms').className = llmsText.startsWith('Found') ? 'dot-low' : 'dot-high';
+        const filtered = activeFilter === 'ALL' ? list : list.filter((f) => f.severity === activeFilter);
 
-      document.getElementById('cliCommandText').textContent =
-        'npx dontencode.ai init --target ' + dossier.targetUrl;
+        if (filtered.length === 0) {
+          auditIssuesList.innerHTML =
+            '<div style="padding:20px;border-radius:12px;background:rgba(255,255,255,0.03);color:var(--ss-muted);text-align:center;">No issues in this risk category for this URL.</div>';
+          return;
+        }
 
-      // Render Collapsible Color-Coded Issue Accordions
-      const listEl = document.getElementById('findingsList');
-      listEl.innerHTML = '';
-      allExpanded = false;
-      document.getElementById('toggleAllIssuesBtn').textContent = 'Expand All';
+        auditIssuesList.innerHTML = filtered
+          .map((item, idx) => {
+            const sev = item.severity === 'High' ? 'High' : item.severity === 'Medium' ? 'Medium' : 'Low';
+            const sevBadgeClass = sev === 'High' ? 'sev-high' : sev === 'Medium' ? 'sev-med' : 'sev-low';
+            const sevIcon = sev === 'High' ? '🔴 HIGH RISK' : sev === 'Medium' ? '🟡 MEDIUM RISK' : '🟢 PASSED / LOW';
+            const openAttr = idx === 0 || allExpanded ? ' open' : '';
 
-      sortedFindings.forEach((f, idx) => {
-        const sev = f.severity || 'Medium';
-        const sevClass = sev === 'High' ? 'sev-high' : sev === 'Medium' ? 'sev-medium' : 'sev-low';
-        const badgeHtml =
-          sev === 'High'
-            ? `<span class="badge-high"><span class="dot-high"></span>HIGH RISK</span>`
-            : sev === 'Medium'
-            ? `<span class="badge-medium"><span class="dot-medium"></span>MEDIUM RISK</span>`
-            : `<span class="badge-low"><span class="dot-low"></span>LOW RISK</span>`;
+            const techRows = Array.isArray(item.technicalDetails)
+              ? item.technicalDetails
+                  .map(
+                    (td) =>
+                      '<div class="issue-tech-row">' +
+                      '<span class="issue-tech-lbl">' + escapeHtml(td.label) + '</span>' +
+                      '<span class="issue-tech-val">' + escapeHtml(td.value) + '</span>' +
+                      '</div>'
+                  )
+                  .join('')
+              : '';
 
-        const det = document.createElement('details');
-        det.className = `issue-accordion ${sevClass}`;
-        // Open only the first High Risk item by default so the report is clean & scannable
-        if (idx === 0) det.open = true;
-
-        const detailsBlocks = (f.technicalDetails || [])
-          .map((d) => {
-            const parts = String(d.value || '')
-              .split(/\s*(?:,|•)\s*/)
-              .filter(Boolean);
-            const chipsHtml = parts
-              .map((p) => `<span class="tech-chip">${escapeHtml(p)}</span>`)
-              .join('');
-            return `
-              <div>
-                <div class="evidence-label">${escapeHtml(d.label)}</div>
-                <div class="chip-list">${chipsHtml}</div>
-              </div>
-            `;
+            return (
+              '<details class="audit-issue-card" data-severity="' + sev + '"' + openAttr + '>' +
+                '<summary>' +
+                  '<div class="issue-sum-left">' +
+                    '<span class="issue-sev-badge ' + sevBadgeClass + '">' + sevIcon + '</span>' +
+                    '<span class="issue-layer-tag">' + escapeHtml(item.layer || 'Security Layer') + '</span>' +
+                    '<span class="issue-title-text">' + escapeHtml(item.title) + '</span>' +
+                  '</div>' +
+                  '<span class="issue-toggle-pill">Click to inspect ▾</span>' +
+                '</summary>' +
+                '<div class="issue-body">' +
+                  '<div class="issue-plain-box">' +
+                    '<span class="issue-box-kicker">Plain-English Explanation (What this means)</span>' +
+                    '<p>' + escapeHtml(item.summary) + '</p>' +
+                    '<div class="issue-fix-callout">' +
+                      '<strong>How DoNotEncode.ai fixes this:</strong> ' + escapeHtml(item.whyCodingAgentFails) +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="issue-tech-box">' +
+                    '<span class="issue-box-kicker">Live Technical Evidence</span>' +
+                    techRows +
+                  '</div>' +
+                '</div>' +
+              '</details>'
+            );
           })
           .join('');
-
-        det.innerHTML = `
-          <summary class="issue-summary">
-            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px; min-width:0;">
-              ${badgeHtml}
-              <span class="text-sm font-semibold text-foreground">${escapeHtml(f.title)}</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-              <span class="text-xs text-muted-foreground hidden sm:inline">${escapeHtml(f.layer)}</span>
-              <span class="issue-chevron">▾</span>
-            </div>
-          </summary>
-          <div class="issue-body">
-            <p class="text-sm text-muted-foreground" style="margin-top:12px; line-height:1.6;">
-              ${escapeHtml(f.summary)}
-            </p>
-            <div class="evidence-box">
-              ${detailsBlocks}
-            </div>
-            <div class="fix-callout">
-              <span class="fix-icon">✓</span>
-              <div>
-                <strong style="color:#34d399;">How dontencode.ai fixes this automatically:</strong>
-                <span class="text-muted-foreground" style="margin-left:4px;">${escapeHtml(f.whyCodingAgentFails)}</span>
-              </div>
-            </div>
-          </div>
-        `;
-        listEl.appendChild(det);
-      });
-    }
-
-    async function executeAudit(targetUrl) {
-      const btn = document.getElementById('runAuditBtn');
-      btn.disabled = true;
-      btn.textContent = 'Scanning...';
-
-      try {
-        const res = await fetch('/api/audit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: targetUrl }),
-        });
-        if (!res.ok) throw new Error('Status ' + res.status);
-        const dossier = await res.json();
-        renderDossier(dossier);
-        document.getElementById('auditReportSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (err) {
-        alert('Could not scan URL: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Scan Website';
       }
-    }
 
-    document.getElementById('auditForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const url = document.getElementById('targetUrlInput').value.trim() || 'https://www.alcamielements.com';
-      executeAudit(url);
-    });
+      function renderAuditReport(report) {
+        currentReport = report;
+        if (simDrawer) simDrawer.classList.remove('is-visible');
 
-    document.getElementById('copyCliBtn').addEventListener('click', () => {
-      const cmd = document.getElementById('cliCommandText').textContent;
-      navigator.clipboard?.writeText(cmd);
-      const btn = document.getElementById('copyCliBtn');
-      btn.textContent = 'Copied!';
-      setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
-    });
+        const score = Number(report.overallRiskScore ?? 85);
+        if (auditScoreValue) auditScoreValue.textContent = String(score);
+
+        if (auditScoreOrb && auditScoreLabel && auditGradeBadge) {
+          auditScoreOrb.classList.remove('is-med', 'is-low');
+          if (score >= 70) {
+            auditScoreLabel.textContent = 'HIGH RISK';
+            auditGradeBadge.className = 'issue-sev-badge sev-high';
+            auditGradeBadge.textContent = '🔴 High Exposure Detected';
+          } else if (score >= 35) {
+            auditScoreOrb.classList.add('is-med');
+            auditScoreLabel.textContent = 'MEDIUM RISK';
+            auditGradeBadge.className = 'issue-sev-badge sev-med';
+            auditGradeBadge.textContent = '🟡 Moderate Exposure';
+          } else {
+            auditScoreOrb.classList.add('is-low');
+            auditScoreLabel.textContent = 'PROTECTED';
+            auditGradeBadge.className = 'issue-sev-badge sev-low';
+            auditGradeBadge.textContent = '🟢 Sovereign Shield Active';
+          }
+        }
+
+        if (auditTargetTitle) {
+          auditTargetTitle.textContent = 'Live Dossier: ' + (report.targetUrl || 'https://acme-nexus.io');
+        }
+
+        if (auditPlainSummary) {
+          const highCount = (report.findings || []).filter((f) => f.severity === 'High').length;
+          auditPlainSummary.innerHTML =
+            'We found <strong>' + highCount + ' high-risk openings</strong> where scrapers can inspect your client code or where AI search engines (ChatGPT, Perplexity, Claude) lack a verified <code>/llms.txt</code> guide. Click any issue below to read the plain-English breakdown and technical evidence.';
+        }
+
+        if (auditTelemetryPills) {
+          const llmsStatus = report.liveTelemetry?.llmsTxtStatus || 'Missing (404)';
+          const noisePct = report.metrics?.aiCrawlerNoiseRatioPct || 91;
+          auditTelemetryPills.innerHTML =
+            '<span class="audit-meta-pill">Stack: ' + escapeHtml(report.stackDetected || 'Modern Web Stack') + '</span>' +
+            '<span class="audit-meta-pill">/llms.txt: ' + escapeHtml(llmsStatus) + '</span>' +
+            '<span class="audit-meta-pill">AI Noise Ratio: ' + escapeHtml(noisePct) + '% HTML Clutter</span>';
+        }
+
+        if (auditScanTimeLabel) {
+          auditScanTimeLabel.textContent =
+            'Scanned in ' + (report.scanDurationMs || 28) + 'ms • ID: ' + (report.auditId || 'AEG-LIVE');
+        }
+
+        renderCollapsibleFindings(report.findings || []);
+      }
+
+      async function runLiveAudit(targetUrl) {
+        const cleanUrl = String(targetUrl || '').trim() || 'https://acme-nexus.io';
+        if (auditInput) auditInput.value = cleanUrl;
+        if (auditSubmitLabel) auditSubmitLabel.textContent = 'Scanning...';
+
+        try {
+          const res = await fetch('/api/audit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: cleanUrl })
+          });
+          const data = await res.json();
+          if (data && data.findings) {
+            renderAuditReport(data);
+          }
+        } catch (err) {
+          console.error('Audit scan error:', err);
+        } finally {
+          if (auditSubmitLabel) auditSubmitLabel.textContent = 'Scan free';
+        }
+      }
+
+      if (auditForm) {
+        auditForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          runLiveAudit(auditInput ? auditInput.value : 'https://acme-nexus.io');
+        });
+      }
+
+      document.querySelectorAll('[data-preset-url]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const url = btn.getAttribute('data-preset-url');
+          if (url) runLiveAudit(url);
+        });
+      });
+
+      document.querySelectorAll('#auditFilterGroup .audit-filter-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('#auditFilterGroup .audit-filter-pill').forEach((p) => p.classList.remove('is-active'));
+          pill.classList.add('is-active');
+          activeFilter = pill.getAttribute('data-filter') || 'ALL';
+          if (currentReport) renderCollapsibleFindings(currentReport.findings || []);
+        });
+      });
+
+      if (toggleAllCardsBtn) {
+        toggleAllCardsBtn.addEventListener('click', () => {
+          allExpanded = !allExpanded;
+          toggleAllCardsBtn.textContent = allExpanded ? 'Collapse all technical details' : 'Expand all technical details';
+          document.querySelectorAll('#auditIssuesList details.audit-issue-card').forEach((d) => {
+            d.open = allExpanded;
+          });
+        });
+      }
+
+      /* 1-Click Fix Simulator (/api/simulate-shield) */
+      if (simulateBtn) {
+        simulateBtn.addEventListener('click', async () => {
+          const targetUrl = (currentReport && currentReport.targetUrl) || (auditInput && auditInput.value) || 'https://acme-nexus.io';
+          simulateBtn.textContent = '⚡ Compiling _aVM Bytecode & /llms.txt...';
+          try {
+            const res = await fetch('/api/simulate-shield', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: targetUrl })
+            });
+            const sim = await res.json();
+            if (sim && sim.simulationPassed) {
+              if (auditScoreOrb) {
+                auditScoreOrb.classList.remove('is-med');
+                auditScoreOrb.classList.add('is-low');
+              }
+              if (auditScoreValue) auditScoreValue.textContent = '0';
+              if (auditScoreLabel) auditScoreLabel.textContent = 'PROTECTED';
+              if (auditGradeBadge) {
+                auditGradeBadge.className = 'issue-sev-badge sev-low';
+                auditGradeBadge.textContent = '🟢 A+ Sovereign Zero-Leak (0/100 Risk)';
+              }
+
+              document.getElementById('simCliCommand').textContent = 'npx donotencode init --target ' + sim.targetUrl;
+              document.getElementById('simLlmsOutput').textContent = sim.verifiedLlmsTxtPreview || '# Verified /llms.txt';
+              document.getElementById('simBytecodeOutput').textContent = sim.compiledBytecodePreview || '/* _aVM Bytecode */';
+
+              if (simDrawer) {
+                simDrawer.classList.add('is-visible');
+                simDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            }
+          } catch (e) {
+            console.error('Shield simulation error:', e);
+          } finally {
+            simulateBtn.textContent = '⚡ Preview Instant Fix (Drop Risk to 0/100)';
+          }
+        });
+      }
+
+      /* Copy buttons inside Simulation Drawer */
+      document.querySelectorAll('.sim-copy-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-copy-target');
+          const el = targetId ? document.getElementById(targetId) : null;
+          if (el && navigator.clipboard) {
+            navigator.clipboard.writeText(el.textContent || '');
+            const orig = btn.textContent;
+            btn.textContent = 'Copied ✓';
+            setTimeout(() => {
+              btn.textContent = orig;
+            }, 1400);
+          }
+        });
+      });
+
+      /* Bottom CTA scrolls to and focuses Hero URL Scanner */
+      const bottomScanCta = document.getElementById('bottomScanCta');
+      if (bottomScanCta && auditInput) {
+        bottomScanCta.addEventListener('click', () => {
+          document.getElementById('scannerHero').scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => auditInput.focus(), 450);
+        });
+      }
+
+      /* Run initial default scan so the collapsible report is populated immediately */
+      runLiveAudit('https://acme-nexus.io');
+    })();
   </script>
 </body>
 </html>
