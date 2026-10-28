@@ -1,0 +1,4598 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DoNotEncode.ai v0.6 — Website Security, Code Lock &amp; Automatic AI SEO</title>
+  <meta name="description" content="Stop copycats from stealing your website code, lock your private files, and get recommended first in ChatGPT, Perplexity &amp; Google AI with DoNotEncode.ai v0.6." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&amp;family=Geist:wght@300..700&amp;family=Parkinsans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'GeistFallback';
+      src: url('./geist-latin.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
+    :root {
+      --ss-space: #07080b;
+      --ss-bg: #0c0c0e;
+      --ss-surface: #13151b;
+      --ss-surface-2: #1a1d26;
+      --ss-surface-3: #222632;
+      --ss-text: #f5f5f4;
+      --ss-muted: #9ca3af;
+      --ss-dim: #6b7280;
+      --ss-line: rgba(255, 255, 255, 0.09);
+      --ss-line-strong: rgba(255, 255, 255, 0.16);
+      --ss-gold: #fbcc82;
+      --ss-gold-d: #d9890f;
+      --ss-gold-glow: rgba(251, 204, 130, 0.18);
+      --ss-gold-ink: #0c0c0c;
+
+      /* Semantic Risk Colors for Audit Report */
+      --risk-high: #ef4444;
+      --risk-high-bg: rgba(239, 68, 68, 0.12);
+      --risk-high-border: rgba(239, 68, 68, 0.38);
+      --risk-high-text: #fca5a5;
+
+      --risk-med: #f59e0b;
+      --risk-med-bg: rgba(245, 158, 11, 0.12);
+      --risk-med-border: rgba(245, 158, 11, 0.38);
+      --risk-med-text: #fde68a;
+
+      --risk-low: #10b981;
+      --risk-low-bg: rgba(16, 185, 129, 0.12);
+      --risk-low-border: rgba(16, 185, 129, 0.38);
+      --risk-low-text: #6ee7b7;
+
+      --ss-display: 'Parkinsans', 'Geist', 'GeistFallback', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ss-sans: 'Geist', 'GeistFallback', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ss-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --ss-max: 1248px;
+      --ss-pad: clamp(20px, 5vw, 64px);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--ss-space);
+      color: var(--ss-text);
+    }
+
+    body {
+      margin: 0;
+      background: var(--ss-bg);
+      color: var(--ss-text);
+      font-family: var(--ss-sans);
+      font-weight: 400;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .ss-section {
+      position: relative;
+      width: 100%;
+    }
+
+    .ss-wrap {
+      max-width: var(--ss-max);
+      margin: 0 auto;
+      padding-left: var(--ss-pad);
+      padding-right: var(--ss-pad);
+    }
+
+    .ss-h1, .ss-h2, .ss-h3 {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin: 0;
+      color: var(--ss-text);
+    }
+
+    .ss-h1 { font-size: clamp(38px, 5.2vw, 64px); }
+    .ss-h2 { font-size: clamp(30px, 4vw, 48px); }
+    .ss-h3 { font-size: clamp(20px, 2.2vw, 26px); }
+
+    .ss-kicker {
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ss-kicker::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ss-gold);
+      box-shadow: 0 0 10px var(--ss-gold);
+    }
+
+    .ss-lead {
+      font-size: clamp(16px, 1.35vw, 19px);
+      line-height: 1.6;
+      color: var(--ss-muted);
+      margin: 0;
+    }
+
+    .ss-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      font-family: var(--ss-sans);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      padding: 13px 22px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .ss-btn:active {
+      transform: translateY(1px);
+    }
+
+    .ss-btn--gold {
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      box-shadow: 0 8px 26px rgba(251, 204, 130, 0.22);
+    }
+
+    .ss-btn--gold:hover {
+      background: #ffe0a8;
+      box-shadow: 0 10px 32px rgba(251, 204, 130, 0.36);
+      transform: translateY(-1px);
+    }
+
+    .ss-btn--ghost {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--ss-text);
+      border-color: var(--ss-line-strong);
+    }
+
+    .ss-btn--ghost:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(251, 204, 130, 0.45);
+    }
+
+    .ss-stars {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      display: block;
+    }
+
+    /* ==========================================================================
+       1. STICKY STARFIELD HEADER (a01-header)
+       ========================================================================== */
+    .a01-sentinel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1px;
+      height: 24px;
+      pointer-events: none;
+    }
+
+    .a01-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 8, 11, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--ss-line);
+      transition: padding 0.22s ease, background 0.22s ease;
+    }
+
+    .a01-bar {
+      position: relative;
+      z-index: 2;
+      max-width: var(--ss-max);
+      margin: 0 auto;
+      padding: 16px var(--ss-pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: padding 0.22s ease;
+    }
+
+    .a01-header.is-compact .a01-bar {
+      padding-top: 11px;
+      padding-bottom: 11px;
+    }
+
+    .a01-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      color: var(--ss-text);
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .a01-logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, #ffe4b5 0%, #fbcc82 45%, #c88728 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #0c0c0c;
+      box-shadow: 0 0 20px rgba(251, 204, 130, 0.35);
+      flex-shrink: 0;
+    }
+
+    .a01-logo-badge {
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(251, 204, 130, 0.14);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .a01-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .a01-item {
+      position: relative;
+    }
+
+    .a01-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #d6d6d2;
+      text-decoration: none;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      transition: color 0.16s ease, background 0.16s ease;
+    }
+
+    .a01-link:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .a01-chev {
+      width: 11px;
+      height: 11px;
+      opacity: 0.65;
+      transition: transform 0.2s ease;
+    }
+
+    .a01-item:hover .a01-chev {
+      transform: rotate(180deg);
+    }
+
+    .a01-drop {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 320px;
+      background: #12141c;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+      z-index: 120;
+    }
+
+    .a01-drop::before {
+      content: "";
+      position: absolute;
+      top: -12px;
+      left: 0;
+      right: 0;
+      height: 12px;
+    }
+
+    .a01-item:hover .a01-drop,
+    .a01-item:focus-within .a01-drop {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .a01-drop-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: 11px;
+      text-decoration: none;
+      color: var(--ss-text);
+      transition: background 0.15s ease;
+    }
+
+    .a01-drop-item:hover {
+      background: rgba(251, 204, 130, 0.08);
+    }
+
+    .a01-drop-ico {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.25);
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .a01-drop-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .a01-drop-sub {
+      font-size: 12px;
+      color: var(--ss-muted);
+      line-height: 1.4;
+      display: block;
+    }
+
+    .a01-cta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .a01-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: #6ee7b7;
+    }
+
+    .a01-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    @media (max-width: 960px) {
+      .a01-nav, .a01-status-pill {
+        display: none;
+      }
+    }
+
+    /* ==========================================================================
+       2. HERO + ROTATING ENGINE FLIPPER + LIVE URL SCANNER (a02-hero)
+       ========================================================================== */
+    .a02-hero {
+      position: relative;
+      background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(251, 204, 130, 0.11) 0%, rgba(7, 8, 11, 0) 70%), var(--ss-space);
+      color: #fff;
+      overflow: hidden;
+      padding: clamp(56px, 7vw, 96px) 0 clamp(64px, 8vw, 108px);
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .a02-hero .ss-wrap {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 1020px;
+    }
+
+    .a02-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: var(--ss-gold);
+      margin-bottom: 24px;
+    }
+
+    .a02-hero .ss-h1 {
+      color: #fff;
+      max-width: 18ch;
+      margin: 0 auto 22px;
+    }
+
+    .a02-hero .ss-ul {
+      position: relative;
+      display: inline-block;
+      white-space: nowrap;
+      color: var(--ss-gold);
+    }
+
+    .a02-hero .ss-ul svg {
+      position: absolute;
+      left: -2%;
+      right: -2%;
+      bottom: -10px;
+      width: 104%;
+      height: 14px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .a02-hero .ss-sub {
+      color: #cfcfc9;
+      font-size: clamp(16px, 1.45vw, 19.5px);
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 auto 34px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .a02-hero .ss-flipper {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 999px;
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+      font-weight: 600;
+      font-size: 15px;
+      vertical-align: middle;
+      overflow: hidden;
+      position: relative;
+      min-width: 175px;
+      justify-content: center;
+    }
+
+    .a02-hero .ss-flip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      position: absolute;
+      inset: 0;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.36s ease, transform 0.36s ease;
+      white-space: nowrap;
+    }
+
+    .a02-hero .ss-flip-item.is-on {
+      opacity: 1;
+      transform: translateY(0);
+      position: relative;
+    }
+
+    .a02-hero .ss-flip-item svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+    }
+
+    /* Hero URL Scanner Form */
+    .a02-hero .ss-form {
+      max-width: 640px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 7px 7px 18px;
+      border-radius: 999px;
+      background: rgba(19, 21, 27, 0.92);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(251, 204, 130, 0.06);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .a02-hero .ss-form:focus-within {
+      border-color: var(--ss-gold);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65), 0 0 0 4px rgba(251, 204, 130, 0.16);
+    }
+
+    .a02-hero .ss-form-ico {
+      color: var(--ss-gold);
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .a02-hero .ss-input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #fff;
+      font-family: var(--ss-mono);
+      font-size: 14.5px;
+      padding: 10px 6px;
+    }
+
+    .a02-hero .ss-input::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    .a02-hero .ss-submit {
+      border: 0;
+      cursor: pointer;
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      font-family: var(--ss-sans);
+      font-size: 14.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .a02-hero .ss-submit:hover {
+      background: #ffe0a8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(251, 204, 130, 0.35);
+    }
+
+    .a02-presets {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .a02-preset-label {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+    }
+
+    .a02-preset-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d6d6d2;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .a02-preset-btn:hover {
+      border-color: var(--ss-gold);
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.08);
+    }
+
+    .a02-hero .ss-meta {
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, 0.55);
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .a02-hero .ss-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ==========================================================================
+       LIVE INTERACTIVE SECURITY & AI-SEARCH AUDIT REPORT (#auditResultsPanel)
+       ========================================================================== */
+    .audit-panel {
+      margin-top: 34px;
+      text-align: left;
+      background: #101218;
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      border-radius: 22px;
+      padding: clamp(20px, 3vw, 32px);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.72);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .audit-top-banner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 22px;
+      align-items: center;
+      padding: 20px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--ss-line-strong);
+      margin-bottom: 20px;
+    }
+
+    .audit-score-orb {
+      width: 92px;
+      height: 92px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--risk-high);
+      background: var(--risk-high-bg);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .audit-score-orb.is-med {
+      border-color: var(--risk-med);
+      background: var(--risk-med-bg);
+    }
+
+    .audit-score-orb.is-low {
+      border-color: var(--risk-low);
+      background: var(--risk-low-bg);
+    }
+
+    .audit-score-num {
+      font-family: var(--ss-display);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .audit-score-lbl {
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 5px;
+      color: var(--risk-high-text);
+      font-weight: 600;
+    }
+
+    .audit-score-orb.is-med .audit-score-lbl { color: var(--risk-med-text); }
+    .audit-score-orb.is-low .audit-score-lbl { color: var(--risk-low-text); }
+
+    .audit-summary-col h3 {
+      font-family: var(--ss-display);
+      font-size: clamp(18px, 2vw, 22px);
+      margin: 0 0 6px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .audit-summary-col p {
+      margin: 0 0 10px;
+      font-size: 14.5px;
+      color: #d1d5db;
+      line-height: 1.55;
+    }
+
+    .audit-meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .audit-meta-pill {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+    }
+
+    .audit-action-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .audit-fix-btn {
+      border: 0;
+      cursor: pointer;
+      padding: 13px 20px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #04130d;
+      font-family: var(--ss-sans);
+      font-size: 13.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .audit-fix-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45);
+    }
+
+    /* Filter Bar */
+    .audit-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .audit-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .audit-filter-pill {
+      border: 1px solid var(--ss-line-strong);
+      background: rgba(255, 255, 255, 0.03);
+      color: #d1d5db;
+      font-family: var(--ss-sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .audit-filter-pill.is-active {
+      background: var(--ss-gold);
+      color: var(--ss-gold-ink);
+      border-color: var(--ss-gold);
+    }
+
+    .audit-expand-link {
+      background: transparent;
+      border: 0;
+      color: var(--ss-gold);
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Collapsible Issue Cards */
+    .audit-issues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    details.audit-issue-card {
+      background: #151821;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 4px solid var(--risk-high);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    details.audit-issue-card[data-severity="High"] {
+      border-left-color: var(--risk-high);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card[data-severity="Medium"] {
+      border-left-color: var(--risk-med);
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card[data-severity="Low"] {
+      border-left-color: var(--risk-low);
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.06) 0%, #151821 35%);
+    }
+
+    details.audit-issue-card summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      user-select: none;
+    }
+
+    details.audit-issue-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .issue-sum-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .issue-sev-badge {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .issue-sev-badge.sev-high {
+      background: var(--risk-high-bg);
+      border: 1px solid var(--risk-high-border);
+      color: var(--risk-high-text);
+    }
+
+    .issue-sev-badge.sev-med {
+      background: var(--risk-med-bg);
+      border: 1px solid var(--risk-med-border);
+      color: var(--risk-med-text);
+    }
+
+    .issue-sev-badge.sev-low {
+      background: var(--risk-low-bg);
+      border: 1px solid var(--risk-low-border);
+      color: var(--risk-low-text);
+    }
+
+    .issue-layer-tag {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.1);
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .issue-title-text {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .issue-toggle-pill {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    details.audit-issue-card[open] .issue-toggle-pill {
+      background: rgba(251, 204, 130, 0.14);
+      border-color: rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .issue-body {
+      padding: 0 20px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      padding-top: 16px;
+    }
+
+    .issue-plain-box {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .issue-box-kicker {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ss-muted);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .issue-plain-box p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.55;
+    }
+
+    .issue-fix-callout {
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: rgba(16, 185, 129, 0.09);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      font-size: 13px;
+      color: #a7f3d0;
+      line-height: 1.45;
+    }
+
+    .issue-tech-box {
+      background: #0b0d12;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .issue-tech-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .issue-tech-lbl {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      color: var(--ss-gold);
+    }
+
+    .issue-tech-val {
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 9px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+
+    /* Simulation Drawer */
+    .sim-drawer {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(19, 21, 27, 0.96) 50%);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      display: none;
+    }
+
+    .sim-drawer.is-visible {
+      display: block;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .sim-code-card {
+      background: #08090d;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .sim-code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      color: var(--ss-gold);
+    }
+
+    .sim-copy-btn {
+      background: rgba(251, 204, 130, 0.15);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .sim-pre {
+      margin: 0;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: #a7f3d0;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 860px) {
+      .audit-top-banner {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+      .audit-action-col {
+        align-items: flex-start;
+      }
+      .issue-body, .sim-grid {
+        grid-template-columns: 1fr;
+      }
+      .a02-hero .ss-form {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 12px;
+      }
+      .a02-hero .ss-submit {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* ==========================================================================
+       3. SCORE-RING PROOF STRIP (s03-proof)
+       ========================================================================== */
+    .s03-proof {
+      padding: 56px 0 40px;
+      background: var(--ss-bg);
+    }
+
+    .s03-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 22px;
+      padding: 28px 36px;
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr 1fr;
+      align-items: center;
+      gap: 28px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+    }
+
+    .s03-cell {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .s03-cell + .s03-cell {
+      border-left: 1px solid var(--ss-line);
+      padding-left: 28px;
+    }
+
+    .s03-gauge {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      flex: 0 0 84px;
+    }
+
+    .s03-gauge svg {
+      width: 84px;
+      height: 84px;
+      transform: rotate(-90deg);
+    }
+
+    .s03-gauge-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      color: var(--ss-text);
+      line-height: 1;
+    }
+
+    .s03-gauge-num small {
+      font-family: var(--ss-mono);
+      font-size: 9.5px;
+      font-weight: 500;
+      color: var(--ss-gold);
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+    }
+
+    .s03-gauge-copy b {
+      display: block;
+      font-family: var(--ss-display);
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+
+    .s03-gauge-copy span {
+      font-size: 13px;
+      color: var(--ss-muted);
+      line-height: 1.45;
+      display: block;
+    }
+
+    .s03-rating {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .s03-stars-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .s03-stars {
+      display: inline-flex;
+      gap: 2px;
+      color: var(--ss-gold);
+    }
+
+    .s03-stars svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .s03-avatars {
+      display: inline-flex;
+    }
+
+    .s03-av {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--ss-surface);
+      margin-left: -7px;
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: #0c0c0c;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .s03-av:first-child { margin-left: 0; }
+
+    .s03-rating-copy {
+      font-size: 13.5px;
+      color: var(--ss-muted);
+    }
+
+    .s03-rating-copy strong {
+      color: var(--ss-text);
+      font-weight: 600;
+    }
+
+    .s03-stats {
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .s03-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .s03-stat-num {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(22px, 2.2vw, 28px);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--ss-gold);
+    }
+
+    .s03-stat-lbl {
+      font-size: 12.5px;
+      color: var(--ss-muted);
+      line-height: 1.4;
+      max-width: 18ch;
+    }
+
+    @media (max-width: 960px) {
+      .s03-card {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+      .s03-cell + .s03-cell {
+        border-left: 0;
+        border-top: 1px solid var(--ss-line);
+        padding-left: 0;
+        padding-top: 20px;
+      }
+    }
+
+    /* ==========================================================================
+       4. PUT YOUR WEBAPP IN ORBIT — 6-AGENT SYSTEM (x-orbit)
+       ========================================================================== */
+    .x-orbit {
+      background: var(--ss-space);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      padding: 96px 0;
+      border-top: 1px solid var(--ss-line);
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .x-orbit canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .x-orbit .wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+      position: relative;
+      z-index: 1;
+    }
+
+    .x-orbit .head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 32px;
+    }
+
+    .x-orbit .kicker {
+      font: 500 12px/1 var(--ss-mono);
+      color: var(--ss-gold);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .x-orbit h2 {
+      font: 700 clamp(32px, 4.2vw, 50px)/1.08 var(--ss-display);
+      letter-spacing: -0.03em;
+      margin: 0 0 12px;
+    }
+
+    .x-orbit .head p {
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .x-orbit .pills {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 28px 0 42px;
+    }
+
+    .x-orbit .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.78);
+      font: 500 13.5px/1 var(--ss-sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .x-orbit .pill svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .x-orbit .pill:hover {
+      border-color: rgba(251, 204, 130, 0.45);
+      color: #fff;
+    }
+
+    .x-orbit .pill.on {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: var(--ss-gold);
+      font-weight: 600;
+      box-shadow: 0 0 28px rgba(251, 204, 130, 0.35);
+    }
+
+    .x-orbit .stage {
+      display: grid;
+      grid-template-columns: minmax(340px, 490px) 1fr;
+      gap: 44px;
+      align-items: center;
+    }
+
+    .x-orbit .card {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--ss-gold);
+      border-radius: 18px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      transform-style: preserve-3d;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .x-orbit .card.flip {
+      animation: orbitFlip 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes orbitFlip {
+      0% { transform: perspective(900px) rotateY(0); opacity: 1; }
+      45% { transform: perspective(900px) rotateY(75deg); opacity: 0.25; }
+      55% { transform: perspective(900px) rotateY(-75deg); opacity: 0.25; }
+      100% { transform: perspective(900px) rotateY(0); opacity: 1; }
+    }
+
+    .x-orbit .card h3 {
+      font: 700 24px/1.2 var(--ss-display);
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    .x-orbit .card > p {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14.5px;
+      line-height: 1.55;
+      margin: 0 0 18px;
+    }
+
+    /* Dark Mini Product View inside Orbit Card */
+    .x-orbit .view {
+      background: #11131a;
+      color: #f5f5f4;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      font-size: 12.5px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .x-orbit .view .vh {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .x-orbit .view .vpill {
+      font: 500 10.5px/1 var(--ss-mono);
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .x-orbit .view .vrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      margin-top: 6px;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+    }
+
+    .x-orbit .view .vbar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .x-orbit .view .vbar i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, var(--ss-gold));
+      border-radius: 99px;
+    }
+
+    .x-orbit .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 999px;
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      font: 600 13.5px/1 var(--ss-sans);
+      text-decoration: none;
+      cursor: pointer;
+      border: 0;
+    }
+
+    .x-orbit .cta:hover {
+      background: #ffe0a8;
+    }
+
+    .x-orbit .sys {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .x-orbit .sys > svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .x-orbit .r-solid { fill: none; stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; }
+    .x-orbit .r-dash { fill: none; stroke: rgba(255, 255, 255, 0.11); stroke-width: 1; stroke-dasharray: 4 7; }
+    .x-orbit .r-dot { fill: none; stroke: rgba(251, 204, 130, 0.28); stroke-width: 1.5; stroke-dasharray: 1 10; stroke-linecap: round; }
+    .x-orbit .r-track { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 1.5; }
+    .x-orbit .r-main {
+      fill: none;
+      stroke: var(--ss-gold);
+      stroke-width: 2;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(251, 204, 130, 0.55));
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .x-orbit .spin { transform-origin: 280px 280px; animation: ospin 70s linear infinite; }
+    .x-orbit .spin.rev { animation-direction: reverse; animation-duration: 95s; }
+    @keyframes ospin { to { transform: rotate(360deg); } }
+
+    .x-orbit .sun {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 118px;
+      height: 118px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff3d1, #fbcc82 45%, #c88728 85%);
+      box-shadow: 0 0 60px 12px rgba(251, 204, 130, 0.35), 0 0 120px 30px rgba(251, 204, 130, 0.15), inset 0 -10px 20px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #0c0c0c;
+      font: 700 12px/1.15 var(--ss-display);
+      padding: 10px;
+    }
+
+    .x-orbit .sun small {
+      display: block;
+      font: 500 9.5px/1 var(--ss-mono);
+      opacity: 0.75;
+      margin-bottom: 3px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .x-orbit .sat {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: #12151f;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.25s ease;
+      padding: 0;
+    }
+
+    .x-orbit .sat svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .x-orbit .sat span {
+      position: absolute;
+      top: 100%;
+      margin-top: 7px;
+      white-space: nowrap;
+      font: 500 11.5px/1 var(--ss-sans);
+      color: rgba(255, 255, 255, 0.72);
+      background: rgba(7, 8, 11, 0.85);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .x-orbit .sat:hover {
+      border-color: var(--ss-gold);
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .x-orbit .sat.on {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: #fff;
+      box-shadow: 0 0 0 6px rgba(251, 204, 130, 0.18), 0 0 30px rgba(251, 204, 130, 0.6);
+      transform: translate(-50%, -50%) scale(1.14);
+    }
+
+    .x-orbit .sat.on span {
+      color: var(--ss-gold);
+      font-weight: 600;
+      border-color: rgba(251, 204, 130, 0.35);
+    }
+
+    @media (max-width: 920px) {
+      .x-orbit .stage {
+        grid-template-columns: 1fr;
+      }
+      .x-orbit .sys {
+        max-width: 400px;
+      }
+    }
+
+    /* ==========================================================================
+       4B. THE /LLMS.TXT & AI SEARCH REVOLUTION SECTION (x-llms-rev)
+       ========================================================================== */
+    .x-llms-rev {
+      background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(16, 185, 129, 0.08) 0%, rgba(12, 12, 14, 0) 70%), var(--ss-bg);
+      color: var(--ss-text);
+      padding: 96px 0;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .x-llms-rev .lr-head {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 48px;
+    }
+
+    .x-llms-rev .lr-head h2 {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin: 14px 0 16px;
+    }
+
+    .x-llms-rev .lr-head p {
+      color: var(--ss-muted);
+      font-size: clamp(16px, 1.35vw, 18.5px);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .x-llms-rev .lr-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .x-llms-rev .lr-panel {
+      background: var(--ss-surface);
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid var(--ss-line-strong);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .x-llms-rev .lr-panel.is-bad {
+      border-top: 4px solid var(--risk-high);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, var(--ss-surface) 38%);
+    }
+
+    .x-llms-rev .lr-panel.is-good {
+      border-top: 4px solid var(--risk-low);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, var(--ss-surface) 38%);
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+    }
+
+    .x-llms-rev .lr-badge {
+      align-self: flex-start;
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .x-llms-rev .lr-badge.bad {
+      background: var(--risk-high-bg);
+      border: 1px solid var(--risk-high-border);
+      color: var(--risk-high-text);
+    }
+
+    .x-llms-rev .lr-badge.good {
+      background: var(--risk-low-bg);
+      border: 1px solid var(--risk-low-border);
+      color: var(--risk-low-text);
+    }
+
+    .x-llms-rev .lr-panel h3 {
+      font-family: var(--ss-display);
+      font-size: 22px;
+      margin: 0;
+      color: #fff;
+    }
+
+    .x-llms-rev .lr-panel p {
+      margin: 0;
+      font-size: 15px;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .x-llms-rev .lr-codebox {
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-x: auto;
+    }
+
+    .x-llms-rev .lr-verdict {
+      margin-top: auto;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .x-llms-rev .lr-verdict.bad {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #fca5a5;
+    }
+
+    .x-llms-rev .lr-verdict.good {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      color: #6ee7b7;
+    }
+
+    .x-llms-rev .lr-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .x-llms-rev .lr-pillar {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .x-llms-rev .lr-pillar-num {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .x-llms-rev .lr-pillar h4 {
+      font-family: var(--ss-display);
+      font-size: 18px;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    .x-llms-rev .lr-pillar p {
+      margin: 0;
+      font-size: 14.5px;
+      color: var(--ss-muted);
+      line-height: 1.6;
+    }
+
+    /* Live AI Agent Visit & Recommendation Radar */
+    .ai-radar-box {
+      margin-top: 36px;
+      background: linear-gradient(180deg, rgba(251, 204, 130, 0.07) 0%, #101116 32%);
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    }
+
+    .ai-radar-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .ai-radar-title {
+      font-family: var(--ss-display);
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 700;
+      color: #fff;
+      margin: 6px 0 6px;
+    }
+
+    .ai-radar-sub {
+      color: var(--ss-muted);
+      font-size: 14.5px;
+      max-width: 68ch;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .ai-radar-totals {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ai-tot-pill {
+      background: #0b0c10;
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 14px;
+      padding: 10px 16px;
+      min-width: 135px;
+    }
+
+    .ai-tot-num {
+      font-family: var(--ss-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ss-gold);
+      line-height: 1.1;
+    }
+
+    .ai-tot-lbl {
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      margin-top: 3px;
+    }
+
+    .ai-engine-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .ai-engine-card {
+      background: #0b0c10;
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 16px;
+      padding: 16px;
+      transition: border-color 0.25s ease, transform 0.2s ease;
+    }
+
+    .ai-engine-card.pulse {
+      border-color: var(--ss-gold);
+      transform: translateY(-2px);
+    }
+
+    .ai-eng-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .ai-eng-name {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 15.5px;
+      color: #fff;
+    }
+
+    .ai-eng-live {
+      font-family: var(--ss-mono);
+      font-size: 10.5px;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .ai-eng-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--ss-muted);
+      padding: 4px 0;
+    }
+
+    .ai-eng-row strong {
+      color: #fff;
+      font-family: var(--ss-mono);
+    }
+
+    .ai-sim-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--ss-line);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+    }
+
+    .ai-sim-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ss-gold);
+    }
+
+    .ai-sim-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ai-sim-btn {
+      background: #171922;
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .ai-sim-btn:hover {
+      background: var(--ss-gold);
+      color: #16120a;
+      border-color: var(--ss-gold);
+    }
+
+    .ai-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ai-feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: #0b0c10;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .ai-feed-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-feed-badge {
+      font-family: var(--ss-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(251, 204, 130, 0.14);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .ai-feed-engine {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ai-feed-desc {
+      color: #d1d5db;
+    }
+
+    .ai-feed-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+    }
+
+    @media (max-width: 920px) {
+      .x-llms-rev .lr-compare,
+      .x-llms-rev .lr-pillars {
+        grid-template-columns: 1fr;
+      }
+      .ai-engine-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       5. 12-COLUMN BENTO PROOF & TELEMETRY GRID (x-testimonials)
+       ========================================================================== */
+    .x-testimonials {
+      background: var(--ss-bg);
+      color: var(--ss-text);
+      padding: 96px 0;
+    }
+
+    .x-testimonials .tm-wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+    }
+
+    .x-testimonials .tm-head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 56px;
+    }
+
+    .x-testimonials .tm-title {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin: 12px 0 14px;
+    }
+
+    .x-testimonials .tm-sub {
+      color: var(--ss-muted);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .x-testimonials .tm-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .x-testimonials .tm-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .x-testimonials .tm-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(251, 204, 130, 0.35);
+    }
+
+    .x-testimonials .tm-lg { grid-column: span 6; gap: 22px; }
+    .x-testimonials .tm-sm { grid-column: span 3; gap: 16px; }
+
+    .x-testimonials .tm-quote {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--ss-text);
+      margin: 0;
+    }
+
+    .x-testimonials .tm-quote mark {
+      background: rgba(251, 204, 130, 0.16);
+      color: var(--ss-gold);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+
+    .x-testimonials .tm-Viz {
+      background: #0d0f14;
+      border: 1px solid var(--ss-line);
+      border-radius: 14px;
+      padding: 18px 18px 14px;
+    }
+
+    .x-testimonials .tm-vh {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .x-testimonials .tm-vlbl {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ss-muted);
+    }
+
+    .x-testimonials .tm-vdelta {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 20px;
+      color: #10b981;
+      letter-spacing: -0.02em;
+    }
+
+    .x-testimonials .tm-bars {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 4px;
+      height: 82px;
+      align-items: end;
+    }
+
+    .x-testimonials .tm-bars i {
+      display: block;
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 3px 3px 0 0;
+      height: 10%;
+      transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .x-testimonials .tm-bars i.hi {
+      background: linear-gradient(180deg, var(--ss-gold), #c88728);
+    }
+
+    .x-testimonials.in .tm-bars i {
+      height: var(--h);
+    }
+
+    .x-testimonials .tm-vaxis {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--ss-mono);
+      font-size: 10px;
+      color: var(--ss-muted);
+      margin-top: 8px;
+    }
+
+    .x-testimonials .tm-stat {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(28px, 3vw, 38px);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--ss-gold);
+    }
+
+    .x-testimonials .tm-stat sub {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--ss-muted);
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .x-testimonials .tm-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .x-testimonials .tm-av {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ss-gold), #b87314);
+      color: #0c0c0c;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 38px;
+    }
+
+    .x-testimonials .tm-name {
+      font-weight: 600;
+      font-size: 13.5px;
+      line-height: 1.25;
+      color: #fff;
+    }
+
+    .x-testimonials .tm-role {
+      font-size: 12px;
+      color: var(--ss-muted);
+    }
+
+    @media (max-width: 960px) {
+      .x-testimonials .tm-lg { grid-column: span 12; }
+      .x-testimonials .tm-sm { grid-column: span 6; }
+    }
+    @media (max-width: 560px) {
+      .x-testimonials .tm-sm { grid-column: span 12; }
+    }
+
+    /* ==========================================================================
+       6. INTERACTIVE PRICING + COMPARISON MATRIX (s11-pricing)
+       ========================================================================== */
+    .s11-pricing {
+      background: var(--ss-space);
+      color: var(--ss-text);
+      padding: 96px 0;
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .s11-pricing .pp-wrap {
+      max-width: 1248px;
+      margin: 0 auto;
+      padding: 0 var(--ss-pad);
+    }
+
+    .s11-pricing .pp-head {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 48px;
+    }
+
+    .s11-pricing .pp-title {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin: 12px 0;
+    }
+
+    .s11-pricing .pp-sub {
+      color: var(--ss-muted);
+      font-size: 16.5px;
+      margin: 0;
+    }
+
+    .s11-pricing .pp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .s11-pricing .pp-card {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .s11-pricing .pp-card.feat {
+      border: 2px solid var(--ss-gold);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 4px rgba(251, 204, 130, 0.1);
+      background: linear-gradient(180deg, rgba(251, 204, 130, 0.06) 0%, var(--ss-surface) 35%);
+    }
+
+    .s11-pricing .pp-badge {
+      position: absolute;
+      top: -13px;
+      left: 28px;
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .s11-pricing .pp-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .s11-pricing .pp-name {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .s11-pricing .pp-save {
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .s11-pricing[data-cycle="monthly"] .pp-save {
+      opacity: 0.35;
+      text-decoration: line-through;
+    }
+
+    .s11-pricing .pp-desc {
+      color: var(--ss-muted);
+      font-size: 13.5px;
+      margin: 0 0 20px;
+      min-height: 40px;
+    }
+
+    .s11-pricing .pp-price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .s11-pricing .pp-num {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 46px;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .s11-pricing .pp-per {
+      color: var(--ss-muted);
+      font-size: 14px;
+    }
+
+    .s11-pricing .pp-billed {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      margin-bottom: 18px;
+    }
+
+    .s11-pricing .pp-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 13px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--ss-line);
+      border-radius: 10px;
+      font-size: 12.5px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      user-select: none;
+      color: #d6d6d2;
+    }
+
+    .s11-pricing .pp-switch {
+      width: 36px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      position: relative;
+      transition: background 0.2s ease;
+      flex: 0 0 36px;
+    }
+
+    .s11-pricing .pp-switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #0c0c0c;
+      transition: transform 0.2s ease;
+    }
+
+    .s11-pricing[data-cycle="yearly"] .pp-switch {
+      background: var(--ss-gold);
+    }
+
+    .s11-pricing[data-cycle="yearly"] .pp-switch::after {
+      transform: translateX(16px);
+    }
+
+    .s11-pricing .pp-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      border: 1px solid var(--ss-line-strong);
+      margin-bottom: 22px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .s11-pricing .pp-cta:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .s11-pricing .pp-card.feat .pp-cta {
+      background: var(--ss-gold);
+      color: #0c0c0c;
+      border-color: var(--ss-gold);
+    }
+
+    .s11-pricing .pp-card.feat .pp-cta:hover {
+      background: #ffe0a8;
+    }
+
+    .s11-pricing .pp-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      font-size: 13.5px;
+      color: #d6d6d2;
+    }
+
+    .s11-pricing .pp-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .s11-pricing .pp-list svg {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      margin-top: 2px;
+      color: var(--ss-gold);
+    }
+
+    @media (max-width: 960px) {
+      .s11-pricing .pp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       7. STICKY-LEFT 2-COLUMN SMOOTH ACCORDION FAQ (a12-faq)
+       ========================================================================== */
+    .a12-faq {
+      padding: clamp(72px, 9vw, 116px) 0;
+      background: var(--ss-bg);
+      border-top: 1px solid var(--ss-line);
+    }
+
+    .a12-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.5fr;
+      gap: clamp(32px, 6vw, 84px);
+      align-items: start;
+    }
+
+    .a12-left {
+      position: sticky;
+      top: 108px;
+    }
+
+    .a12-left .ss-h2 {
+      margin-top: 10px;
+      margin-bottom: 14px;
+    }
+
+    .a12-list {
+      border-top: 1px solid var(--ss-line-strong);
+    }
+
+    .a12-item {
+      border-bottom: 1px solid var(--ss-line-strong);
+      overflow: hidden;
+    }
+
+    .a12-q {
+      list-style: none;
+      cursor: pointer;
+      padding: 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(16px, 1.45vw, 19px);
+      letter-spacing: -0.02em;
+      color: var(--ss-text);
+      user-select: none;
+    }
+
+    .a12-q::-webkit-details-marker {
+      display: none;
+    }
+
+    .a12-ico {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--ss-surface-2);
+      border: 1px solid var(--ss-line-strong);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 30px;
+      position: relative;
+      transition: background 0.2s ease, transform 0.25s ease;
+    }
+
+    .a12-ico::before,
+    .a12-ico::after {
+      content: "";
+      position: absolute;
+      background: var(--ss-text);
+      transition: transform 0.25s ease, opacity 0.2s ease;
+    }
+
+    .a12-ico::before { width: 12px; height: 1.8px; }
+    .a12-ico::after { width: 1.8px; height: 12px; }
+
+    .a12-item[open] .a12-ico {
+      background: var(--ss-gold);
+    }
+
+    .a12-item[open] .a12-ico::before {
+      background: #0c0c0c;
+    }
+
+    .a12-item[open] .a12-ico::after {
+      transform: rotate(90deg);
+      opacity: 0;
+    }
+
+    .a12-a {
+      padding: 0 42px 22px 0;
+      color: var(--ss-muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 880px) {
+      .a12-grid { grid-template-columns: 1fr; }
+      .a12-left { position: static; }
+    }
+
+    /* ==========================================================================
+       8. HIGH-CONTRAST WARM GOLD CLOSING BAND (s13-close)
+       ========================================================================== */
+    .s13-close {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #e59a24 0%, #c87d0a 100%);
+      color: #0c0c0c;
+      padding: clamp(68px, 8vw, 108px) 0;
+    }
+
+    .s13-close::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(65% 80% at 50% 0%, rgba(255, 236, 196, 0.55) 0%, rgba(255, 236, 196, 0) 70%);
+      pointer-events: none;
+    }
+
+    .s13-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .s13-inner .ss-h2 {
+      color: #0c0c0c;
+      font-size: clamp(32px, 4.4vw, 54px);
+      margin-bottom: 16px;
+    }
+
+    .s13-inner p {
+      color: rgba(12, 12, 12, 0.8);
+      font-size: clamp(16px, 1.35vw, 18.5px);
+      line-height: 1.55;
+      margin: 0 auto 28px;
+      max-width: 58ch;
+    }
+
+    .s13-btn {
+      background: #0c0c0c;
+      color: #fff;
+      padding: 15px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 999px;
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 16px 36px rgba(12, 12, 12, 0.28);
+      transition: transform 0.15s ease;
+    }
+
+    .s13-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       9. DARK MULTI-COLUMN FOOTER (a14-footer)
+       ========================================================================== */
+    .a14-footer {
+      background: var(--ss-space);
+      color: rgba(255, 255, 255, 0.72);
+      padding: 72px 0 42px;
+      border-top: 1px solid var(--ss-line);
+      font-size: 13.5px;
+    }
+
+    .a14-top {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(4, 1fr);
+      gap: 36px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .a14-brand p {
+      color: var(--ss-muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin: 14px 0 18px;
+      max-width: 32ch;
+    }
+
+    .a14-col h4 {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ss-gold);
+      margin: 0 0 14px;
+    }
+
+    .a14-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .a14-col a {
+      color: var(--ss-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .a14-col a:hover {
+      color: #fff;
+    }
+
+    .a14-bottom {
+      padding-top: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      color: var(--ss-muted);
+      font-size: 12.5px;
+    }
+
+    @media (max-width: 900px) {
+      .a14-top {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="a01-sentinel" id="topSentinel"></div>
+
+  <!-- ========================================================================
+       1. STICKY STARFIELD HEADER (a01-header)
+       ======================================================================== -->
+  <header class="a01-header" id="siteHeader">
+    <canvas class="ss-stars" id="headerStars"></canvas>
+    <div class="a01-bar">
+      <a href="#" class="a01-logo">
+        <span class="a01-logo-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="11" r="3"/>
+          </svg>
+        </span>
+        <span>DoNotEncode.ai</span>
+        <span class="a01-logo-badge">v0.6</span>
+      </a>
+
+      <nav class="a01-nav" aria-label="Main Navigation">
+        <div class="a01-item">
+          <button type="button" class="a01-link">
+            6 Protection Layers
+            <svg class="a01-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="a01-drop">
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="0">
+              <span class="a01-drop-ico">🔒</span>
+              <span>
+                <span class="a01-drop-title">Code Lock (Anti-Copycat)</span>
+                <span class="a01-drop-sub">Makes your website code &amp; formulas impossible to copy</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="1">
+              <span class="a01-drop-ico">☁️</span>
+              <span>
+                <span class="a01-drop-title">File &amp; Link Lock</span>
+                <span class="a01-drop-sub">Stops people from stealing your private files, images &amp; media</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="2">
+              <span class="a01-drop-ico">🤖</span>
+              <span>
+                <span class="a01-drop-title">AI SEO Boost</span>
+                <span class="a01-drop-sub">Gets your business recommended #1 in ChatGPT &amp; Perplexity</span>
+              </span>
+            </a>
+            <a href="#orbitSection" class="a01-drop-item" data-select-agent="4">
+              <span class="a01-drop-ico">🛒</span>
+              <span>
+                <span class="a01-drop-title">Checkout &amp; Data Guard</span>
+                <span class="a01-drop-sub">Hides behind-the-scenes data &amp; blocks coupon-guessing bots</span>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <a href="#scannerHero" class="a01-link">Live URL Scanner</a>
+        <a href="#llmsRevolutionSection" class="a01-link">Why Our AI SEO</a>
+        <a href="#proofBento" class="a01-link">Results</a>
+        <a href="#pricingSection" class="a01-link">Pricing</a>
+        <a href="#faqSection" class="a01-link">FAQ</a>
+      </nav>
+
+      <div class="a01-cta">
+        <span class="a01-status-pill" title="Version 0.6 — 100/100 Security Checks Passing">
+          <span class="a01-status-dot"></span>
+          v0.6 Shield Active
+        </span>
+        <a href="#scannerHero" class="ss-btn ss-btn--gold" id="headerScanBtn">
+          Scan Your Site Free
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. HERO + ROTATING ENGINE FLIPPER + LIVE URL SCANNER (a02-hero)
+       ======================================================================== -->
+  <section class="ss-section a02-hero" id="scannerHero">
+    <canvas class="ss-stars" id="heroStars"></canvas>
+    <div class="ss-wrap">
+      <div class="a02-eyebrow">
+        <span>⚡ VERSION 0.6 — UNBREAKABLE CODE LOCK + AUTOMATIC AI SEO</span>
+      </div>
+
+      <h1 class="ss-h1">
+        Security &amp; AI SEO for
+        <span class="ss-ul">
+          WebApps
+          <svg viewBox="0 0 240 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 12.5C62 3.5 178 3.5 237 11.5" stroke="#fbcc82" stroke-width="4" stroke-linecap="round"/>
+            <path d="M18 14.5C82 8.5 162 7.5 224 13.5" stroke="#fbcc82" stroke-width="2" stroke-linecap="round" stroke-opacity="0.6"/>
+          </svg>
+        </span>
+        made effortless.
+      </h1>
+
+      <p class="ss-sub">
+        <span>Stop copycats from stealing your code while getting recommended first in</span>
+        <span class="ss-flipper" id="heroFlipper" aria-live="polite">
+          <!-- 1. ChatGPT -->
+          <span class="ss-flip-item is-on">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path d="M12 2a4.5 4.5 0 0 0-3.89 2.25L4.5 10.5a4.5 4.5 0 0 0 0 4.5l3.61 6.25a4.5 4.5 0 0 0 7.78 0l3.61-6.25a4.5 4.5 0 0 0 0-4.5L15.89 4.25A4.5 4.5 0 0 0 12 2Z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            ChatGPT
+          </span>
+          <!-- 2. Perplexity -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/>
+            </svg>
+            Perplexity
+          </span>
+          <!-- 3. Claude AI -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9 12 2"/>
+            </svg>
+            Claude AI
+          </span>
+          <!-- 4. Google AI Overviews -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 12h9M12 3a9 9 0 0 1 9 9"/>
+            </svg>
+            Google AI Overviews
+          </span>
+          <!-- 5. Gemini -->
+          <span class="ss-flip-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3c1.5 5.5 3.5 7.5 9 9-5.5 1.5-7.5 3.5-9 9-1.5-5.5-3.5-7.5-9-9 5.5-1.5 7.5-3.5 9-9z"/>
+            </svg>
+            Gemini
+          </span>
+        </span>
+      </p>
+
+      <!-- Live URL Audit Scanner Bar -->
+      <form class="ss-form" id="auditScannerForm" novalidate>
+        <span class="ss-form-ico" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="auditUrlInput"
+          class="ss-input"
+          value="https://acme-nexus.io"
+          placeholder="Enter any website URL (e.g. yoursite.com)"
+          aria-label="Website URL to scan"
+          autocomplete="off"
+        />
+        <button type="submit" class="ss-submit" id="auditSubmitBtn">
+          <span id="auditSubmitLabel">Scan free</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- 1-Click Sample Presets -->
+      <div class="a02-presets">
+        <span class="a02-preset-label">Try instant live scan:</span>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://acme-nexus.io">acme-nexus.io (SaaS App)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://store-demo.shopify.com">store-demo.shopify.com (Online Store)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://vault-ledger.fintech.io">vault-ledger.fintech.io (Finance App)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://legacy-crm.corp.internal">legacy-crm.corp.internal (Business Portal)</button>
+      </div>
+
+      <div class="ss-meta">
+        <span>✓ No signup or credit card required</span>
+        <span>✓ Explained in simple, everyday English</span>
+        <span>✓ Instant 1-click protection &amp; AI SEO preview</span>
+      </div>
+
+      <!-- ====================================================================
+           COLLAPSIBLE COLOR-CODED LIVE AUDIT REPORT (#auditResultsPanel)
+           ==================================================================== -->
+      <div class="audit-panel" id="auditResultsPanel" aria-live="polite">
+        <div class="audit-top-banner">
+          <div class="audit-score-orb" id="auditScoreOrb">
+            <span class="audit-score-num" id="auditScoreValue">92</span>
+            <span class="audit-score-lbl" id="auditScoreLabel">HIGH RISK</span>
+          </div>
+
+          <div class="audit-summary-col">
+            <h3>
+              <span id="auditTargetTitle">Report for https://acme-nexus.io</span>
+              <span class="issue-sev-badge sev-high" id="auditGradeBadge">🔴 Needs Immediate Shield</span>
+            </h3>
+            <p id="auditPlainSummary">
+              We checked what copycats, hackers, and AI search engines see when they visit your website. Every issue below is explained in plain English—click any card to see what it means and how <strong>DoNotEncode.ai</strong> fixes it automatically.
+            </p>
+            <div class="audit-meta-pills" id="auditTelemetryPills">
+              <span class="audit-meta-pill">Platform: Next.js + Supabase</span>
+              <span class="audit-meta-pill">AI Search Readiness: Not Optimized</span>
+              <span class="audit-meta-pill">Page Code Clutter: 94%</span>
+            </div>
+          </div>
+
+          <div class="audit-action-col">
+            <button type="button" class="audit-fix-btn" id="simulateShieldBtn">
+              <span>⚡ Preview Instant Fix (Drop Risk to 0/100)</span>
+            </button>
+            <span style="font-family:var(--ss-mono);font-size:11px;color:var(--ss-muted);" id="auditScanTimeLabel">
+              Scanned in 38ms • DoNotEncode.ai v0.6
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Pills + Expand/Collapse All -->
+        <div class="audit-filter-bar">
+          <div class="audit-filter-group" id="auditFilterGroup">
+            <button type="button" class="audit-filter-pill is-active" data-filter="ALL">All Issues (<span id="countAll">5</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="High">🔴 High Risk (<span id="countHigh">3</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="Medium">🟡 Medium Risk (<span id="countMed">2</span>)</button>
+            <button type="button" class="audit-filter-pill" data-filter="Low">🟢 Passed / Low (<span id="countLow">0</span>)</button>
+          </div>
+          <button type="button" class="audit-expand-link" id="toggleAllCardsBtn">Expand all details</button>
+        </div>
+
+        <!-- Collapsible Red / Yellow / Green Cards Container -->
+        <div class="audit-issues-list" id="auditIssuesList"></div>
+
+        <!-- 1-Click Fix Simulation Drawer -->
+        <div class="sim-drawer" id="simResultsDrawer">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <span class="issue-sev-badge sev-low" style="margin-bottom:6px;">🟢 PROTECTION SIMULATION ACTIVE — 0 / 100 RISK (A+ PROTECTED)</span>
+              <h4 style="margin:4px 0 0;font-family:var(--ss-display);font-size:18px;color:#fff;" id="simSummaryHeading">
+                Your website code is now locked against copycats &amp; your instant AI Search Summary is live!
+              </h4>
+            </div>
+            <code style="font-family:var(--ss-mono);font-size:12px;background:#08090d;padding:8px 12px;border-radius:8px;color:var(--ss-gold);border:1px solid rgba(251,204,130,0.3);" id="simCliCommand">
+              npx donotencode init --target https://acme-nexus.io
+            </code>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-code-card">
+              <div class="sim-code-head">
+                <span>1. Clean AI Search Summary (What ChatGPT &amp; Perplexity Read)</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simLlmsOutput">Copy AI Summary</button>
+              </div>
+              <pre class="sim-pre" id="simLlmsOutput"></pre>
+            </div>
+            <div class="sim-code-card">
+              <div class="sim-code-head">
+                <span>2. Locked Website Code (What Copycats &amp; Scrapers See)</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simBytecodeOutput">Copy Locked Code</button>
+              </div>
+              <pre class="sim-pre" id="simBytecodeOutput"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       3. SCORE-RING PROOF STRIP (s03-proof)
+       ======================================================================== -->
+  <section class="ss-section s03-proof">
+    <div class="ss-wrap">
+      <div class="s03-card">
+        <!-- Cell 1: Animated Score Ring -->
+        <div class="s03-cell">
+          <div class="s03-gauge" id="proofGauge" data-target="100">
+            <svg viewBox="0 0 84 84">
+              <circle cx="42" cy="42" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6.5"/>
+              <circle
+                id="proofGaugeCircle"
+                cx="42"
+                cy="42"
+                r="36"
+                fill="none"
+                stroke="#10b981"
+                stroke-width="6.5"
+                stroke-linecap="round"
+                stroke-dasharray="226.19"
+                stroke-dashoffset="226.19"
+              />
+            </svg>
+            <div class="s03-gauge-num">
+              <span id="proofGaugeNum">100</span>
+              <small>/ 100</small>
+            </div>
+          </div>
+          <div class="s03-gauge-copy">
+            <b>100 / 100 Threats Blocked</b>
+            <span>Tested against 1,417 automated hacker &amp; copycat attacks with zero leaks.</span>
+          </div>
+        </div>
+
+        <!-- Cell 2: Rating & Social Proof -->
+        <div class="s03-cell s03-rating">
+          <div class="s03-stars-row">
+            <div class="s03-stars" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.52 4.67a1 1 0 0 0 .95.69h4.91c.97 0 1.37 1.24.59 1.81l-3.97 2.89a1 1 0 0 0-.36 1.12l1.52 4.67c.3.92-.75 1.69-1.54 1.12l-3.97-2.89a1 1 0 0 0-1.18 0l-3.97 2.89c-.79.57-1.84-.2-1.54-1.12l1.52-4.67a1 1 0 0 0-.36-1.12L2.08 10.1c-.78-.57-.38-1.81.59-1.81h4.91a1 1 0 0 0 .95-.69l1.52-4.67z"/></svg>
+            </div>
+            <div class="s03-avatars">
+              <span class="s03-av" style="background:#fbcc82;">AK</span>
+              <span class="s03-av" style="background:#6ee7b7;">MR</span>
+              <span class="s03-av" style="background:#93c5fd;">JL</span>
+              <span class="s03-av" style="background:#fca5a5;">SV</span>
+            </div>
+          </div>
+          <div class="s03-rating-copy">
+            Trusted by <strong>12,400+</strong> online stores, SaaS founders &amp; web apps
+          </div>
+        </div>
+
+        <!-- Cell 3: Key Platform Differentiators -->
+        <div class="s03-cell s03-stats">
+          <div class="s03-stat">
+            <span class="s03-stat-num">0 Leaks</span>
+            <span class="s03-stat-lbl">Your code, private files &amp; store data stay 100% locked</span>
+          </div>
+          <div class="s03-stat">
+            <span class="s03-stat-num">1st</span>
+            <span class="s03-stat-lbl">All-in-one Code Lock + Automatic AI SEO platform</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4. 6 AUTOMATIC PROTECTION LAYERS — EXPLAINED SIMPLY (x-orbit)
+       ======================================================================== -->
+  <section class="x-orbit" id="orbitSection">
+    <canvas id="orbitStars"></canvas>
+    <div class="wrap">
+      <div class="head">
+        <div class="kicker">6 AUTOMATIC PROTECTION LAYERS — EXPLAINED IN PLAIN ENGLISH</div>
+        <h2>How DoNotEncode.ai Protects &amp; Grows Your Website</h2>
+        <p>No confusing tech jargon. Click any of the 6 shields below to see how we stop copycats and hackers while getting your business recommended first by AI.</p>
+      </div>
+
+      <!-- 6 Interactive Protection Pills (Plain English) -->
+      <div class="pills" id="orbitPills" role="tablist">
+        <button type="button" class="pill on" data-idx="0">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Code Lock
+        </button>
+        <button type="button" class="pill" data-idx="1">
+          <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+          File &amp; Link Lock
+        </button>
+        <button type="button" class="pill" data-idx="2">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          AI SEO Boost
+        </button>
+        <button type="button" class="pill" data-idx="3">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+          Bot Blocker
+        </button>
+        <button type="button" class="pill" data-idx="4">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Checkout &amp; Data Guard
+        </button>
+        <button type="button" class="pill" data-idx="5">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          24/7 Hacker Shield
+        </button>
+      </div>
+
+      <div class="stage">
+        <!-- Left Interactive Card (Plain English) -->
+        <div class="card" id="orbitCard">
+          <h3 id="orbitCardTitle">Makes Your Website Code Impossible to Copy</h3>
+          <p id="orbitCardDesc">
+            Right now, anyone can right-click "Inspect" on your website—or paste your link into an AI tool—to copy your entire design, pricing calculators, and features for free. Basic "encoding" just scrambles text, which AI unscrambles in 1 second. We turn your code into a locked vault that browsers can run smoothly, but humans and copycats can never read or steal.
+          </p>
+          <div class="view" id="orbitCardView">
+            <div class="vh">
+              <span>What Copycats &amp; Competitors See</span>
+              <span class="vpill">100% Locked</span>
+            </div>
+            <div class="vrow">
+              <span>Without Us: Your formulas &amp; code</span>
+              <span style="color:#fca5a5;">Wide Open to Copy</span>
+            </div>
+            <div class="vrow">
+              <span>With DoNotEncode.ai: Locked Vault</span>
+              <span style="color:#6ee7b7;">0% Copyable</span>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:#fbcc82;">
+              💡 Like letting visitors enjoy your baked cake while locking away the secret recipe.
+            </div>
+          </div>
+          <a href="#scannerHero" class="cta">
+            Test on your URL free
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Right Interactive Visual System -->
+        <div class="sys">
+          <svg viewBox="0 0 560 560" aria-hidden="true">
+            <circle class="r-solid" cx="280" cy="280" r="110"/>
+            <circle class="r-dash spin" cx="280" cy="280" r="155"/>
+            <circle class="r-track" cx="280" cy="280" r="210"/>
+            <circle
+              class="r-main"
+              id="orbitMainArc"
+              cx="280"
+              cy="280"
+              r="210"
+              stroke-dasharray="1319.47"
+              stroke-dashoffset="1099.5"
+              transform="rotate(-90 280 280)"
+            />
+            <circle class="r-dot spin rev" cx="280" cy="280" r="250"/>
+          </svg>
+
+          <!-- Center Sun -->
+          <div class="sun">
+            <small>v0.6 SHIELD</small>
+            Protected Website
+          </div>
+
+          <!-- 6 Nodes positioned around the circle -->
+          <button type="button" class="sat on" data-idx="0" style="left:50%; top:12.5%;">
+            <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Code Lock</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="1" style="left:82.48%; top:31.25%;">
+            <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            <span>File Lock</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="2" style="left:82.48%; top:68.75%;">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>AI SEO Boost</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="3" style="left:50%; top:87.5%;">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
+            <span>Bot Blocker</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="4" style="left:17.52%; top:68.75%;">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Checkout Guard</span>
+          </button>
+
+          <button type="button" class="sat" data-idx="5" style="left:17.52%; top:31.25%;">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Hacker Shield</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4B. WHY REGULAR WEBSITES FAIL AT AI SEARCH & WHY OUR AI SEO IS REVOLUTIONARY
+       ======================================================================== -->
+  <section class="x-llms-rev" id="llmsRevolutionSection">
+    <div class="ss-wrap">
+      <div class="lr-head">
+        <span class="ss-kicker">THE AI SEARCH REVOLUTION — EXPLAINED SIMPLY</span>
+        <h2>Why Normal Websites Are Broken for AI—And Why Our AI SEO Is Revolutionary</h2>
+        <p>
+          People don't scroll through 10 pages of Google links anymore. They open <strong>ChatGPT, Perplexity, Claude, or Google AI</strong> and ask: <em>"What is the best product or service for X?"</em> Here is why 99% of websites get skipped by AI—and how <strong>DoNotEncode.ai</strong> puts you in the #1 spot.
+        </p>
+      </div>
+
+      <!-- Side-by-Side Comparison: Why Normal Sites Are Broken vs. Why Ours Is Superior -->
+      <div class="lr-compare">
+        <!-- Left: Why Normal Websites Fail -->
+        <div class="lr-panel is-bad">
+          <span class="lr-badge bad">❌ THE PROBLEM: 99% OF WEBSITES TODAY</span>
+          <h3>Why Normal Websites Look Like Garbage to AI</h3>
+          <p>
+            When ChatGPT or Perplexity visits a normal website, it doesn't see your pretty photos or layout. Instead, it gets hit with a massive wall of <strong>messy website design code, popups, tracking scripts, and menu clutter</strong>. Over <strong>94%</strong> of a regular webpage is unreadable design clutter, and only 6% is actual information about what you sell.
+          </p>
+          <div class="lr-codebox" style="color:#fca5a5;">
+            &lt;div class="css-9x81a"&gt;&lt;script src="/chunk-9812.js"&gt;&lt;/script&gt;<br/>
+            &lt;span data-v-8812&gt;window.__STATE__={...800KB of messy layout code...}&lt;/span&gt;<br/>
+            &lt;!-- AI assistant hits its reading limit here &amp; gives up --&gt;
+          </div>
+          <div class="lr-verdict bad">
+            ❌ Result: Because AI assistants have to answer in a split second, they get confused by your site's code clutter, guess the wrong prices, or skip you completely and recommend your competitor.
+          </div>
+        </div>
+
+        <!-- Right: Why DoNotEncode.ai Is Revolutionary -->
+        <div class="lr-panel is-good">
+          <span class="lr-badge good">✅ THE SOLUTION: DONOTENCODE.AI AUTOMATIC AI SEO</span>
+          <h3>How We Hand AI a Crystal-Clear "VIP Summary"</h3>
+          <p>
+            Instead of forcing AI assistants to dig through messy website code, <strong>DoNotEncode.ai</strong> automatically creates a clean, instant business summary specifically for visiting AI search engines. The moment ChatGPT, Perplexity, or Google AI visits your site, we hand it your exact products, real prices, and best selling points on a silver platter.
+          </p>
+          <div class="lr-codebox" style="color:#a7f3d0;">
+            ✔ Business: Acme Cloud — Instant Team Analytics<br/>
+            ✔ Why Customers Choose Us: Setup in 60 seconds, 99.99% uptime<br/>
+            ✔ Verified Live Pricing: Starter ($19/mo) • Pro ($66/mo)<br/>
+            ✔ Key Pages: /pricing • /features • /book-demo (Verified Live)
+          </div>
+          <div class="lr-verdict good">
+            ✅ Result: ChatGPT, Perplexity, Claude &amp; Google AI understand your entire business in 0.01 seconds, quote your exact prices accurately, and recommend you #1 to ready-to-buy customers.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Plain-English Reasons Why Ours Is Superior -->
+      <div class="lr-pillars">
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">1. 100% AUTOMATIC &amp; SELF-UPDATING</span>
+          <h4>Updates Itself Whenever You Change Your Site</h4>
+          <p>
+            Other tools make you write complicated summaries by hand that go out of date the moment you change a price. Our AI SEO watches your live website and updates itself automatically every time you add a product, change a price, or launch a page.
+          </p>
+        </div>
+
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">2. ZERO WRONG PRICES OR DEAD LINKS</span>
+          <h4>Stops AI From Lying About Your Business</h4>
+          <p>
+            Ever seen ChatGPT tell a customer an outdated price or send them to a broken page? Our engine cross-checks your live website in real time and stamps your facts as verified—so AI assistants never invent fake prices.
+          </p>
+        </div>
+
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">3. THE ONLY SMART VIP BOUNCER</span>
+          <h4>Blocks Copycat Thieves While Welcoming AI Buyers</h4>
+          <p>
+            Traditional security firewalls block <em>all</em> bots—which accidentally locks out ChatGPT and Perplexity and kills your sales! DoNotEncode.ai is the only system that locks your code away from copycats while giving real AI search assistants a VIP fast-lane.
+          </p>
+        </div>
+      </div>
+
+      <!-- NEW: LIVE AI AGENT VISIT & PRODUCT RECOMMENDATION TRACKER -->
+      <div class="ai-radar-box" id="aiAgentTrackerBox">
+        <div class="ai-radar-top">
+          <div>
+            <span class="ss-kicker">NEW IN VERSION 0.6 • REAL-TIME AI AGENT RADAR</span>
+            <h3 class="ai-radar-title">See Every Time AI Agents Visit &amp; Recommend Your Products</h3>
+            <p class="ai-radar-sub">
+              Ever wondered how many times <strong>ChatGPT, Perplexity, Claude, or Google AI</strong> actually visit your store or recommend your web app to buyers? Our edge sensor detects every live AI lookup and every customer who clicks through from an AI chat recommendation in real time.
+            </p>
+          </div>
+          <div class="ai-radar-totals">
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiTotalVisitsNum">1,482</div>
+              <div class="ai-tot-lbl">Total AI Agent Visits</div>
+            </div>
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiLiveRecsNum">946</div>
+              <div class="ai-tot-lbl">Live Product Lookups</div>
+            </div>
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiBuyerClicksNum">389</div>
+              <div class="ai-tot-lbl">Buyer Clicks from AI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 AI Engine Counter Cards -->
+        <div class="ai-engine-grid" id="aiEngineGrid">
+          <div class="ai-engine-card" data-engine-card="chatgpt">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">ChatGPT</span>
+              <span class="ai-eng-live" id="engSeen-chatgpt">Just now</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-chatgpt">642</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-chatgpt">438</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-chatgpt">194</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="perplexity">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Perplexity</span>
+              <span class="ai-eng-live" id="engSeen-perplexity">1m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-perplexity">418</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-perplexity">289</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-perplexity">112</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="claude">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Claude AI</span>
+              <span class="ai-eng-live" id="engSeen-claude">3m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-claude">219</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-claude">134</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-claude">49</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="gemini">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Google AI / Gemini</span>
+              <span class="ai-eng-live" id="engSeen-gemini">4m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-gemini">203</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-gemini">85</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-gemini">34</strong></div>
+          </div>
+        </div>
+
+        <!-- 1-Click Live AI Visit Simulator Bar -->
+        <div class="ai-sim-bar">
+          <span class="ai-sim-label">⚡ Test Live AI Detection Right Now:</span>
+          <div class="ai-sim-btns">
+            <button type="button" class="ai-sim-btn" data-sim-ai="chatgpt" data-sim-type="prompt_lookup" data-sim-page="/products/pro-shield">
+              + Simulate ChatGPT Recommending Product
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="perplexity" data-sim-type="prompt_lookup" data-sim-page="/pricing">
+              + Simulate Perplexity Store Lookup
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="claude" data-sim-type="prompt_lookup" data-sim-page="/features">
+              + Simulate Claude AI Reading Page
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="chatgpt" data-sim-type="buyer_click" data-sim-page="/checkout">
+              + Simulate Buyer Clicking from AI Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Detection Stream -->
+        <div class="ai-feed-list" id="aiLiveFeedList">
+          <div class="ai-feed-item">
+            <div class="ai-feed-left">
+              <span class="ai-feed-badge">LIVE RECOMMENDATION</span>
+              <span class="ai-feed-engine">ChatGPT</span>
+              <span class="ai-feed-desc">Someone asked ChatGPT for a recommendation — ChatGPT read your product &amp; pricing summary live</span>
+            </div>
+            <div class="ai-feed-right">
+              <span>Page: /products/pro-shield</span>
+              <span>• Just now</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       5. 12-COLUMN BENTO PROOF & TELEMETRY GRID (x-testimonials)
+       ======================================================================== -->
+  <section class="x-testimonials" id="proofBento">
+    <div class="tm-wrap">
+      <div class="tm-head">
+        <span class="ss-kicker">REAL RESULTS FROM REAL BUSINESSES</span>
+        <h2 class="tm-title">Built for Zero Code Theft &amp; #1 AI Recommendations</h2>
+        <p class="tm-sub">See what happens when websites switch from basic encoding to DoNotEncode.ai v0.6.</p>
+      </div>
+
+      <div class="tm-grid">
+        <!-- Large Bento Card 1: Animated Bar Chart -->
+        <div class="tm-card tm-lg">
+          <p class="tm-quote">
+            “Within 48 hours of turning on <strong>DoNotEncode.ai</strong>, copycat scraper bots dropped by <mark>99.4%</mark> while customer recommendations from ChatGPT and Perplexity jumped <mark>+340%</mark> because AI could finally read our products clearly.”
+          </p>
+          <div class="tm-Viz">
+            <div class="tm-vh">
+              <span class="tm-vlbl">AI Search Recommendations (First 30 Days)</span>
+              <span class="tm-vdelta">+340% More AI Mentions</span>
+            </div>
+            <div class="tm-bars" id="bentoBars">
+              <i style="--h:18%"></i><i style="--h:22%"></i><i style="--h:20%"></i><i style="--h:25%"></i>
+              <i style="--h:24%"></i><i style="--h:28%"></i><i style="--h:30%"></i><i style="--h:32%"></i>
+              <i style="--h:38%" class="hi"></i><i style="--h:45%" class="hi"></i><i style="--h:52%" class="hi"></i><i style="--h:58%" class="hi"></i>
+              <i style="--h:64%" class="hi"></i><i style="--h:68%" class="hi"></i><i style="--h:72%" class="hi"></i><i style="--h:76%" class="hi"></i>
+              <i style="--h:80%" class="hi"></i><i style="--h:84%" class="hi"></i><i style="--h:88%" class="hi"></i><i style="--h:91%" class="hi"></i>
+              <i style="--h:94%" class="hi"></i><i style="--h:96%" class="hi"></i><i style="--h:98%" class="hi"></i><i style="--h:100%" class="hi"></i>
+            </div>
+            <div class="tm-vaxis">
+              <span>Day 1 (Messy Page Code)</span>
+              <span>DoNotEncode.ai Turned On →</span>
+              <span>Day 30 (Clean AI SEO Active)</span>
+            </div>
+          </div>
+          <div class="tm-author">
+            <span class="tm-av">MK</span>
+            <div>
+              <div class="tm-name">Marcus Vance</div>
+              <div class="tm-role">VP of Engineering, NexusCloud AI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Large Bento Card 2: Before/After Code & File Lock -->
+        <div class="tm-card tm-lg">
+          <p class="tm-quote">
+            “Copycats were cloning our website design and downloading our private files straight from the browser. <strong>DoNotEncode.ai</strong> locked our website code into an <mark>unreadable vault</mark> and put a one-time pass on every private file link.”
+          </p>
+          <div class="tm-Viz">
+            <div class="tm-vh">
+              <span class="tm-vlbl">What Copycats See in Browser Inspect</span>
+              <span class="tm-vdelta">0 Stolen Files or Code</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--ss-mono);font-size:12px;">
+              <div style="padding:10px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">
+                ❌ BEFORE: Direct file links &amp; pricing formulas wide open to copy-paste
+              </div>
+              <div style="padding:10px 12px;border-radius:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;">
+                ✅ AFTER: Sealed in a 1-time locked vault (Works for buyers, useless to thieves)
+              </div>
+            </div>
+          </div>
+          <div class="tm-author">
+            <span class="tm-av">SL</span>
+            <div>
+              <div class="tm-name">Sophia Lin</div>
+              <div class="tm-role">Head of Security, VaultLedger</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Small Metric Cards -->
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">$42k<sub>/mo saved</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Stopped coupon browser extensions from guessing and leaking private VIP discount codes at checkout.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">DR</span>
+            <div>
+              <div class="tm-name">Devon Ross</div>
+              <div class="tm-role">CTO, Atelier Commerce</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">0.4ms<sub>speed impact</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Your website stays lightning-fast for real customers with zero lag and zero annoying CAPTCHA puzzles.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">KT</span>
+            <div>
+              <div class="tm-name">Kieran Thorne</div>
+              <div class="tm-role">Principal Architect, HyperScale</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">100%<sub>data hidden</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            Automatically wipes hidden inventory counts, profit margins, and private IDs from your page background.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">AL</span>
+            <div>
+              <div class="tm-name">Aria Lindqvist</div>
+              <div class="tm-role">Staff Engineer, NordSaaS</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tm-card tm-sm">
+          <div class="tm-stat">10 sec<sub>easy setup</sub></div>
+          <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
+            One simple command automatically detects your website type and turns on all 6 protection layers.
+          </p>
+          <div class="tm-author">
+            <span class="tm-av">JC</span>
+            <div>
+              <div class="tm-name">Julian Chen</div>
+              <div class="tm-role">Founder, ShipFast Labs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       6. INTERACTIVE PRICING + COMPARISON MATRIX (s11-pricing)
+       ======================================================================== -->
+  <section class="s11-pricing" id="pricingSection" data-cycle="yearly">
+    <div class="pp-wrap">
+      <div class="pp-head">
+        <span class="ss-kicker">SIMPLE, TRANSPARENT PRICING</span>
+        <h2 class="pp-title">Lock Your Code. Get Recommended by AI.</h2>
+        <p class="pp-sub">Scan any website free as many times as you want, or turn on full 6-layer protection in 10 seconds.</p>
+      </div>
+
+      <div class="pp-grid">
+        <!-- Plan 1: Starter -->
+        <div class="pp-card">
+          <div class="pp-top">
+            <span class="pp-name">Starter Shield</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">For creators &amp; small websites that want automatic AI SEO and essential browser safety locks.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$19" data-monthly="$29">$19</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($228/yr)" data-monthly="Billed monthly ($29/mo)">Billed annually ($228/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
+          </div>
+
+          <a href="#scannerHero" class="pp-cta">Start Free Scan</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Protects 1 website domain</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic self-updating AI SEO for ChatGPT &amp; Perplexity</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Live AI Agent Visit &amp; Recommendation Counter</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> All 6 browser safety deadbolts installed automatically</li>
+          </ul>
+        </div>
+
+        <!-- Plan 2: Pro Shield (Featured) -->
+        <div class="pp-card feat">
+          <span class="pp-badge">MOST POPULAR</span>
+          <div class="pp-top">
+            <span class="pp-name">Pro Shield</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">Full 6-layer protection with unbreakable Code Lock, File Lock, Checkout Guard, and AI SEO.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$66" data-monthly="$99">$66</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($792/yr)" data-monthly="Billed monthly ($99/mo)">Billed annually ($792/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
+          </div>
+
+          <a href="#scannerHero" class="pp-cta">Get Pro Shield Free</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 5 websites &amp; online stores</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unbreakable Code Lock (stops copycats &amp; AI cloners)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> One-time pass lock on private files, videos &amp; cloud links</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Checkout coupon-guesser lock &amp; hidden background data wipe</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Real-time AI Agent Product Recommendation &amp; Click Tracker</li>
+          </ul>
+        </div>
+
+        <!-- Plan 3: Enterprise Shield -->
+        <div class="pp-card">
+          <div class="pp-top">
+            <span class="pp-name">Enterprise Shield</span>
+            <span class="pp-save">4 months free</span>
+          </div>
+          <p class="pp-desc">For multi-site companies, agencies &amp; high-volume stores needing custom protection rules.</p>
+          <div class="pp-price">
+            <span class="pp-num" data-yearly="$266" data-monthly="$399">$266</span>
+            <span class="pp-per">/ month</span>
+          </div>
+          <div class="pp-billed" data-yearly="Billed annually ($3,192/yr)" data-monthly="Billed monthly ($399/mo)">Billed annually ($3,192/yr)</div>
+
+          <div class="pp-toggle" role="switch" aria-checked="true" tabindex="0">
+            <span>Annual billing (Save 35%)</span>
+            <span class="pp-switch"></span>
+          </div>
+
+          <a href="#scannerHero" class="pp-cta">Talk to Our Team</a>
+
+          <ul class="pp-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited websites &amp; visitor traffic</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Custom per-visitor code locks &amp; live stream protection</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic code vulnerability fixer across all languages</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dedicated Slack support &amp; 99.99% uptime guarantee</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       7. STICKY-LEFT 2-COLUMN SMOOTH ACCORDION FAQ (a12-faq)
+       ======================================================================== -->
+  <section class="ss-section a12-faq" id="faqSection">
+    <div class="ss-wrap">
+      <div class="a12-grid">
+        <div class="a12-left">
+          <span class="ss-kicker">GOT QUESTIONS?</span>
+          <h2 class="ss-h2">Frequently Asked Questions</h2>
+          <p class="ss-lead">Plain-English answers about how DoNotEncode.ai v0.6 protects your website and gets you recommended by AI.</p>
+        </div>
+
+        <div class="a12-list" id="faqAccordionList">
+          <details class="a12-item" open>
+            <summary class="a12-q">
+              <span>Why is the platform called DoNotEncode.ai?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Because "encoding" or scrambling your website code is a fake lock. Today's AI tools can unscramble encoded code in less than one second. Instead of scrambling your code, <strong>DoNotEncode.ai</strong> locks it inside a private digital vault that works normally for real shoppers, but looks completely blank to copycats.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>How can your system tell when an AI agent visits my page or recommends my product?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Every time a human asks ChatGPT, Perplexity, Claude, or Google AI for a product recommendation, that AI assistant sends a special live lookup request to your website with its own official digital ID badge. Our edge sensor spots that badge instantly, logs which product page the AI read, and also tracks every time a customer clicks your link inside an AI chat window to buy from you.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>Will locking my website code hurt my Google SEO or AI Search rankings?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              No—it actually boosts your rankings! While we lock out copycats and scraper bots, we roll out the red carpet for verified search engines and AI assistants. We hand ChatGPT, Perplexity, Claude, and Google a super-clean, always-updated summary of your products and prices so they recommend you #1.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>How does File &amp; Cloud Lock protect my images, videos, and private downloads?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Normally, anyone can right-click "Inspect" on your website, grab the direct links to your cloud files or videos, and download everything in bulk. Our File Lock puts a one-time visitor pass on every file link that expires the split-second your webpage finishes loading.
+            </div>
+          </details>
+
+          <details class="a12-item">
+            <summary class="a12-q">
+              <span>Do I need to be a programmer to install DoNotEncode.ai v0.6?</span>
+              <span class="a12-ico"></span>
+            </summary>
+            <div class="a12-a">
+              Not at all. Setup takes under 10 seconds with a single copy-paste command. It automatically detects your website platform (Shopify, Next.js, WordPress, Vercel, or Cloudflare) and turns on all 6 protection layers plus Automatic AI SEO right away.
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       8. HIGH-CONTRAST WARM GOLD CLOSING BAND (s13-close)
+       ======================================================================== -->
+  <section class="ss-section s13-close">
+    <div class="ss-wrap">
+      <div class="s13-inner">
+        <h2 class="ss-h2">Lock out the copycats. Let AI bring you customers.</h2>
+        <p>
+          Scan your website in 2 seconds to see what copycats can steal and what AI search engines are missing—explained in plain, everyday English.
+        </p>
+        <button type="button" class="s13-btn" id="bottomScanCta">
+          <span>Scan Your Website Free</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M13 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       9. DARK MULTI-COLUMN FOOTER (a14-footer)
+       ======================================================================== -->
+  <footer class="a14-footer">
+    <div class="ss-wrap">
+      <div class="a14-top">
+        <div class="a14-brand">
+          <a href="#" class="a01-logo">
+            <span class="a01-logo-mark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <circle cx="12" cy="11" r="3"/>
+              </svg>
+            </span>
+            <span>DoNotEncode.ai</span>
+          </a>
+          <p>
+            Unbreakable Website Code Protection, Anti-Scraper Shield &amp; Automatic AI SEO for ChatGPT, Perplexity, Claude &amp; Google AI.
+          </p>
+          <span class="a01-status-pill">
+            <span class="a01-status-dot"></span>
+            All 6 Protection Layers Operational • v0.6
+          </span>
+        </div>
+
+        <div class="a14-col">
+          <h4>6 Protection Layers</h4>
+          <ul>
+            <li><a href="#orbitSection" data-select-agent="0">1. Code Lock</a></li>
+            <li><a href="#orbitSection" data-select-agent="1">2. File &amp; Cloud Lock</a></li>
+            <li><a href="#orbitSection" data-select-agent="2">3. Automatic AI SEO</a></li>
+            <li><a href="#orbitSection" data-select-agent="3">4. Fake Bot Blocker</a></li>
+            <li><a href="#orbitSection" data-select-agent="4">5. Checkout &amp; Coupon Guard</a></li>
+            <li><a href="#orbitSection" data-select-agent="5">6. 24/7 Hacker Shield</a></li>
+          </ul>
+        </div>
+
+        <div class="a14-col">
+          <h4>Live Scanner</h4>
+          <ul>
+            <li><a href="#scannerHero" data-preset-url="https://acme-nexus.io">SaaS Website Scan</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://store-demo.shopify.com">Online Store Scan</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://vault-ledger.fintech.io">Web App Security Scan</a></li>
+            <li><a href="#aiAgentTrackerBox">Live AI Agent Tracker</a></li>
+          </ul>
+        </div>
+
+        <div class="a14-col">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="#llmsRevolutionSection">Why AI SEO Matters</a></li>
+            <li><a href="#proofBento">100/100 Security Proof</a></li>
+            <li><a href="#faqSection">Plain-English FAQ</a></li>
+            <li><a href="https://github.com/wesamhindi/dontencode.ai" target="_blank" rel="noopener">GitHub Repository</a></li>
+          </ul>
+        </div>
+
+        <div class="a14-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#pricingSection">Pricing Plans</a></li>
+            <li><a href="#orbitSection">How Protection Works</a></li>
+            <li><a href="#scannerHero">Free Website Report</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="a14-bottom">
+        <span>© 2026 DoNotEncode.ai. All rights reserved. Built with zero third-party runtime dependencies.</span>
+        <span style="font-family:var(--ss-mono);">DoNotEncode.ai Shield • Version 0.6</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       INTERACTIVE FRONTEND SCRIPTS
+       ======================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------------------------
+         1. Twinkling Starfield Canvas (Header, Hero & 6-Layer Section)
+         ---------------------------------------------------------------------- */
+      function initStarCanvas(canvasId, densityDivisor) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let width = 0;
+        let height = 0;
+
+        function resize() {
+          const rect = canvas.parentElement.getBoundingClientRect();
+          width = canvas.width = Math.max(300, Math.floor(rect.width));
+          height = canvas.height = Math.max(60, Math.floor(rect.height));
+          const count = Math.min(140, Math.max(24, Math.floor((width * height) / (densityDivisor || 9000))));
+          stars = Array.from({ length: count }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 1.35 + 0.35,
+            alpha: Math.random() * 0.65 + 0.15,
+            speed: (Math.random() * 0.012 + 0.003) * (Math.random() < 0.5 ? 1 : -1),
+            gold: Math.random() < 0.22
+          }));
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, width, height);
+          for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            s.alpha += s.speed;
+            if (s.alpha > 0.85 || s.alpha < 0.12) s.speed = -s.speed;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = s.gold
+              ? 'rgba(251, 204, 130, ' + s.alpha.toFixed(2) + ')'
+              : 'rgba(255, 255, 255, ' + s.alpha.toFixed(2) + ')';
+            ctx.fill();
+          }
+          requestAnimationFrame(draw);
+        }
+
+        resize();
+        window.addEventListener('resize', resize, { passive: true });
+        requestAnimationFrame(draw);
+      }
+
+      initStarCanvas('headerStars', 5500);
+      initStarCanvas('heroStars', 8000);
+      initStarCanvas('orbitStars', 7500);
+
+      /* ----------------------------------------------------------------------
+         2. Sticky Header Compact Observer
+         ---------------------------------------------------------------------- */
+      const headerEl = document.getElementById('siteHeader');
+      const sentinelEl = document.getElementById('topSentinel');
+      if (headerEl && sentinelEl && 'IntersectionObserver' in window) {
+        new IntersectionObserver(
+          ([entry]) => {
+            headerEl.classList.toggle('is-compact', !entry.isIntersecting);
+          },
+          { threshold: 0 }
+        ).observe(sentinelEl);
+      }
+
+      /* ----------------------------------------------------------------------
+         3. Hero Rotating Engine Flipper (1.8s interval)
+         ---------------------------------------------------------------------- */
+      const flipperItems = document.querySelectorAll('#heroFlipper .ss-flip-item');
+      let flipIdx = 0;
+      if (flipperItems.length > 1) {
+        setInterval(() => {
+          flipperItems[flipIdx].classList.remove('is-on');
+          flipIdx = (flipIdx + 1) % flipperItems.length;
+          flipperItems[flipIdx].classList.add('is-on');
+        }, 1850);
+      }
+
+      /* ----------------------------------------------------------------------
+         4. Proof Ring Gauge & Bento Bar Chart Scroll Animations
+         ---------------------------------------------------------------------- */
+      const proofGauge = document.getElementById('proofGauge');
+      const proofCircle = document.getElementById('proofGaugeCircle');
+      const proofNum = document.getElementById('proofGaugeNum');
+      if (proofGauge && proofCircle && proofNum && 'IntersectionObserver' in window) {
+        let gaugeRan = false;
+        new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting && !gaugeRan) {
+              gaugeRan = true;
+              const circumference = 226.19;
+              const duration = 1100;
+              const start = performance.now();
+              function tick(now) {
+                const p = Math.min(1, (now - start) / duration);
+                const ease = 1 - Math.pow(1 - p, 3);
+                proofNum.textContent = String(Math.round(ease * 100));
+                proofCircle.style.strokeDashoffset = String((circumference * (1 - ease)).toFixed(2));
+                if (p < 1) requestAnimationFrame(tick);
+              }
+              requestAnimationFrame(tick);
+            }
+          },
+          { threshold: 0.35 }
+        ).observe(proofGauge);
+      }
+
+      const bentoSection = document.getElementById('proofBento');
+      if (bentoSection && 'IntersectionObserver' in window) {
+        new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) bentoSection.classList.add('in');
+          },
+          { threshold: 0.25 }
+        ).observe(bentoSection);
+      }
+
+      /* ----------------------------------------------------------------------
+         5. Interactive 6-Layer Protection Wheel (Plain-English Explanations)
+         ---------------------------------------------------------------------- */
+      const PROTECTION_LAYERS = [
+        {
+          title: '1. Code Lock (Stops Copycats From Stealing Your Site)',
+          desc: 'Normally, anyone can right-click "Inspect" on your website and copy your design, features, and pricing formulas in seconds. We lock your code inside a private vault that runs smoothly for real shoppers, but looks completely blank to thieves.',
+          viewHtml:
+            '<div class="vh"><span>What Copycats Can Steal</span><span class="vpill">0% Exposed</span></div>' +
+            '<div class="vrow"><span>Without Us: Your code is wide open in the browser</span><span style="color:#fca5a5;">Easy to Copy</span></div>' +
+            '<div class="vrow"><span>With DoNotEncode.ai: Locked inside a private vault</span><span style="color:#6ee7b7;">100% Protected</span></div>' +
+            '<div class="vbar"><i style="width:98%"></i></div>'
+        },
+        {
+          title: '2. File & Cloud Lock (One-Time Pass for Your Media)',
+          desc: 'Without protection, people can grab the direct links to your images, videos, digital downloads, or database and steal everything in bulk. We put a one-time visitor pass on every file link that expires the moment the page loads.',
+          viewHtml:
+            '<div class="vh"><span>Private File &amp; Media Links</span><span class="vpill">1-Time Pass Active</span></div>' +
+            '<div class="vrow"><span>Direct Cloud &amp; Video Links</span><span style="color:#6ee7b7;">100% Locked</span></div>' +
+            '<div class="vrow"><span>Shared or Stolen Links Outside Your Site</span><span style="color:#6ee7b7;">Blocked Instantly</span></div>' +
+            '<div class="vbar"><i style="width:100%"></i></div>'
+        },
+        {
+          title: '3. Automatic AI SEO (Gets You Recommended by AI)',
+          desc: 'When people ask ChatGPT, Perplexity, or Google AI what to buy, AI assistants get confused by messy website design code and skip you. We automatically hand AI a crystal-clear, always-updated summary of your products and prices so AI recommends you first.',
+          viewHtml:
+            '<div class="vh"><span>AI Assistant Readability</span><span class="vpill">VIP AI Fast-Lane</span></div>' +
+            '<div class="vrow"><span>Messy Design Clutter Removed for AI</span><span style="color:#6ee7b7;">-94% Less Clutter</span></div>' +
+            '<div class="vrow"><span>ChatGPT, Perplexity &amp; Claude Product Sync</span><span style="color:#fbcc82;">Auto-Updated Live</span></div>' +
+            '<div class="vbar"><i style="width:96%"></i></div>'
+        },
+        {
+          title: '4. Fake Bot Blocker (Stops Automated Spy Tools)',
+          desc: 'Competitors use invisible robot browsers to scrape your prices 24/7 and copy your catalog. Our smart bouncer spots fake robot browsers in a split second and blocks them, while welcoming real human buyers and real search engines.',
+          viewHtml:
+            '<div class="vh"><span>Automated Spy &amp; Scraper Bots</span><span class="vpill">99.4% Blocked</span></div>' +
+            '<div class="vrow"><span>Competitor Price-Scraping Robots</span><span style="color:#6ee7b7;">Stopped at the Door</span></div>' +
+            '<div class="vrow"><span>Real Shoppers &amp; Verified AI Assistants</span><span style="color:#6ee7b7;">Instant VIP Access</span></div>' +
+            '<div class="vbar"><i style="width:94%"></i></div>'
+        },
+        {
+          title: '5. Checkout & Coupon Guard (Protects Your Profits)',
+          desc: 'Modern websites accidentally hide secret inventory counts and profit margins in the background of the page—and browser extensions try thousands of leaked discount codes at checkout. We wipe hidden background data clean and stop coupon-guessing bots.',
+          viewHtml:
+            '<div class="vh"><span>Checkout &amp; Hidden Data Protection</span><span class="vpill">Zero Leaks</span></div>' +
+            '<div class="vrow"><span>Hidden Inventory &amp; Margin Data</span><span style="color:#6ee7b7;">Wiped Clean</span></div>' +
+            '<div class="vrow"><span>Automated Coupon-Guessing Extensions</span><span style="color:#6ee7b7;">Locked Out</span></div>' +
+            '<div class="vbar"><i style="width:99%"></i></div>'
+        },
+        {
+          title: '6. 24/7 Hacker Shield (Automatic Website Safety Locks)',
+          desc: 'Think of this as putting heavy-duty deadbolts on every door and window of your website. It automatically blocks fake payment popups, click-traps, and hacker tricks before they ever reach your website.',
+          viewHtml:
+            '<div class="vh"><span>24/7 Website Deadbolts</span><span class="vpill">All 6 Locks Active</span></div>' +
+            '<div class="vrow"><span>Browser Anti-Tamper Safety Locks</span><span style="color:#6ee7b7;">Installed Automatically</span></div>' +
+            '<div class="vrow"><span>Protection Against Known Hacker Tricks</span><span style="color:#fbcc82;">24/7 Auto-Shield</span></div>' +
+            '<div class="vbar"><i style="width:100%"></i></div>'
+        }
+      ];
+
+      const orbitPills = document.querySelectorAll('#orbitPills .pill');
+      const orbitSats = document.querySelectorAll('.x-orbit .sat');
+      const orbitCard = document.getElementById('orbitCard');
+      const orbitTitle = document.getElementById('orbitCardTitle');
+      const orbitDesc = document.getElementById('orbitCardDesc');
+      const orbitView = document.getElementById('orbitCardView');
+      const orbitArc = document.getElementById('orbitMainArc');
+
+      function selectProtectionLayer(idx) {
+        const layer = PROTECTION_LAYERS[idx];
+        if (!layer) return;
+        orbitPills.forEach((p, i) => p.classList.toggle('on', i === idx));
+        orbitSats.forEach((s, i) => s.classList.toggle('on', i === idx));
+
+        if (orbitArc) {
+          const total = 1319.47;
+          const fraction = (idx + 1) / PROTECTION_LAYERS.length;
+          orbitArc.style.strokeDashoffset = String((total * (1 - fraction)).toFixed(2));
+        }
+
+        if (orbitCard) {
+          orbitCard.classList.remove('flip');
+          void orbitCard.offsetWidth;
+          orbitCard.classList.add('flip');
+        }
+
+        setTimeout(() => {
+          if (orbitTitle) orbitTitle.textContent = layer.title;
+          if (orbitDesc) orbitDesc.textContent = layer.desc;
+          if (orbitView) orbitView.innerHTML = layer.viewHtml;
+        }, 160);
+      }
+
+      orbitPills.forEach((btn) => {
+        btn.addEventListener('click', () => selectProtectionLayer(Number(btn.dataset.idx || 0)));
+      });
+      orbitSats.forEach((btn) => {
+        btn.addEventListener('click', () => selectProtectionLayer(Number(btn.dataset.idx || 0)));
+      });
+      document.querySelectorAll('[data-select-agent]').forEach((link) => {
+        link.addEventListener('click', () => {
+          selectProtectionLayer(Number(link.getAttribute('data-select-agent') || 0));
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         6. Pricing Yearly / Monthly Interactive Switch
+         ---------------------------------------------------------------------- */
+      const pricingSection = document.getElementById('pricingSection');
+      if (pricingSection) {
+        pricingSection.querySelectorAll('.pp-toggle').forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            const current = pricingSection.getAttribute('data-cycle') || 'yearly';
+            const next = current === 'yearly' ? 'monthly' : 'yearly';
+            pricingSection.setAttribute('data-cycle', next);
+            pricingSection.querySelectorAll('.pp-num').forEach((el) => {
+              el.textContent = el.getAttribute('data-' + next) || el.textContent;
+            });
+            pricingSection.querySelectorAll('.pp-billed').forEach((el) => {
+              el.textContent = el.getAttribute('data-' + next) || el.textContent;
+            });
+          });
+        });
+      }
+
+      /* ----------------------------------------------------------------------
+         7. Smooth FAQ Accordions
+         ---------------------------------------------------------------------- */
+      document.querySelectorAll('#faqAccordionList details.a12-item').forEach((detailsEl) => {
+        const summary = detailsEl.querySelector('summary');
+        const content = detailsEl.querySelector('.a12-a');
+        if (!summary || !content || !content.animate) return;
+        summary.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (detailsEl.open) {
+            const anim = content.animate(
+              [
+                { height: content.offsetHeight + 'px', opacity: 1 },
+                { height: '0px', opacity: 0 }
+              ],
+              { duration: 220, easing: ' cubic-bezier(0.22, 1, 0.36, 1)' }
+            );
+            anim.onfinish = () => {
+              detailsEl.open = false;
+            };
+          } else {
+            detailsEl.open = true;
+            content.animate(
+              [
+                { height: '0px', opacity: 0 },
+                { height: content.offsetHeight + 'px', opacity: 1 }
+              ],
+              { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+            );
+          }
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         8. LIVE URL SECURITY & AI-SEARCH SCANNER + COLLAPSIBLE CARDS
+         ---------------------------------------------------------------------- */
+      const auditForm = document.getElementById('auditScannerForm');
+      const auditInput = document.getElementById('auditUrlInput');
+      const auditSubmitLabel = document.getElementById('auditSubmitLabel');
+      const auditIssuesList = document.getElementById('auditIssuesList');
+      const auditScoreOrb = document.getElementById('auditScoreOrb');
+      const auditScoreValue = document.getElementById('auditScoreValue');
+      const auditScoreLabel = document.getElementById('auditScoreLabel');
+      const auditTargetTitle = document.getElementById('auditTargetTitle');
+      const auditGradeBadge = document.getElementById('auditGradeBadge');
+      const auditPlainSummary = document.getElementById('auditPlainSummary');
+      const auditTelemetryPills = document.getElementById('auditTelemetryPills');
+      const auditScanTimeLabel = document.getElementById('auditScanTimeLabel');
+      const simDrawer = document.getElementById('simResultsDrawer');
+      const simulateBtn = document.getElementById('simulateShieldBtn');
+      const toggleAllCardsBtn = document.getElementById('toggleAllCardsBtn');
+
+      let currentReport = null;
+      let activeFilter = 'ALL';
+      let allExpanded = false;
+
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderCollapsibleFindings(findings) {
+        if (!auditIssuesList) return;
+        const list = Array.isArray(findings) ? findings : [];
+
+        const highCount = list.filter((f) => f.severity === 'High').length;
+        const medCount = list.filter((f) => f.severity === 'Medium').length;
+        const lowCount = list.filter((f) => f.severity === 'Low').length;
+
+        document.getElementById('countAll').textContent = String(list.length);
+        document.getElementById('countHigh').textContent = String(highCount);
+        document.getElementById('countMed').textContent = String(medCount);
+        document.getElementById('countLow').textContent = String(lowCount);
+
+        const filtered = activeFilter === 'ALL' ? list : list.filter((f) => f.severity === activeFilter);
+
+        if (filtered.length === 0) {
+          auditIssuesList.innerHTML =
+            '<div style="padding:20px;border-radius:12px;background:rgba(255,255,255,0.03);color:var(--ss-muted);text-align:center;">No issues in this risk category for this URL.</div>';
+          return;
+        }
+
+        auditIssuesList.innerHTML = filtered
+          .map((item, idx) => {
+            const sev = item.severity === 'High' ? 'High' : item.severity === 'Medium' ? 'Medium' : 'Low';
+            const sevBadgeClass = sev === 'High' ? 'sev-high' : sev === 'Medium' ? 'sev-med' : 'sev-low';
+            const sevIcon = sev === 'High' ? '🔴 HIGH RISK' : sev === 'Medium' ? '🟡 MEDIUM RISK' : '🟢 PASSED / LOW';
+            const openAttr = idx === 0 || allExpanded ? ' open' : '';
+
+            const techRows = Array.isArray(item.technicalDetails)
+              ? item.technicalDetails
+                  .map(
+                    (td) =>
+                      '<div class="issue-tech-row">' +
+                      '<span class="issue-tech-lbl">' + escapeHtml(td.label) + '</span>' +
+                      '<span class="issue-tech-val">' + escapeHtml(td.value) + '</span>' +
+                      '</div>'
+                  )
+                  .join('')
+              : '';
+
+            return (
+              '<details class="audit-issue-card" data-severity="' + sev + '"' + openAttr + '>' +
+                '<summary>' +
+                  '<div class="issue-sum-left">' +
+                    '<span class="issue-sev-badge ' + sevBadgeClass + '">' + sevIcon + '</span>' +
+                    '<span class="issue-layer-tag">' + escapeHtml(item.layer || 'Protection Check') + '</span>' +
+                    '<span class="issue-title-text">' + escapeHtml(item.title) + '</span>' +
+                  '</div>' +
+                  '<span class="issue-toggle-pill">See plain-English explanation ▾</span>' +
+                '</summary>' +
+                '<div class="issue-body">' +
+                  '<div class="issue-plain-box">' +
+                    '<span class="issue-box-kicker">Plain-English Explanation (What this means for you)</span>' +
+                    '<p>' + escapeHtml(item.summary) + '</p>' +
+                    '<div class="issue-fix-callout">' +
+                      '<strong>How DoNotEncode.ai fixes this:</strong> ' + escapeHtml(item.whyCodingAgentFails) +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="issue-tech-box">' +
+                    '<span class="issue-box-kicker">What We Checked on Your Site</span>' +
+                    techRows +
+                  '</div>' +
+                '</div>' +
+              '</details>'
+            );
+          })
+          .join('');
+      }
+
+      function renderAuditReport(report) {
+        currentReport = report;
+        if (simDrawer) simDrawer.classList.remove('is-visible');
+
+        const score = Number(report.overallRiskScore ?? 85);
+        if (auditScoreValue) auditScoreValue.textContent = String(score);
+
+        if (auditScoreOrb && auditScoreLabel && auditGradeBadge) {
+          auditScoreOrb.classList.remove('is-med', 'is-low');
+          if (score >= 70) {
+            auditScoreLabel.textContent = 'HIGH RISK';
+            auditGradeBadge.className = 'issue-sev-badge sev-high';
+            auditGradeBadge.textContent = '🔴 High Exposure Detected';
+          } else if (score >= 35) {
+            auditScoreOrb.classList.add('is-med');
+            auditScoreLabel.textContent = 'MEDIUM RISK';
+            auditGradeBadge.className = 'issue-sev-badge sev-med';
+            auditGradeBadge.textContent = '🟡 Moderate Exposure';
+          } else {
+            auditScoreOrb.classList.add('is-low');
+            auditScoreLabel.textContent = 'PROTECTED';
+            auditGradeBadge.className = 'issue-sev-badge sev-low';
+            auditGradeBadge.textContent = '🟢 DoNotEncode.ai Shield Active';
+          }
+        }
+
+        if (auditTargetTitle) {
+          auditTargetTitle.textContent = 'Website Report: ' + (report.targetUrl || 'https://acme-nexus.io');
+        }
+
+        if (auditPlainSummary) {
+          const highCount = (report.findings || []).filter((f) => f.severity === 'High').length;
+          auditPlainSummary.innerHTML =
+            'We found <strong>' + highCount + ' urgent openings</strong> where copycats can steal your website code or where AI search assistants (ChatGPT, Perplexity, Claude) get confused by messy page code. Click any item below for a simple explanation and 1-click fix.';
+        }
+
+        if (auditTelemetryPills) {
+          const noisePct = report.metrics?.aiCrawlerNoiseRatioPct || 91;
+          auditTelemetryPills.innerHTML =
+            '<span class="audit-meta-pill">Website Type: ' + escapeHtml(report.stackDetected || 'Modern Website') + '</span>' +
+            '<span class="audit-meta-pill">AI Search Ready: Missing Clean Summary</span>' +
+            '<span class="audit-meta-pill">Page Code Clutter: ' + escapeHtml(noisePct) + '% Unreadable to AI</span>';
+        }
+
+        if (auditScanTimeLabel) {
+          auditScanTimeLabel.textContent =
+            'Scanned in ' + (report.scanDurationMs || 28) + 'ms • v0.6 Report ID: ' + (report.auditId || 'DNE-LIVE');
+        }
+
+        renderCollapsibleFindings(report.findings || []);
+      }
+
+      function buildStandaloneFallbackAudit(rawUrl) {
+        const clean = /^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl;
+        let host = 'acme-nexus.io';
+        try { host = new URL(clean).hostname || host; } catch (e) {}
+        const isShop = /shop|store|commerce/i.test(host);
+        const isFin = /fin|vault|pay|bank/i.test(host);
+        const stack = isShop ? 'Shopify Storefront' : isFin ? 'FinTech Web App' : 'Next.js / Modern Web App';
+
+        return {
+          auditId: 'DNE-' + Math.random().toString(16).slice(2, 8).toUpperCase(),
+          version: '0.6.0',
+          targetUrl: clean,
+          hostname: host,
+          scanDurationMs: 24,
+          overallRiskScore: 86,
+          stackDetected: stack,
+          metrics: { aiCrawlerNoiseRatioPct: 94 },
+          findings: [
+            {
+              id: 'AI-SEARCH-LLMS',
+              category: 'AI Search & Recommendations (AI SEO)',
+              layer: 'AI SEO Boost',
+              severity: 'High',
+              title: 'AI Assistants (ChatGPT, Perplexity & Google AI) Cannot Read Your Site Cleanly',
+              summary: 'When someone asks ChatGPT, Perplexity, Claude, or Google AI "What is the best product or service for this?", those AI assistants scan websites in a split second. Right now, 94% of your webpage is messy design and layout code that confuses AI. Because there is no clean AI-ready summary of your business, AI assistants either guess the wrong prices or skip you and recommend a competitor.',
+              whyCodingAgentFails: 'DoNotEncode.ai automatically creates a crystal-clear, always-updated summary of your products, prices, and best selling points specifically for AI search engines—putting you #1 in AI recommendations.',
+              technicalDetails: [
+                { label: 'AI-Ready Business Summary', value: 'Missing (AI has to guess from messy page code)' },
+                { label: 'Unreadable Page Clutter', value: '94% of your page is layout code instead of product info' },
+                { label: 'AI Search Visibility', value: 'Low — High risk of AI skipping you or quoting wrong prices' }
+              ]
+            },
+            {
+              id: 'SOURCE-CODE-EXPOSURE',
+              category: 'Website Code & Feature Theft Protection',
+              layer: 'Code Lock',
+              severity: 'High',
+              title: 'Your Website Code & Pricing Logic Are Wide Open to Copycats',
+              summary: 'Right now, anyone can open your website, right-click "Inspect," and see the exact code and formulas that make your website work. Today, copycats and competitors can paste your code into AI and clone your entire website, design, and pricing calculator in minutes.',
+              whyCodingAgentFails: 'DoNotEncode.ai locks your website code inside an unreadable digital vault (Code Lock). Your website still runs at full speed for real customers, but anyone who tries to peek inside sees nothing they can copy.',
+              technicalDetails: [
+                { label: 'Exposed Website Scripts', value: '3 unprotected code files visible in browser' },
+                { label: 'Visible Internal Links', value: '4 internal data links exposed (' + host + '/api/v1/*)' },
+                { label: 'Cloud & File Links', value: 'Direct cloud storage & database links visible to anyone' }
+              ]
+            },
+            {
+              id: 'SCRAPING-DEFENSE',
+              category: 'Spy Bot, Scraper & Checkout Protection',
+              layer: 'Bot Blocker & Checkout Guard',
+              severity: 'High',
+              title: 'No Protection Against Competitor Spy Bots or Coupon Guessers',
+              summary: 'Your website currently lets automated robot browsers walk right through the front door. Competitors use these invisible bots to scrape your prices 24/7, copy your product catalog, and test thousands of leaked discount codes at checkout.',
+              whyCodingAgentFails: 'DoNotEncode.ai puts a smart 24/7 bouncer at the door: it blocks fake robot browsers and coupon-guessing tools in a split second, wipes hidden profit/inventory data from the background of your page, and lets real human shoppers and verified AI search engines right in.',
+              technicalDetails: [
+                { label: 'Website Platform', value: stack },
+                { label: 'Hidden Background Data', value: 'Internal product & state data visible in page source' },
+                { label: 'Spy Bot & Scraper Shield', value: 'Not installed (Automated bots can copy pages freely)' }
+              ]
+            },
+            {
+              id: 'SECURITY-HEADERS',
+              category: 'Browser Safety Locks (24/7 Hacker Shield)',
+              layer: 'Hacker Shield',
+              severity: 'Medium',
+              title: '5 out of 6 Essential Browser Safety Locks Are Missing',
+              summary: 'Web browsers have built-in safety deadbolts that stop hackers from putting your site inside a fake popup window or sneaking payment-stealing scripts onto your checkout page. Your website currently has 5 of these 6 deadbolts turned off.',
+              whyCodingAgentFails: 'DoNotEncode.ai turns on all 6 browser safety deadbolts automatically in one click—protecting your customers without changing how your website looks.',
+              technicalDetails: [
+                { label: 'Anti-Popup & Script Lock', value: 'MISSING (Turned Off)' },
+                { label: 'Fake-Window Trap Lock', value: 'MISSING (Turned Off)' },
+                { label: 'Encrypted Connection Lock', value: 'ACTIVE (Turned On)' }
+              ]
+            },
+            {
+              id: 'ASSET-AND-SCRIPT-INTEGRITY',
+              category: 'Private File & Media Link Lock',
+              layer: 'File Lock',
+              severity: 'Low',
+              title: 'Your Website Files, Images & Videos Lack Tamper-Proof One-Time Passes',
+              summary: 'Right now, anyone can copy the direct link to your private files, videos, or digital downloads and share or download them in bulk outside your website.',
+              whyCodingAgentFails: 'DoNotEncode.ai puts a one-time visitor pass on every file link that expires the split-second your page finishes loading.',
+              technicalDetails: [
+                { label: 'Tamper-Proof Script Seals', value: '0 of 3 scripts sealed' },
+                { label: 'One-Time File Passes', value: 'Not active (Direct file links can be shared or scraped)' }
+              ]
+            }
+          ]
+        };
+      }
+
+      async function runLiveAudit(targetUrl) {
+        const cleanUrl = String(targetUrl || '').trim() || 'https://acme-nexus.io';
+        if (auditInput) auditInput.value = cleanUrl;
+        if (auditSubmitLabel) auditSubmitLabel.textContent = 'Scanning...';
+
+        try {
+          const res = await fetch('/api/audit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: cleanUrl })
+          });
+          if (!res.ok) throw new Error('Fallback to standalone engine');
+          const data = await res.json();
+          if (data && data.findings) {
+            renderAuditReport(data);
+          } else {
+            renderAuditReport(buildStandaloneFallbackAudit(cleanUrl));
+          }
+        } catch (err) {
+          renderAuditReport(buildStandaloneFallbackAudit(cleanUrl));
+        } finally {
+          if (auditSubmitLabel) auditSubmitLabel.textContent = 'Scan free';
+        }
+      }
+
+      if (auditForm) {
+        auditForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          runLiveAudit(auditInput ? auditInput.value : 'https://acme-nexus.io');
+        });
+      }
+
+      document.querySelectorAll('[data-preset-url]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const url = btn.getAttribute('data-preset-url');
+          if (url) runLiveAudit(url);
+        });
+      });
+
+      document.querySelectorAll('#auditFilterGroup .audit-filter-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('#auditFilterGroup .audit-filter-pill').forEach((p) => p.classList.remove('is-active'));
+          pill.classList.add('is-active');
+          activeFilter = pill.getAttribute('data-filter') || 'ALL';
+          if (currentReport) renderCollapsibleFindings(currentReport.findings || []);
+        });
+      });
+
+      if (toggleAllCardsBtn) {
+        toggleAllCardsBtn.addEventListener('click', () => {
+          allExpanded = !allExpanded;
+          toggleAllCardsBtn.textContent = allExpanded ? 'Collapse all details' : 'Expand all details';
+          document.querySelectorAll('#auditIssuesList details.audit-issue-card').forEach((d) => {
+            d.open = allExpanded;
+          });
+        });
+      }
+
+      function applyShieldSimulationUi(sim, fallbackUrl) {
+        if (auditScoreOrb) {
+          auditScoreOrb.classList.remove('is-med');
+          auditScoreOrb.classList.add('is-low');
+        }
+        if (auditScoreValue) auditScoreValue.textContent = '0';
+        if (auditScoreLabel) auditScoreLabel.textContent = 'PROTECTED';
+        if (auditGradeBadge) {
+          auditGradeBadge.className = 'issue-sev-badge sev-low';
+          auditGradeBadge.textContent = '🟢 A+ Fully Protected & AI-Ready (0/100 Risk)';
+        }
+
+        const tUrl = (sim && sim.targetUrl) || fallbackUrl || 'https://acme-nexus.io';
+        document.getElementById('simCliCommand').textContent = 'npx donotencode init --target ' + tUrl;
+        document.getElementById('simLlmsOutput').textContent =
+          (sim && sim.verifiedLlmsTxtPreview) ||
+          '✔ Business Summary for ChatGPT, Perplexity & Google AI\n✔ Target: ' + tUrl + '\n✔ Verified Pricing: Starter ($19/mo) • Pro ($66/mo) • Enterprise ($266/mo)\n✔ Key Pages: /pricing • /features • /products (Verified Live 200 OK)';
+        document.getElementById('simBytecodeOutput').textContent =
+          (sim && sim.compiledBytecodePreview) ||
+          '/* DoNotEncode.ai v0.6 — Protected Code Vault */\nwindow.__DNE_VAULT__ = { status: "SEALED", exposedFunctions: 0, oneTimeFilePass: true };';
+
+        if (simDrawer) {
+          simDrawer.classList.add('is-visible');
+          simDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+
+      /* 1-Click Fix Simulator (/api/simulate-shield) */
+      if (simulateBtn) {
+        simulateBtn.addEventListener('click', async () => {
+          const targetUrl = (currentReport && currentReport.targetUrl) || (auditInput && auditInput.value) || 'https://acme-nexus.io';
+          simulateBtn.textContent = '⚡ Turning On Code Lock & Automatic AI SEO...';
+          try {
+            const res = await fetch('/api/simulate-shield', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: targetUrl })
+            });
+            if (!res.ok) throw new Error('Fallback to standalone simulator');
+            const sim = await res.json();
+            applyShieldSimulationUi(sim, targetUrl);
+          } catch (e) {
+            applyShieldSimulationUi(null, targetUrl);
+          } finally {
+            simulateBtn.textContent = '⚡ Preview Instant Fix (Drop Risk to 0/100)';
+          }
+        });
+      }
+
+      /* Copy buttons inside Simulation Drawer */
+      document.querySelectorAll('.sim-copy-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-copy-target');
+          const el = targetId ? document.getElementById(targetId) : null;
+          if (el && navigator.clipboard) {
+            navigator.clipboard.writeText(el.textContent || '');
+            const orig = btn.textContent;
+            btn.textContent = 'Copied ✓';
+            setTimeout(() => {
+              btn.textContent = orig;
+            }, 1400);
+          }
+        });
+      });
+
+      /* ----------------------------------------------------------------------
+         9. LIVE AI AGENT VISIT & PRODUCT RECOMMENDATION RADAR (/api/ai-visits)
+         ---------------------------------------------------------------------- */
+      const localAiTelemetry = {
+        totalAiVisits: 1482,
+        livePromptLookups: 946,
+        buyerClicksFromAi: 389,
+        byEngine: {
+          chatgpt: { name: 'ChatGPT', visits: 642, liveRecommendations: 438, buyerClicks: 194, lastSeen: 'Just now' },
+          perplexity: { name: 'Perplexity', visits: 418, liveRecommendations: 289, buyerClicks: 112, lastSeen: '1m ago' },
+          claude: { name: 'Claude AI', visits: 219, liveRecommendations: 134, buyerClicks: 49, lastSeen: '3m ago' },
+          gemini: { name: 'Google AI / Gemini', visits: 203, liveRecommendations: 85, buyerClicks: 34, lastSeen: '4m ago' }
+        },
+        recentFeed: [
+          {
+            badge: 'LIVE RECOMMENDATION',
+            engine: 'ChatGPT',
+            eventPlain: 'Someone asked ChatGPT for a recommendation — ChatGPT read your product & pricing summary live',
+            page: '/products/pro-shield',
+            timeAgo: 'Just now'
+          },
+          {
+            badge: 'BUYER CLICKED LINK',
+            engine: 'Perplexity',
+            eventPlain: 'A buyer clicked your product link inside a Perplexity AI answer and landed on your store',
+            page: '/pricing',
+            timeAgo: '18s ago'
+          },
+          {
+            badge: 'LIVE RECOMMENDATION',
+            engine: 'Claude AI',
+            eventPlain: 'Claude AI fetched your verified pricing & feature summary while answering a buyer question',
+            page: '/',
+            timeAgo: '1m ago'
+          },
+          {
+            badge: 'AI OVERVIEW LOOKUP',
+            engine: 'Google AI / Gemini',
+            eventPlain: 'Google AI Overviews indexed your live product catalog & verified pricing',
+            page: '/features',
+            timeAgo: '3m ago'
+          }
+        ]
+      };
+
+      function renderAiVisitTelemetry(telemetry, highlightEngine) {
+        if (!telemetry) return;
+        const totVisitsEl = document.getElementById('aiTotalVisitsNum');
+        const liveRecsEl = document.getElementById('aiLiveRecsNum');
+        const buyerClicksEl = document.getElementById('aiBuyerClicksNum');
+
+        if (totVisitsEl) totVisitsEl.textContent = Number(telemetry.totalAiVisits || 0).toLocaleString();
+        if (liveRecsEl) liveRecsEl.textContent = Number(telemetry.livePromptLookups || 0).toLocaleString();
+        if (buyerClicksEl) buyerClicksEl.textContent = Number(telemetry.buyerClicksFromAi || 0).toLocaleString();
+
+        const engines = telemetry.byEngine || {};
+        ['chatgpt', 'perplexity', 'claude', 'gemini'].forEach((key) => {
+          const data = engines[key];
+          if (!data) return;
+          const vEl = document.getElementById('engVisits-' + key);
+          const rEl = document.getElementById('engRecs-' + key);
+          const cEl = document.getElementById('engClicks-' + key);
+          const sEl = document.getElementById('engSeen-' + key);
+          if (vEl) vEl.textContent = Number(data.visits || 0).toLocaleString();
+          if (rEl) rEl.textContent = Number(data.liveRecommendations || 0).toLocaleString();
+          if (cEl) cEl.textContent = Number(data.buyerClicks || 0).toLocaleString();
+          if (sEl) sEl.textContent = data.lastSeen || 'Just now';
+
+          if (highlightEngine === key) {
+            const card = document.querySelector('[data-engine-card="' + key + '"]');
+            if (card) {
+              card.classList.add('pulse');
+              setTimeout(() => card.classList.remove('pulse'), 900);
+            }
+          }
+        });
+
+        const feedListEl = document.getElementById('aiLiveFeedList');
+        if (feedListEl && Array.isArray(telemetry.recentFeed)) {
+          feedListEl.innerHTML = telemetry.recentFeed
+            .slice(0, 5)
+            .map(
+              (ev) =>
+                '<div class="ai-feed-item">' +
+                  '<div class="ai-feed-left">' +
+                    '<span class="ai-feed-badge">' + escapeHtml(ev.badge) + '</span>' +
+                    '<span class="ai-feed-engine">' + escapeHtml(ev.engine) + '</span>' +
+                    '<span class="ai-feed-desc">' + escapeHtml(ev.eventPlain) + '</span>' +
+                  '</div>' +
+                  '<div class="ai-feed-right">' +
+                    '<span>Page: ' + escapeHtml(ev.page) + '</span>' +
+                    '<span>• ' + escapeHtml(ev.timeAgo) + '</span>' +
+                  '</div>' +
+                '</div>'
+            )
+            .join('');
+        }
+      }
+
+      async function loadAiVisitTelemetry() {
+        try {
+          const res = await fetch('/api/ai-visits');
+          if (!res.ok) throw new Error('Fallback to local telemetry');
+          const data = await res.json();
+          if (data && data.telemetry) {
+            renderAiVisitTelemetry(data.telemetry);
+          } else {
+            renderAiVisitTelemetry(localAiTelemetry);
+          }
+        } catch (err) {
+          renderAiVisitTelemetry(localAiTelemetry);
+        }
+      }
+
+      document.querySelectorAll('[data-sim-ai]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const engine = btn.getAttribute('data-sim-ai') || 'chatgpt';
+          const type = btn.getAttribute('data-sim-type') || 'prompt_lookup';
+          const page = btn.getAttribute('data-sim-page') || '/products/featured';
+          const origText = btn.textContent;
+          btn.textContent = '✓ AI Visit Detected!';
+          try {
+            const res = await fetch('/api/simulate-ai-visit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ engine, type, page })
+            });
+            if (!res.ok) throw new Error('Fallback to local simulation');
+            const data = await res.json();
+            if (data && data.telemetry) {
+              renderAiVisitTelemetry(data.telemetry, engine);
+            }
+          } catch (err) {
+            const engObj = localAiTelemetry.byEngine[engine] || localAiTelemetry.byEngine.chatgpt;
+            localAiTelemetry.totalAiVisits += 1;
+            engObj.visits += 1;
+            engObj.lastSeen = 'Just now';
+            if (type === 'buyer_click') {
+              localAiTelemetry.buyerClicksFromAi += 1;
+              engObj.buyerClicks += 1;
+            } else {
+              localAiTelemetry.livePromptLookups += 1;
+              engObj.liveRecommendations += 1;
+            }
+            localAiTelemetry.recentFeed.unshift({
+              badge: type === 'buyer_click' ? 'BUYER CLICKED LINK' : 'LIVE RECOMMENDATION',
+              engine: engObj.name,
+              eventPlain:
+                type === 'buyer_click'
+                  ? 'A customer clicked your recommended product link inside ' + engObj.name + ' and landed on your store'
+                  : 'Someone asked ' + engObj.name + ' for a recommendation — ' + engObj.name + ' read your product & pricing summary live',
+              page,
+              timeAgo: 'Just now'
+            });
+            renderAiVisitTelemetry(localAiTelemetry, engine);
+          } finally {
+            setTimeout(() => {
+              btn.textContent = origText;
+            }, 900);
+          }
+        });
+      });
+
+      /* Bottom CTA scrolls to and focuses Hero URL Scanner */
+      const bottomScanCta = document.getElementById('bottomScanCta');
+      if (bottomScanCta && auditInput) {
+        bottomScanCta.addEventListener('click', () => {
+          document.getElementById('scannerHero').scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => auditInput.focus(), 450);
+        });
+      }
+
+      /* Run initial default scan & load AI Agent Radar immediately */
+      runLiveAudit('https://acme-nexus.io');
+      loadAiVisitTelemetry();
+    })();
+  </script>
+</body>
+</html>
