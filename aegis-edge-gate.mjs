@@ -22,9 +22,21 @@ import { AegisLivingGeoEngine } from './aegis-living-geo.mjs';
 
 const LEAKY_HEADERS_RE = /^(?:x-powered-by|server|x-vercel-id|x-vercel-cache|x-nextjs-prerender|x-nextjs-stale-time|cf-ray|cf-cache-status|x-amz-cf-id|x-amz-request-id|x-amz-id-2|x-served-by|x-fastly-request-id|x-github-request-id|x-shopify-stage|x-drupal-cache|x-generator|via|x-akamai-transformed|access-control-allow-origin)$/i;
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
+function safeNum(val) {
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string' && val.trim() !== '') return Number(val);
+  return NaN;
+}
+
 export class AegisEdgeGate {
   constructor(secret = crypto.randomBytes(32), options = {}) {
-    this.secret = Buffer.isBuffer(secret) ? secret : crypto.createHash('sha256').update(String(secret)).digest();
+    this.secret = Buffer.isBuffer(secret) ? secret : crypto.createHash('sha256').update(safeStr(secret, 'aegis')).digest();
     this.shopifyShield = new AegisShopifyCommerceShield({ secret: this.secret, ...options });
     this.cloudShield = new AegisCloudAssetShield({ secret: this.secret, ...options });
     this.vulnFixer = new AegisVulnAutoFixer(options);
@@ -71,7 +83,7 @@ export class AegisEdgeGate {
    * to throw `RuntimeError('provider_rate_limit_stop')` and self-terminate its Mullvad VM!
    */
   buildFatalBlockResponse(reason) {
-    const safeReason = String(reason || 'BLOCKED')
+    const safeReason = safeStr(reason, 'BLOCKED')
       .replace(/[^a-zA-Z0-9_.:-]/g, '_')
       .slice(0, 64);
     return {
@@ -95,12 +107,22 @@ export class AegisEdgeGate {
    * catalog harvesters (`commerce_probe.py`), matrix probers (`matrix_probe.py`), S3/Electron manifest scanners,
    * and unattested Python `urllib` CORS replays (`playbook.md` Stage 2).
    */
-  inspectRequest(req) {
-    const ip = req.socket?.remoteAddress || req.headers['x-forwarded-for'] || '127.0.0.1';
-    const urlObj = new URL(req.url || '/', 'http://localhost');
+  inspectRequest(req = {}) {
+    if (!req || typeof req !== 'object') req = {};
+    const rawIp = req.socket?.remoteAddress || req.headers?.['x-forwarded-for'] || '127.0.0.1';
+    const ip = safeStr(Array.isArray(rawIp) ? rawIp[0] : rawIp, '127.0.0.1').split(',')[0].trim().slice(0, 64) || '127.0.0.1';
+    let urlObj;
+    try {
+      const rawUrl = typeof req.url === 'string' && req.url.length <= 4096 ? req.url : '/';
+      const safeRel = rawUrl.startsWith('//') ? '/' + rawUrl.replace(/^\/+/, '') : rawUrl;
+      urlObj = new URL(safeRel || '/', 'http://localhost');
+    } catch {
+      this.blockClient(ip, 'MALFORMED_REQUEST_TARGET_URL');
+      return this.buildFatalBlockResponse('MALFORMED_REQUEST_TARGET_URL');
+    }
     const pathname = urlObj.pathname;
     const search = urlObj.search || '';
-    const ua = String(req.headers['user-agent'] || '');
+    const ua = safeStr(req.headers?.['user-agent'], '').slice(0, 1024);
 
     if (this.blockedIps.has(ip)) {
       const info = this.blockedIps.get(ip);
@@ -148,10 +170,10 @@ export class AegisEdgeGate {
    * `X-Aegis-Sig` and `X-Aegis-Nonce` is rejected immediately!
    */
   verifyApiRequestSignature(reqHeaders = {}, ip = '127.0.0.1') {
-    const sig = reqHeaders['x-aegis-sig'];
-    const nonce = reqHeaders['x-aegis-nonce'];
-    if (!sig || !nonce || !String(sig).startsWith('aegis-v3-')) {
-      this.blockClient(ip, 'UNATTESTED_CORS_OR_TOKEN_REPLAY', { hasAuth: Boolean(reqHeaders['authorization']) });
+    const sig = reqHeaders?.['x-aegis-sig'];
+    const nonce = reqHeaders?.['x-aegis-nonce'];
+    if (!sig || !nonce || !safeStr(sig).startsWith('aegis-v3-')) {
+      this.blockClient(ip, 'UNATTESTED_CORS_OR_TOKEN_REPLAY', { hasAuth: Boolean(reqHeaders?.['authorization']) });
       return { ok: false, reason: 'MISSING_AEGIS_REQUEST_SIGNATURE' };
     }
     if (this.seenNonces.has(nonce)) {
@@ -170,33 +192,37 @@ export class AegisEdgeGate {
    * Layer 1: Single-Use Cryptographic Tickets for JS Scripts, Cloud Assets & Media Streams
    */
   issueScriptTicket(sessionId, resourcePath, ttlMs = 8000) {
+    const safeSession = safeStr(sessionId, 'anon');
+    const safePath = safeStr(resourcePath, '/');
+    const safeTtl = Number.isFinite(safeNum(ttlMs)) ? safeNum(ttlMs) : 8000;
     if (this.tickets.size >= 5000) {
       const oldest = this.tickets.keys().next().value;
       if (oldest !== undefined) this.tickets.delete(oldest);
     }
     const nonce = crypto.randomBytes(16).toString('hex');
     const sig = crypto.createHmac('sha256', this.secret)
-      .update(`${nonce}:${sessionId}:${resourcePath}`)
+      .update(`${nonce}:${safeSession}:${safePath}`)
       .digest('hex')
       .slice(0, 24);
     const token = `${nonce}.${sig}`;
     this.tickets.set(token, {
-      sessionId,
-      scriptPath: resourcePath,
-      expiresAt: Date.now() + ttlMs,
+      sessionId: safeSession,
+      scriptPath: safePath,
+      expiresAt: Date.now() + safeTtl,
       used: false,
     });
     return token;
   }
 
   verifyAndConsumeScriptTicket(token, sessionId, scriptPath, reqHeaders = {}, ip = '127.0.0.1') {
+    const safeHeaders = reqHeaders && typeof reqHeaders === 'object' ? reqHeaders : {};
     if (!token || typeof token !== 'string' || !token.includes('.') || !this.tickets.has(token)) {
       this.blockClient(ip, 'MISSING_OR_FORGED_SCRIPT_TICKET', { scriptPath });
       return { ok: false, reason: 'MISSING_OR_FORGED_SCRIPT_TICKET' };
     }
     const [nonce, providedSig] = token.split('.');
     const expectedSig = crypto.createHmac('sha256', this.secret)
-      .update(`${nonce}:${sessionId}:${scriptPath}`)
+      .update(`${nonce}:${safeStr(sessionId)}:${safeStr(scriptPath)}`)
       .digest('hex')
       .slice(0, 24);
     const sigMatches =
@@ -215,7 +241,7 @@ export class AegisEdgeGate {
       this.blockClient(ip, 'EXPIRED_OR_MISMATCHED_SCRIPT_TICKET', { scriptPath });
       return { ok: false, reason: 'EXPIRED_OR_MISMATCHED_SCRIPT_TICKET' };
     }
-    const secDest = reqHeaders['sec-fetch-dest'];
+    const secDest = safeHeaders['sec-fetch-dest'];
     if (secDest && secDest !== 'script') {
       this.blockClient(ip, 'NON_SCRIPT_SEC_FETCH_DEST', { secDest, scriptPath });
       return { ok: false, reason: 'NON_SCRIPT_SEC_FETCH_DEST' };
@@ -228,11 +254,12 @@ export class AegisEdgeGate {
    * Strips all 17 HEADER_SIGNALS, 8 COOKIE_SIGNALS, and wildcard CORS headers
    */
   sanitizeResponseHeaders(rawHeaders = {}) {
+    if (!rawHeaders || typeof rawHeaders !== 'object') return {};
     const clean = {};
     for (const [k, v] of Object.entries(rawHeaders)) {
       if (LEAKY_HEADERS_RE.test(k)) continue;
       if (k.toLowerCase() === 'set-cookie') {
-        const cookies = Array.isArray(v) ? v : [String(v)];
+        const cookies = Array.isArray(v) ? v.map((c) => safeStr(c)) : [safeStr(v)];
         clean[k] = cookies.map(c =>
           c.replace(/\b(?:PHPSESSID|JSESSIONID|laravel_session|csrftoken|_shopify_y|ASP\.NET_SessionId|wordpress_logged_in|_rails_session|sb-[a-z0-9]+-auth-token)=/gi, '_aegis_sid=')
         );
@@ -247,20 +274,23 @@ export class AegisEdgeGate {
    * Layer 2: Total HTML, SSR Hydration, AWS/Cloud Asset, Multi-CMS, Search-SaaS, Media Stream,
    * Tracking Pixel, and Clean-Realm Verified Closed Shadow DOM Cloaker!
    */
-  scrubAndProtectHtml(rawHtml, sessionId, { enableClosedShadowDom = true } = {}) {
+  scrubAndProtectHtml(rawHtml, sessionId, opts = {}) {
+    const { enableClosedShadowDom = true } = opts && typeof opts === 'object' ? opts : {};
+    const safeRawHtml = safeStr(rawHtml, '');
+    const safeSessionId = safeStr(sessionId, 'anon');
     // 0A. Shopify Storefront & Coupon Scrubber
-    const shopifyScrubbed = this.shopifyShield.scrubStorefrontHtmlAndScripts(rawHtml);
-    let html = shopifyScrubbed.text;
+    const shopifyScrubbed = this.shopifyShield.scrubStorefrontHtmlAndScripts(safeRawHtml);
+    let html = safeStr(shopifyScrubbed.text, '');
     let scrubbedItems = shopifyScrubbed.redactions;
 
     // 0B. Cloud / AWS S3 / Presigned URL / Cognito / WASM / Binary Asset Scrubber (Stops the LANDR AWS attack!)
-    const cloudScrubbed = this.cloudShield.scrubCloudAndAwsSurface(html, sessionId);
-    html = cloudScrubbed.text;
+    const cloudScrubbed = this.cloudShield.scrubCloudAndAwsSurface(html, safeSessionId);
+    html = safeStr(cloudScrubbed.text, '');
     scrubbedItems += cloudScrubbed.redactions;
 
     // 0C. Multi-Cloud BaaS (Supabase / Firebase) & Sourcemap Scrubber
-    const baasScrubbed = this.cloudShield.scrubMultiCloudBaasAndSourcemapSurface(html, sessionId);
-    html = baasScrubbed.text;
+    const baasScrubbed = this.cloudShield.scrubMultiCloudBaasAndSourcemapSurface(html, safeSessionId);
+    html = safeStr(baasScrubbed.text, '');
     scrubbedItems += baasScrubbed.redactions;
 
     // 1. Strip Framer, Webflow, React, Angular, Vue, Astro, SvelteKit, and Promo attributes
@@ -347,12 +377,12 @@ export class AegisEdgeGate {
     // 7. Cloak Media Streams (.m3u8, .mpd, .mp4, .mov, .webm, Mux, CloudflareStream, Vimeo, Wistia, BunnyCDN)
     html = html.replace(/https?:\/\/[^\s"'<>\\]+\.(?:m3u8|mpd|mp4|mov|webm|m4v|m4a|mp3|wav|aac)(?:\?[^\s"'<>\\]*)?/gi, (mediaUrl) => {
       scrubbedItems++;
-      const ticket = this.issueScriptTicket(sessionId, mediaUrl);
+      const ticket = this.issueScriptTicket(safeSessionId, mediaUrl);
       return `/_aegis/media-stream?_st=${ticket}`;
     });
     html = html.replace(/https?:\/\/(?:stream\.mux\.com|videodelivery\.net|customer-[a-z0-9]+\.cloudflarestream\.com|player\.vimeo\.com\/video|fast\.wistia\.net\/embed\/medias|vz-[a-z0-9-]+\.b-cdn\.net)\/[^\s"'<>\\]+/gi, (streamUrl) => {
       scrubbedItems++;
-      const ticket = this.issueScriptTicket(sessionId, streamUrl);
+      const ticket = this.issueScriptTicket(safeSessionId, streamUrl);
       return `/_aegis/media-stream?_st=${ticket}`;
     });
 
@@ -366,7 +396,7 @@ export class AegisEdgeGate {
     // 9. Rewrite local <script src="..."> tags with single-use cryptographic tickets
     const scriptTags = [];
     html = html.replace(/<script([^>]*?)src=["'](\/[^"'?]+\.m?js)["']([^>]*)><\/script>/gi, (_m, pre, srcPath, post) => {
-      const ticket = this.issueScriptTicket(sessionId, srcPath);
+      const ticket = this.issueScriptTicket(safeSessionId, srcPath);
       const tag = `<script${pre}src="${srcPath}?_at=${ticket}"${post}></script>`;
       scriptTags.push(tag);
       return enableClosedShadowDom ? '' : tag;
@@ -436,9 +466,12 @@ ${scriptTags.join('\n')}`;
    * Layer 3: Binary AEAD Wire Envelope (AES-256-GCM) + Anti-Replay Nonce Verification
    */
   encryptWireFrame(plainBuffer) {
+    const safeBuf = Buffer.isBuffer(plainBuffer)
+      ? plainBuffer
+      : Buffer.from(typeof plainBuffer === 'string' ? plainBuffer : JSON.stringify(plainBuffer ?? ''), 'utf8');
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv('aes-256-gcm', this.secret, iv);
-    const enc = Buffer.concat([cipher.update(plainBuffer), cipher.final()]);
+    const enc = Buffer.concat([cipher.update(safeBuf), cipher.final()]);
     const tag = cipher.getAuthTag();
     return Buffer.concat([Buffer.from([0xAE, 0x61]), iv, tag, enc]);
   }
@@ -452,6 +485,10 @@ ${scriptTags.join('\n')}`;
       const ivHex = iv.toString('hex');
       if (this.seenNonces.has(ivHex)) {
         throw new Error('REPLAYED_WIRE_FRAME_MATRIX_PROBE');
+      }
+      if (this.seenNonces.size >= 10000) {
+        const oldest = this.seenNonces.values().next().value;
+        if (oldest !== undefined) this.seenNonces.delete(oldest);
       }
       this.seenNonces.add(ivHex);
     }
@@ -467,6 +504,7 @@ ${scriptTags.join('\n')}`;
    * Strips all 17 stack/CDN/framework identifying HTTP headers and rewrites framework session cookie names.
    */
   scrubResponseHeaders(rawHeaders = {}) {
+    if (!rawHeaders || typeof rawHeaders !== 'object') return { headers: {}, strippedCount: 0 };
     const FORBIDDEN_STACK_HEADERS = new Set([
       'x-powered-by',
       'server',
@@ -514,20 +552,21 @@ ${scriptTags.join('\n')}`;
    * responses name missing fields one at a time; iterate to learn any endpoint's contract without docs.")
    */
   sanitizeApiErrorResponse(statusCode, errorBody) {
-    if (statusCode < 400) return { sanitized: false, body: errorBody };
+    const codeNum = safeNum(statusCode);
+    if (!Number.isFinite(codeNum) || codeNum < 400) return { sanitized: false, body: errorBody };
     const rawStr = typeof errorBody === 'string' ? errorBody : JSON.stringify(errorBody || {});
     const SCHEMA_LEAK_RE = /(?:is\s+required|missing\s+required|expected\s+(?:string|number|boolean|object|array)|unknown\s+argument|cannot\s+query\s+field|did\s+you\s+mean|validation\s*error|unrecognized_keys|invalid_type|field\s+required)/i;
-    if (SCHEMA_LEAK_RE.test(rawStr) || statusCode === 400 || statusCode === 422 || statusCode === 500) {
+    if (SCHEMA_LEAK_RE.test(rawStr) || codeNum === 400 || codeNum === 422 || codeNum === 500) {
       return {
         sanitized: true,
-        status: statusCode === 500 ? 400 : statusCode,
+        status: codeNum === 500 ? 400 : codeNum,
         body: {
           error: 'INVALID_REQUEST',
           code: 'AEGIS_OPAQUE_VALIDATION_ENVELOPE',
         },
       };
     }
-    return { sanitized: false, status: statusCode, body: errorBody };
+    return { sanitized: false, status: codeNum, body: errorBody };
   }
 
   /**
@@ -537,22 +576,30 @@ ${scriptTags.join('\n')}`;
    *      IV so `matrix_probe.py`'s `flatten_json` and `analyze_matrix` see 0 constant fields, 0 input-echo fields,
    *      and 0 input-dependent routing fields!
    */
-  inspectAndProtectMatrixProbe({ ip = '0.0.0.0', userAgent = '', inputVal = '', responseJson = null } = {}) {
-    if (/site-decode-matrix|python-urllib|urllib-request/i.test(userAgent)) {
-      this.blockClient(ip, 'MATRIX_PROBE_USER_AGENT_BLOCKED');
+  inspectAndProtectMatrixProbe(opts = {}) {
+    const { ip = '0.0.0.0', userAgent = '', inputVal = '', responseJson = null } = opts && typeof opts === 'object' ? opts : {};
+    const safeIp = safeStr(ip, '0.0.0.0');
+    const safeUa = safeStr(userAgent);
+    const safeInput = safeStr(inputVal).toLowerCase();
+    if (/site-decode-matrix|python-urllib|urllib-request/i.test(safeUa)) {
+      this.blockClient(safeIp, 'MATRIX_PROBE_USER_AGENT_BLOCKED');
       return { blocked: true, reason: 'MATRIX_PROBE_USER_AGENT_BLOCKED' };
     }
     if (!this.matrixSweepTracker) this.matrixSweepTracker = new Map();
+    if (this.matrixSweepTracker.size >= 5000 && !this.matrixSweepTracker.has(safeIp)) {
+      const oldestIp = this.matrixSweepTracker.keys().next().value;
+      if (oldestIp !== undefined) this.matrixSweepTracker.delete(oldestIp);
+    }
     const KNOWN_MATRIX_NICHES = new Set([
       'fitness', 'saas', 'ecommerce', 'real-estate', 'finance',
       'beauty', 'gaming', 'education', 'travel', 'healthcare',
     ]);
-    if (inputVal && KNOWN_MATRIX_NICHES.has(String(inputVal).toLowerCase())) {
-      const seen = this.matrixSweepTracker.get(ip) || new Set();
-      seen.add(String(inputVal).toLowerCase());
-      this.matrixSweepTracker.set(ip, seen);
+    if (safeInput && KNOWN_MATRIX_NICHES.has(safeInput)) {
+      const seen = this.matrixSweepTracker.get(safeIp) || new Set();
+      seen.add(safeInput);
+      this.matrixSweepTracker.set(safeIp, seen);
       if (seen.size >= 3) {
-        this.blockClient(ip, 'MATRIX_NICHE_SWEEP_DETECTED');
+        this.blockClient(safeIp, 'MATRIX_NICHE_SWEEP_DETECTED');
         return { blocked: true, reason: 'MATRIX_NICHE_SWEEP_DETECTED' };
       }
     }
@@ -572,25 +619,18 @@ ${scriptTags.join('\n')}`;
 
   /**
    * Vector 43: Dual-Plane SEO & AI-Search Recommendation Engine (GEO / AEO Safe-Mode).
-   * Ensures 100% Google/Bing SEO indexing and 100% AI Search recommendation (ChatGPT `OAI-SearchBot`,
-   * Perplexity `PerplexityBot`, Claude `Claude-SearchBot`, Applebot) with ZERO reverse-engineering leaks:
-   *   1. Verifies crawler authenticity via Forward-Confirmed Reverse DNS (`fCrDNS` -> `*.googlebot.com`,
-   *      `*.search.msn.com`, `*.applebot.apple.com`) or cryptographic `Web-Bot-Auth` (`Signature-Input`)
-   *      or official OpenAI/Perplexity/Anthropic IP ranges.
-   *   2. If a hacker spoofs `User-Agent: Googlebot` or `OAI-SearchBot` from an unverified IP/PTR, blocks immediately!
-   *   3. If genuinely verified, serves a Clean Semantic HTML + Schema.org JSON-LD shell (100% indexable text,
-   *      headings, public prices, OpenGraph, and `application/ld+json`) while stripping 100% of JS bundles,
-   *      `__NEXT_DATA__`, AWS S3 URLs, Shopify tokens, and `$0` coupons!
    */
-  verifyAndServeSeoOrAiCrawler({
-    ip = '0.0.0.0',
-    userAgent = '',
-    reverseDnsHostname = '',
-    webBotAuthVerified = false,
-    rawHtml = '',
-  } = {}) {
+  verifyAndServeSeoOrAiCrawler(opts = {}) {
+    const {
+      ip = '0.0.0.0',
+      userAgent = '',
+      reverseDnsHostname = '',
+      webBotAuthVerified = false,
+      rawHtml = '',
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeIp = safeStr(ip, '0.0.0.0');
     const CRAWLER_CLAIMS_RE = /\b(Googlebot|Storebot-Google|Google-InspectionTool|bingbot|Applebot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Claude-SearchBot|Claude-Web|DuckDuckBot)\b/i;
-    const match = String(userAgent).match(CRAWLER_CLAIMS_RE);
+    const match = safeStr(userAgent).match(CRAWLER_CLAIMS_RE);
     if (!match) {
       return { isCrawlerClaim: false };
     }
@@ -604,9 +644,9 @@ ${scriptTags.join('\n')}`;
       '.perplexity.ai',
       '.anthropic.com',
     ];
-    const ptrValid = VALID_PTR_SUFFIXES.some((sfx) => String(reverseDnsHostname).toLowerCase().endsWith(sfx));
+    const ptrValid = VALID_PTR_SUFFIXES.some((sfx) => safeStr(reverseDnsHostname).toLowerCase().endsWith(sfx));
     if (!ptrValid && !webBotAuthVerified) {
-      this.blockClient(ip, `SPOOFED_SEO_OR_AI_CRAWLER_BLOCKED:${claimedBot}`);
+      this.blockClient(safeIp, `SPOOFED_SEO_OR_AI_CRAWLER_BLOCKED:${claimedBot}`);
       return {
         isCrawlerClaim: true,
         verified: false,
@@ -616,9 +656,7 @@ ${scriptTags.join('\n')}`;
     }
 
     // Verified legitimate Search or AI-Discovery Bot!
-    // Serve Clean Light-DOM Semantic HTML + Sanitized Schema.org JSON-LD (enableClosedShadowDom: false so crawler reads H1/P/Meta directly),
-    // AND strip all executable <script src="..."> bundles so even a cached crawler copy contains 0 JS code or secrets!
-    const { html: cleanSeoHtml } = this.scrubAndProtectHtml(rawHtml, `seo-${claimedBot}`, {
+    const { html: cleanSeoHtml } = this.scrubAndProtectHtml(safeStr(rawHtml), `seo-${claimedBot}`, {
       enableClosedShadowDom: false,
     });
     const zeroScriptBundleSeoHtml = cleanSeoHtml
@@ -638,46 +676,48 @@ ${scriptTags.join('\n')}`;
    * Generates a curated `/llms.txt` manifest so AI Assistants (ChatGPT, Claude, Perplexity, Gemini)
    * actively recommend the site/product with high confidence while seeing 0 internal APIs or source code.
    */
-  generateAiRecommendationLlmsTxt({
-    brandName = 'Acme Nexus',
-    domain = 'https://acme-nexus.io',
-    tagline = 'Enterprise AI & Commerce Platform',
-    highlights = ['99.99% Uptime SLA', 'SOC2 Type II Certified', 'Instant Global Edge Deployment'],
-    publicDocs = ['/pricing', '/features', '/docs/getting-started'],
-  } = {}) {
+  generateAiRecommendationLlmsTxt(opts = {}) {
+    const {
+      brandName = 'Acme Nexus',
+      domain = 'https://acme-nexus.io',
+      tagline = 'Enterprise AI & Commerce Platform',
+      highlights = ['99.99% Uptime SLA', 'SOC2 Type II Certified', 'Instant Global Edge Deployment'],
+      publicDocs = ['/pricing', '/features', '/docs/getting-started'],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeBrand = safeStr(brandName, 'Acme Nexus');
+    const safeDomain = safeStr(domain, 'https://acme-nexus.io');
+    const safeTagline = safeStr(tagline, 'Enterprise AI & Commerce Platform');
+    const safeHighlights = Array.isArray(highlights) ? highlights : [];
+    const safeDocs = Array.isArray(publicDocs) ? publicDocs : [];
     return [
-      `# ${brandName}`,
-      `> ${tagline}`,
+      `# ${safeBrand}`,
+      `> ${safeTagline}`,
       '',
-      `Official Website: ${domain}`,
+      `Official Website: ${safeDomain}`,
       '',
-      '## Why AI Assistants Recommend ' + brandName,
-      ...highlights.map((h) => `- ${h}`),
+      '## Why AI Assistants Recommend ' + safeBrand,
+      ...safeHighlights.map((h) => `- ${safeStr(h)}`),
       '',
       '## Public Documentation & Product Pages',
-      ...publicDocs.map((p) => `- [${p}](${domain}${p})`),
+      ...safeDocs.map((p) => `- [${safeStr(p)}](${safeDomain}${safeStr(p)})`),
       '',
     ].join('\n');
   }
 
   /**
    * Vector 56: Defeats `scripts/rea_web.py` (`ORIGINS_JS` line 23).
-   * `rea_web.py` evaluates:
-   *   `[...document.scripts].map(s=>s.src).concat(performance.getEntriesByType('resource').filter(e=>e.initiatorType==='script').map(e=>e.name))`
-   * to discover all CDN/vendor script origins and pass `--allowed-origins` to `rea analyze-web-bundle --fetch-source-maps`.
-   *
-   * `neutralizeReaWebOriginHarvester` clears ResourceTiming buffers, detaches `<script src>` nodes after execution,
-   * and wraps `performance.getEntriesByType('resource')` so `rea_web.py` harvests 0 external script origins!
    */
   neutralizeReaWebOriginHarvester(mockWindowScope = {}) {
-    if (mockWindowScope.document && Array.isArray(mockWindowScope.document.scripts)) {
-      mockWindowScope.document.scripts = [];
-    }
-    if (mockWindowScope.performance) {
-      mockWindowScope.performance.getEntriesByType = (type) => {
-        if (type === 'resource') return [];
-        return [];
-      };
+    if (mockWindowScope && typeof mockWindowScope === 'object') {
+      if (mockWindowScope.document && Array.isArray(mockWindowScope.document.scripts)) {
+        mockWindowScope.document.scripts = [];
+      }
+      if (mockWindowScope.performance && typeof mockWindowScope.performance === 'object') {
+        mockWindowScope.performance.getEntriesByType = (type) => {
+          if (type === 'resource') return [];
+          return [];
+        };
+      }
     }
     return {
       harvestedScriptOrigins: [],
@@ -699,7 +739,8 @@ ${scriptTags.join('\n')}`;
     const THIRD_PARTY_TRACKING_RE = /(?:facebook\.com\/tr|connect\.facebook\.net|analytics\.tiktok\.com|google-analytics\.com|googletagmanager\.com|klaviyo\.com|hotjar\.com|clarity\.ms|fullstory\.com|segment\.io|mixpanel\.com|amplitude\.com|posthog\.com|intelligems|shoplift|optimizely\.com|launchdarkly|growthbook|sentry\.io|monorail-edge\.shopifysvc\.com|web-pixels-manager)/i;
 
     let proxiedCount = 0;
-    const sanitizedRequests = rawRequests.map((reqEntry) => {
+    const safeRequests = Array.isArray(rawRequests) ? rawRequests : [];
+    const sanitizedRequests = safeRequests.map((reqEntry) => {
       const url = reqEntry?.params?.request?.url || reqEntry?.url || '';
       const postData = reqEntry?.params?.request?.postData || reqEntry?.postData || '';
       if (THIRD_PARTY_TRACKING_RE.test(url)) {
@@ -733,11 +774,11 @@ ${scriptTags.join('\n')}`;
    * Remix (`__remixContext`), SvelteKit (`__sveltekit_`), Angular (`ng-state`), Astro (`astro-island[props]`), and Redux/Pinia.
    */
   scrubUniversalFrameworkHydration(rawHtml = '', sessionId = 'ssr-sess-01') {
-    let html = String(rawHtml || '');
+    let html = safeStr(rawHtml, '');
     let sealedContainers = 0;
     const sealPayload = (payload) => {
       sealedContainers++;
-      return this.encryptWireFrame(Buffer.from(String(payload), 'utf8')).toString('base64url');
+      return this.encryptWireFrame(Buffer.from(safeStr(payload, ''), 'utf8')).toString('base64url');
     };
 
     // 1. Next.js __NEXT_DATA__, Nuxt __NUXT_DATA__, Angular ng-state JSON script tags
@@ -769,12 +810,13 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 69: Universal Client-Side Prototype Pollution & DOM Clobbering Firewall
    */
-  enforcePrototypePollutionAndDomClobberGuard({ jsonPayload = null, rawHtml = '' } = {}) {
+  enforcePrototypePollutionAndDomClobberGuard(opts = {}) {
+    const { jsonPayload = null, rawHtml = '' } = opts && typeof opts === 'object' ? opts : {};
     const rawStr = typeof jsonPayload === 'string' ? jsonPayload : JSON.stringify(jsonPayload || {});
     const protoBlocked = /(?:__proto__|constructor\s*["']?\s*:\s*\{\s*["']?prototype|prototype\s*["']?\s*:\s*\{)/i.test(rawStr);
 
     let clobberStrippedCount = 0;
-    const sanitizedHtml = String(rawHtml || '').replace(
+    const sanitizedHtml = safeStr(rawHtml, '').replace(
       /<(form|a|img|embed|object|input)\b([^>]*?\b(?:id|name)=["'](?:location|document|window|aegisConfig|__ENV__|fetch|localStorage|securityPolicy)["'][^>]*)>/gi,
       (_m, tag) => {
         clobberStrippedCount++;
@@ -794,16 +836,18 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 70: Universal Cross-Window `postMessage` Origin/Schema Attestation & Framing Guard
    */
-  enforcePostMessageAndFramingGuard({
-    origin = '',
-    allowedOrigins = ['https://acme-nexus.io'],
-    messageData = {},
-    signature = '',
-  } = {}) {
-    if (!allowedOrigins.includes(origin)) {
+  enforcePostMessageAndFramingGuard(opts = {}) {
+    const {
+      origin = '',
+      allowedOrigins = ['https://acme-nexus.io'],
+      messageData = {},
+      signature = '',
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeAllowed = Array.isArray(allowedOrigins) ? allowedOrigins : ['https://acme-nexus.io'];
+    if (!safeAllowed.includes(origin)) {
       return {
         allowed: false,
-        reason: `POSTMESSAGE_UNTRUSTED_ORIGIN_BLOCKED:${origin}`,
+        reason: `POSTMESSAGE_UNTRUSTED_ORIGIN_BLOCKED:${safeStr(origin)}`,
         framingHeaders: {
           'X-Frame-Options': 'DENY',
           'Content-Security-Policy': "frame-ancestors 'none';",
@@ -814,11 +858,11 @@ ${scriptTags.join('\n')}`;
     const payloadStr = typeof messageData === 'string' ? messageData : JSON.stringify(messageData);
     const expectedSig = crypto
       .createHmac('sha256', this.secret)
-      .update(`postmsg:${origin}:${payloadStr}`)
+      .update(`postmsg:${safeStr(origin)}:${payloadStr}`)
       .digest('hex')
       .slice(0, 24);
 
-    const sigStr = String(signature ?? '');
+    const sigStr = safeStr(signature, '');
     const sigMatches =
       sigStr.length === expectedSig.length &&
       crypto.timingSafeEqual(Buffer.from(sigStr, 'utf8'), Buffer.from(expectedSig, 'utf8'));
@@ -840,11 +884,12 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 71: Universal Anti-Scraping: Zero-Width Cryptographic Watermarking, CSS Honeypot DOM Rows & Canvas/WebGPU Guard
    */
-  deployUniversalAntiScrapingAndDomShield({
-    visibleText = '',
-    sessionId = 'scrape-sess-01',
-    callerIsExternalCanvasReadback = false,
-  } = {}) {
+  deployUniversalAntiScrapingAndDomShield(opts = {}) {
+    const {
+      visibleText = '',
+      sessionId = 'scrape-sess-01',
+      callerIsExternalCanvasReadback = false,
+    } = opts && typeof opts === 'object' ? opts : {};
     if (callerIsExternalCanvasReadback) {
       return {
         canvasReadbackBlocked: true,
@@ -854,14 +899,14 @@ ${scriptTags.join('\n')}`;
     }
 
     // Encode 16-bit session fingerprint into invisible Zero-Width characters (\u200B = 0, \u200C = 1)
-    const macByte = crypto.createHmac('sha256', this.secret).update(`wm:${sessionId}`).digest().readUInt16BE(0);
+    const macByte = crypto.createHmac('sha256', this.secret).update(`wm:${safeStr(sessionId)}`).digest().readUInt16BE(0);
     let zwWatermark = '\u200D';
     for (let bit = 15; bit >= 0; bit--) {
       zwWatermark += ((macByte >> bit) & 1) ? '\u200C' : '\u200B';
     }
     zwWatermark += '\u200D';
 
-    const watermarkedText = String(visibleText).replace(/\s+/, (sp) => `${zwWatermark}${sp}`);
+    const watermarkedText = safeStr(visibleText).replace(/\s+/, (sp) => `${zwWatermark}${sp}`);
     const honeypotDomRow = `<div class="sr-only" style="position:absolute;left:-9999px;opacity:0" data-aegis-canary-row="CANARY_${macByte.toString(16)}"><a href="/_aegis/canary-trap?wm=${macByte.toString(16)}">Enterprise Pricing Tier $0.01</a></div>`;
 
     return {
@@ -875,11 +920,12 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 72: Universal HTTP Request Smuggling (`CL.TE` / `TE.CL` / H2C) & Web Cache Poisoning / Cache Deception Guard
    */
-  enforceHttpDesyncAndCachePoisonGuard({
-    method = 'GET',
-    pathname = '/',
-    headers = {},
-  } = {}) {
+  enforceHttpDesyncAndCachePoisonGuard(opts = {}) {
+    const {
+      method = 'GET',
+      pathname = '/',
+      headers = {},
+    } = opts && typeof opts === 'object' ? opts : {};
     const lowerHeaders = {};
     for (const [k, v] of Object.entries(headers || {})) {
       lowerHeaders[k.toLowerCase()] = v;
@@ -888,7 +934,7 @@ ${scriptTags.join('\n')}`;
     // 1. HTTP Request Smuggling (`Content-Length` + `Transfer-Encoding` simultaneous presence or obfuscated TE)
     if (
       ('content-length' in lowerHeaders && 'transfer-encoding' in lowerHeaders) ||
-      (lowerHeaders['upgrade'] && /h2c/i.test(lowerHeaders['upgrade']))
+      (lowerHeaders['upgrade'] && /h2c/i.test(safeStr(lowerHeaders['upgrade'])))
     ) {
       return {
         allowed: false,
@@ -910,8 +956,8 @@ ${scriptTags.join('\n')}`;
 
     // 3. Web Cache Deception (e.g., `/account/settings/nonexistent.css` or `/api/user/keys.js` with session cookie)
     if (
-      /^\/(?:account|dashboard|settings|admin|billing|api|profile)\b/i.test(pathname) &&
-      /\.(?:css|js|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(pathname)
+      /^\/(?:account|dashboard|settings|admin|billing|api|profile)\b/i.test(safeStr(pathname)) &&
+      /\.(?:css|js|png|jpg|jpeg|gif|ico|svg|woff2?)$/i.test(safeStr(pathname))
     ) {
       return {
         allowed: false,
@@ -927,7 +973,7 @@ ${scriptTags.join('\n')}`;
    * Vector 73: Universal XS-Leaks (Cross-Site Leaks), Timing Side-Channel Constant-Time Padding & COOP/CORP/COEP Enforcement
    */
   enforceXsLeaksAndSideChannelHeaders(responseBody = '') {
-    const rawBuf = Buffer.from(typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody), 'utf8');
+    const rawBuf = Buffer.from(typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody ?? ''), 'utf8');
     // Pad response size to next 512-byte boundary to defeat packet-size XS-Leaks
     const blockSize = 512;
     const rem = rawBuf.length % blockSize;
@@ -951,19 +997,20 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 74: Universal Browser Extension / Magecart Formjacking & Keylogger/Clipboard Skimmer Shield
    */
-  protectFormsAgainstExtensionAndMagecartSkimmers({
-    fieldValue = '',
-    callerIsAttestedInternal = false,
-    eventType = 'keydown',
-  } = {}) {
+  protectFormsAgainstExtensionAndMagecartSkimmers(opts = {}) {
+    const {
+      fieldValue = '',
+      callerIsAttestedInternal = false,
+      eventType = 'keydown',
+    } = opts && typeof opts === 'object' ? opts : {};
     if (!callerIsAttestedInternal) {
       return {
         blocked: true,
-        reason: `MAGECART_OR_EXTENSION_SKIMMER_BLOCKED:${eventType}`,
+        reason: `MAGECART_OR_EXTENSION_SKIMMER_BLOCKED:${safeStr(eventType)}`,
         exposedValue: '',
       };
     }
-    const sealedInputToken = 'AEINP_' + this.encryptWireFrame(Buffer.from(String(fieldValue), 'utf8')).toString('base64url');
+    const sealedInputToken = 'AEINP_' + this.encryptWireFrame(Buffer.from(safeStr(fieldValue), 'utf8')).toString('base64url');
     return {
       blocked: false,
       sealedInputToken,
@@ -974,17 +1021,37 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 75: Universal Subresource Integrity (SRI) Auto-Injector & 3rd-Party Supply-Chain Script Sentinel
    */
-  enforceSubresourceIntegrityAndScriptSentinel({
-    scripts = [],
-    allowedScriptOrigins = ['https://acme-nexus.io'],
-  } = {}) {
+  enforceSubresourceIntegrityAndScriptSentinel(opts = {}) {
+    const {
+      scripts = [],
+      allowedScriptOrigins = ['https://acme-nexus.io'],
+    } = opts && typeof opts === 'object' ? opts : {};
     const verifiedScripts = [];
     const blockedScripts = [];
+    const safeAllowedOrigins = new Set(
+      (Array.isArray(allowedScriptOrigins) ? allowedScriptOrigins : [])
+        .map((o) => {
+          try { return new URL(safeStr(o)).origin; } catch { return ''; }
+        })
+        .filter(Boolean)
+    );
 
-    for (const s of scripts) {
-      const src = s.src || '';
-      const content = s.content || '';
-      const isAllowed = !src || src.startsWith('/') || allowedScriptOrigins.some((o) => src.startsWith(o));
+    for (const s of Array.isArray(scripts) ? scripts : []) {
+      const src = safeStr(s?.src, '').trim();
+      const content = safeStr(s?.content, '');
+      let isAllowed = false;
+      if (!src) {
+        isAllowed = true;
+      } else if (/^\/(?!\/|\\)/.test(src)) {
+        isAllowed = true;
+      } else {
+        try {
+          const parsedSrc = new URL(src);
+          isAllowed = (parsedSrc.protocol === 'https:' || parsedSrc.protocol === 'http:') && safeAllowedOrigins.has(parsedSrc.origin);
+        } catch {
+          isAllowed = false;
+        }
+      }
       if (!isAllowed || /evil|skimmer|magecart|polyfill\.io/i.test(src)) {
         blockedScripts.push({ src, reason: 'UNAUTHORIZED_SUPPLY_CHAIN_SCRIPT_ORIGIN_BLOCKED' });
         continue;
@@ -1007,19 +1074,22 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 77: Universal Webhook & Callback Replay/Forgery Shield (Stripe, GitHub, Slack, Svix, Generic HMAC)
    */
-  verifyUniversalWebhookSignature({
-    provider = 'generic',
-    payload = '',
-    timestampSec = 0,
-    nowSec = Math.floor(Date.now() / 1000),
-    eventId = 'evt_01',
-    signatureHeader = '',
-    webhookSecret = '',
-  } = {}) {
+  verifyUniversalWebhookSignature(opts = {}) {
+    const {
+      provider = 'generic',
+      payload = '',
+      timestampSec = 0,
+      nowSec = Math.floor(Date.now() / 1000),
+      eventId = 'evt_01',
+      signatureHeader = '',
+      webhookSecret = '',
+    } = opts && typeof opts === 'object' ? opts : {};
     if (!this._seenWebhookEvents) this._seenWebhookEvents = new Set();
     const secretToUse = webhookSecret || this.secret;
+    const tsNum = safeNum(timestampSec);
+    const nowNum = safeNum(nowSec);
 
-    if (Math.abs(nowSec - timestampSec) > 300) {
+    if (!Number.isFinite(tsNum) || !Number.isFinite(nowNum) || Math.abs(nowNum - tsNum) > 300) {
       return {
         allowed: false,
         status: 400,
@@ -1031,13 +1101,13 @@ ${scriptTags.join('\n')}`;
       return {
         allowed: false,
         status: 409,
-        reason: `WEBHOOK_EVENT_ID_REPLAY_BLOCKED:${eventId}`,
+        reason: `WEBHOOK_EVENT_ID_REPLAY_BLOCKED:${safeStr(eventId)}`,
       };
     }
 
-    const signedData = `${timestampSec}.${typeof payload === 'string' ? payload : JSON.stringify(payload)}`;
+    const signedData = `${tsNum}.${typeof payload === 'string' ? payload : JSON.stringify(payload)}`;
     const expectedSig = crypto.createHmac('sha256', secretToUse).update(signedData).digest('hex');
-    const cleanHeader = String(signatureHeader ?? '').replace(/^v1=/, '');
+    const cleanHeader = safeStr(signatureHeader, '').replace(/^v1=/, '');
     const whValid =
       cleanHeader.length === expectedSig.length &&
       crypto.timingSafeEqual(Buffer.from(cleanHeader, 'utf8'), Buffer.from(expectedSig, 'utf8'));
@@ -1046,10 +1116,14 @@ ${scriptTags.join('\n')}`;
       return {
         allowed: false,
         status: 401,
-        reason: `WEBHOOK_HMAC_SIGNATURE_FORGERY_BLOCKED:${provider}`,
+        reason: `WEBHOOK_HMAC_SIGNATURE_FORGERY_BLOCKED:${safeStr(provider)}`,
       };
     }
 
+    if (this._seenWebhookEvents.size >= 10000) {
+      const oldest = this._seenWebhookEvents.values().next().value;
+      if (oldest !== undefined) this._seenWebhookEvents.delete(oldest);
+    }
     this._seenWebhookEvents.add(eventId);
     return {
       allowed: true,
@@ -1061,16 +1135,18 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 78: Universal Multipart File Upload Polyglot, SVG XSS, Zip-Slip (`../`) & XXE Guard
    */
-  inspectMultipartUploadPolyglotAndXxe({
-    filename = 'upload.png',
-    mimeType = 'image/png',
-    fileBuffer = Buffer.alloc(0),
-    archiveEntries = [],
-  } = {}) {
-    const rawStr = Buffer.isBuffer(fileBuffer) ? fileBuffer.toString('utf8') : String(fileBuffer || '');
+  inspectMultipartUploadPolyglotAndXxe(opts = {}) {
+    const {
+      filename = 'upload.png',
+      mimeType = 'image/png',
+      fileBuffer = Buffer.alloc(0),
+      archiveEntries = [],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const rawStr = Buffer.isBuffer(fileBuffer) ? fileBuffer.toString('utf8') : safeStr(fileBuffer, '');
+    const safeEntries = Array.isArray(archiveEntries) ? archiveEntries : [];
 
     // 1. Zip-Slip Archive Path Traversal (`../../etc/passwd`)
-    if (/\.\.[\/\\]/.test(filename) || archiveEntries.some((e) => /\.\.[\/\\]|^\/|^[a-zA-Z]:\\/i.test(e))) {
+    if (/\.\.[\/\\]/.test(safeStr(filename)) || safeEntries.some((e) => /\.\.[\/\\]|^\/|^[a-zA-Z]:\\/i.test(safeStr(e)))) {
       return {
         allowed: false,
         status: 400,
@@ -1079,7 +1155,7 @@ ${scriptTags.join('\n')}`;
     }
 
     // 2. Image / PHP / JS Polyglot (`GIF89a<?php` or `<?=` or `<script` inside image)
-    if (/^image\//i.test(mimeType) && /(?:<\?php|<\?=|<script\b|onload\s*=|onerror\s*=|javascript:)/i.test(rawStr)) {
+    if (/^image\//i.test(safeStr(mimeType)) && /(?:<\?php|<\?=|<script\b|onload\s*=|onerror\s*=|javascript:)/i.test(rawStr)) {
       return {
         allowed: false,
         status: 415,
@@ -1102,21 +1178,22 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 81: WebAuthn / Passkey Relying-Party (`rpId`) Phishing, Attestation Replay & SignCount Rollback Guard
    */
-  verifyWebAuthnPasskeyAssertion({
-    expectedRpId = 'acme-nexus.io',
-    actualRpId = '',
-    expectedOrigin = 'https://acme-nexus.io',
-    actualOrigin = '',
-    challenge = '',
-    expectedChallenge = '',
-    prevSignCount = 10,
-    newSignCount = 11,
-  } = {}) {
+  verifyWebAuthnPasskeyAssertion(opts = {}) {
+    const {
+      expectedRpId = 'acme-nexus.io',
+      actualRpId = '',
+      expectedOrigin = 'https://acme-nexus.io',
+      actualOrigin = '',
+      challenge = '',
+      expectedChallenge = '',
+      prevSignCount = 10,
+      newSignCount = 11,
+    } = opts && typeof opts === 'object' ? opts : {};
     if (actualRpId !== expectedRpId || actualOrigin !== expectedOrigin) {
       return { allowed: false, reason: 'WEBAUTHN_RPID_OR_ORIGIN_PHISHING_MITM_BLOCKED' };
     }
-    const chStr = String(challenge || '');
-    const expStr = String(expectedChallenge || '');
+    const chStr = safeStr(challenge);
+    const expStr = safeStr(expectedChallenge);
     const chValid =
       chStr.length > 0 &&
       chStr.length === expStr.length &&
@@ -1124,7 +1201,9 @@ ${scriptTags.join('\n')}`;
     if (!chValid) {
       return { allowed: false, reason: 'WEBAUTHN_CHALLENGE_REPLAY_OR_MISMATCH_BLOCKED' };
     }
-    if (newSignCount <= prevSignCount) {
+    const prevNum = safeNum(prevSignCount);
+    const newNum = safeNum(newSignCount);
+    if (!Number.isFinite(prevNum) || !Number.isFinite(newNum) || newNum <= prevNum) {
       return { allowed: false, reason: 'WEBAUTHN_CLONED_AUTHENTICATOR_SIGNCOUNT_ROLLBACK_BLOCKED' };
     }
     return { allowed: true };
@@ -1133,15 +1212,17 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 82: Universal GraphQL Introspection (`__schema` / `__type`) Cloaking & Automatic Persisted Queries (APQ)
    */
-  enforceGraphqlIntrospectionAndApq({
-    query = '',
-    persistedQueryHash = '',
-    allowedApqHashes = new Set(),
-  } = {}) {
-    if (/__schema\b|__type\b/i.test(String(query || ''))) {
+  enforceGraphqlIntrospectionAndApq(opts = {}) {
+    const {
+      query = '',
+      persistedQueryHash = '',
+      allowedApqHashes = new Set(),
+    } = opts && typeof opts === 'object' ? opts : {};
+    if (/__schema\b|__type\b/i.test(safeStr(query))) {
       return { allowed: false, status: 403, reason: 'GRAPHQL_INTROSPECTION_SCHEMA_DUMP_BLOCKED' };
     }
-    if (allowedApqHashes.size > 0 && (!persistedQueryHash || !allowedApqHashes.has(persistedQueryHash))) {
+    const safeApq = allowedApqHashes instanceof Set ? allowedApqHashes : new Set(Array.isArray(allowedApqHashes) ? allowedApqHashes : []);
+    if (safeApq.size > 0 && (!persistedQueryHash || !safeApq.has(persistedQueryHash))) {
       return { allowed: false, status: 403, reason: 'GRAPHQL_UNREGISTERED_PERSISTED_QUERY_HASH_BLOCKED' };
     }
     return { allowed: true, status: 200 };
@@ -1150,16 +1231,19 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 83: Universal Server-Sent Events (SSE) / Streaming Chunk Encryption & Velocity Rate-Limiter
    */
-  protectServerSentEventStream({
-    sessionId = 'sse-01',
-    chunkText = '',
-    chunksEmittedInWindow = 0,
-    maxChunksPerWindow = 100,
-  } = {}) {
-    if (chunksEmittedInWindow > maxChunksPerWindow) {
+  protectServerSentEventStream(opts = {}) {
+    const {
+      sessionId = 'sse-01',
+      chunkText = '',
+      chunksEmittedInWindow = 0,
+      maxChunksPerWindow = 100,
+    } = opts && typeof opts === 'object' ? opts : {};
+    const emittedNum = safeNum(chunksEmittedInWindow);
+    const maxNum = safeNum(maxChunksPerWindow);
+    if (!Number.isFinite(emittedNum) || !Number.isFinite(maxNum) || emittedNum < 0 || emittedNum > maxNum) {
       return { allowed: false, reason: 'SSE_STREAM_VELOCITY_HARVEST_LIMIT_EXCEEDED' };
     }
-    const encChunk = 'AESSE_' + this.encryptWireFrame(Buffer.from(String(chunkText), 'utf8')).toString('base64url');
+    const encChunk = 'AESSE_' + this.encryptWireFrame(Buffer.from(safeStr(chunkText), 'utf8')).toString('base64url');
     return { allowed: true, sseEventLine: `data: ${encChunk}\n\n` };
   }
 
@@ -1178,7 +1262,7 @@ ${scriptTags.join('\n')}`;
    * Vector 85: Universal LDAP Injection, XPath Injection & Graph Cypher (`MATCH (n)`) Injection Firewall
    */
   inspectLdapXpathAndCypherInjection(inputStr = '') {
-    const s = String(inputStr || '');
+    const s = safeStr(inputStr);
     if (
       /\*\)\s*\(|(?:\|\(|\&\()\s*[a-zA-Z0-9_-]+=\*/i.test(s) ||
       /'\s*or\s*'1'\s*=\s*'1|\/\/user\[/i.test(s) ||
@@ -1192,18 +1276,23 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 86: Universal Open Redirect & OAuth `redirect_uri` Parameter Pollution Guard
    */
-  validateRedirectAndOAuthUri({
-    redirectTarget = '',
-    allowedHostnames = ['acme-nexus.io'],
-  } = {}) {
-    const t = String(redirectTarget || '').trim();
-    if (/^(?:javascript|data|vbscript):|^\/\/|^\/\\|@/i.test(t)) {
+  validateRedirectAndOAuthUri(opts = {}) {
+    const {
+      redirectTarget = '',
+      allowedHostnames = ['acme-nexus.io'],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const t = safeStr(redirectTarget).trim();
+    if (!t || /[\x00-\x1f\x7f\\]|^(?:javascript|data|vbscript|file|blob):|^\/\/|^\/\\|@/i.test(t)) {
       return { allowed: false, reason: 'OPEN_REDIRECT_PROTOCOL_OR_SLASH_BYPASS_BLOCKED' };
     }
-    if (t.startsWith('/')) return { allowed: true, safeRedirect: t };
+    if (/^\/(?!\/|\\)/.test(t)) return { allowed: true, safeRedirect: t };
     try {
       const u = new URL(t);
-      if (!allowedHostnames.includes(u.hostname)) {
+      if (u.protocol !== 'https:' && u.protocol !== 'http:') {
+        return { allowed: false, reason: 'OPEN_REDIRECT_PROTOCOL_OR_SLASH_BYPASS_BLOCKED' };
+      }
+      const safeHosts = Array.isArray(allowedHostnames) ? allowedHostnames : ['acme-nexus.io'];
+      if (!safeHosts.includes(u.hostname)) {
         return { allowed: false, reason: `OPEN_REDIRECT_UNTRUSTED_HOST_BLOCKED:${u.hostname}` };
       }
       return { allowed: true, safeRedirect: u.toString() };
@@ -1217,10 +1306,11 @@ ${scriptTags.join('\n')}`;
    */
   sanitizeMassAssignmentPayload(bodyObj = {}, protectedFields = ['role', 'isAdmin', 'permissions', 'balance', 'credits', 'plan', 'tenantId']) {
     if (!bodyObj || typeof bodyObj !== 'object') return { sanitized: bodyObj, strippedFields: [] };
+    const safeProtected = Array.isArray(protectedFields) ? protectedFields : ['role', 'isAdmin', 'permissions', 'balance', 'credits', 'plan', 'tenantId'];
     const clean = {};
     const strippedFields = [];
     for (const [k, v] of Object.entries(bodyObj)) {
-      if (protectedFields.includes(k)) {
+      if (safeProtected.includes(k)) {
         strippedFields.push(k);
       } else {
         clean[k] = v;
@@ -1236,8 +1326,9 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 88: Universal DNS Rebinding (`127.0.0.1.nip.io`) & Private Network Access (RFC1918) Guard
    */
-  enforceDnsRebindingAndPnaGuard({ hostHeader = '', originHeader = '' } = {}) {
-    const h = String(hostHeader || '').toLowerCase().replace(/^\[|\]$/g, '');
+  enforceDnsRebindingAndPnaGuard(opts = {}) {
+    const { hostHeader = '', originHeader = '' } = opts && typeof opts === 'object' ? opts : {};
+    const h = safeStr(hostHeader).toLowerCase().replace(/^\[|\]$/g, '');
     if (
       /\b(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|burpcollaborator\.net|oastify\.com|metadata\.google\.internal)\b/i.test(h) ||
       /^(?:127\.|10\.|169\.254\.|100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|0\.|::1$|::ffff:|fe80:|fc00:|fd00:)/i.test(h)
@@ -1250,11 +1341,13 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 89: Universal CORS Misconfiguration (`Origin: null`, Prefix/Suffix Spoof) Guard
    */
-  evaluateStrictCorsPolicy({ requestOrigin = '', allowedOrigins = ['https://acme-nexus.io'] } = {}) {
-    if (!requestOrigin || requestOrigin === 'null' || !allowedOrigins.includes(requestOrigin)) {
+  evaluateStrictCorsPolicy(opts = {}) {
+    const { requestOrigin = '', allowedOrigins = ['https://acme-nexus.io'] } = opts && typeof opts === 'object' ? opts : {};
+    const safeAllowed = Array.isArray(allowedOrigins) ? allowedOrigins : ['https://acme-nexus.io'];
+    if (!requestOrigin || requestOrigin === 'null' || !safeAllowed.includes(requestOrigin)) {
       return {
         allowed: false,
-        reason: `CORS_UNTRUSTED_OR_NULL_ORIGIN_BLOCKED:${requestOrigin}`,
+        reason: `CORS_UNTRUSTED_OR_NULL_ORIGIN_BLOCKED:${safeStr(requestOrigin)}`,
         headers: { Vary: 'Origin' },
       };
     }
@@ -1272,7 +1365,7 @@ ${scriptTags.join('\n')}`;
    * Vector 90: Universal Polyglot Server-Side Template Injection (SSTI) Guard (Handlebars, EJS, Pug, Twig, Freemarker, ERB, Blade)
    */
   inspectUniversalSstiPayload(inputStr = '') {
-    const s = String(inputStr || '');
+    const s = safeStr(inputStr);
     if (
       /\{\{[\s\S]*?(?:constructor|_self\.env|freemarker|Runtime|getRuntime|process\.mainModule)[\s\S]*?\}\}/i.test(s) ||
       /<%[-=]?\s*(?:system|exec|spawn|require| global|process)\b/i.test(s) ||
@@ -1287,7 +1380,7 @@ ${scriptTags.join('\n')}`;
    * Vector 91: Universal CRLF Header Injection (`%0d%0aSet-Cookie:`), Response Splitting & Log Forgery Sanitizer
    */
   inspectCrlfAndLogForgery(inputVal = '') {
-    const s = String(inputVal || '');
+    const s = safeStr(inputVal);
     if (/(?:\r|\n|%0d|%0a|\u000d|\u000a)/i.test(s)) {
       return {
         allowed: false,
@@ -1313,8 +1406,9 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 93: Universal WebRTC STUN/TURN Local/Public IP Leak Cloaker & MediaDevice Fingerprint Guard
    */
-  cloakWebRtcAndMediaDeviceFingerprint({ sdpCandidate = '', enumerateDevicesCalledByExternal = false } = {}) {
-    const scrubbedSdp = String(sdpCandidate || '').replace(
+  cloakWebRtcAndMediaDeviceFingerprint(opts = {}) {
+    const { sdpCandidate = '', enumerateDevicesCalledByExternal = false } = opts && typeof opts === 'object' ? opts : {};
+    const scrubbedSdp = safeStr(sdpCandidate).replace(
       /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
       '0.0.0.0'
     );
@@ -1329,18 +1423,20 @@ ${scriptTags.join('\n')}`;
    * Vector 94: Universal High-Resolution Timer (`performance.now` / `SharedArrayBuffer`) Spectre Side-Channel Jitter
    */
   clampHighResTimerPrecision(rawTimestampMs = 100.123456) {
-    // Coarsen sub-millisecond precision to nearest 1.0ms + deterministic session jitter
-    const clamped = Math.floor(rawTimestampMs);
+    const tsNum = safeNum(rawTimestampMs);
+    const safeTs = Number.isFinite(tsNum) ? tsNum : 0;
+    const clamped = Math.floor(safeTs);
     return {
       clampedTimestampMs: clamped,
-      subMsStripped: clamped === Math.floor(rawTimestampMs) && clamped !== rawTimestampMs,
+      subMsStripped: clamped === Math.floor(safeTs) && clamped !== safeTs,
     };
   }
 
   /**
    * Vector 95: Universal Clipboard Hijacking & Crypto-Address / IBAN Clipper Defense
    */
-  verifyClipboardCopyIntegrity({ originalSelection = '', clipboardDataWritten = '' } = {}) {
+  verifyClipboardCopyIntegrity(opts = {}) {
+    const { originalSelection = '', clipboardDataWritten = '' } = opts && typeof opts === 'object' ? opts : {};
     if (originalSelection && clipboardDataWritten && originalSelection !== clipboardDataWritten) {
       return {
         allowed: false,
@@ -1354,23 +1450,27 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 96: Universal WebAssembly Linear Memory (`wasmMemory.buffer`) External Read/Dump Guard
    */
-  guardWasmLinearMemoryBuffer({ callerIsAttestedInternal = false, realMemoryBytes = new Uint8Array([1, 2, 3, 4]) } = {}) {
+  guardWasmLinearMemoryBuffer(opts = {}) {
+    const { callerIsAttestedInternal = false, realMemoryBytes = new Uint8Array([1, 2, 3, 4]) } = opts && typeof opts === 'object' ? opts : {};
+    const safeBytes = realMemoryBytes && typeof realMemoryBytes.length === 'number' ? realMemoryBytes : new Uint8Array(4);
     if (!callerIsAttestedInternal) {
       return {
         blocked: true,
         reason: 'WASM_LINEAR_MEMORY_EXTERNAL_BUFFER_DUMP_BLOCKED',
-        exposedBuffer: new Uint8Array(realMemoryBytes.length), // All zeros!
+        exposedBuffer: new Uint8Array(safeBytes.length), // All zeros!
       };
     }
-    return { blocked: false, exposedBuffer: realMemoryBytes };
+    return { blocked: false, exposedBuffer: safeBytes };
   }
 
   /**
    * Vector 97: Universal Multi-Tenant Subdomain Takeover & Dangling CNAME / Orphan Tenant Sentinel
    */
-  inspectSubdomainTenantOwnership({ host = '', activeTenantSubdomains = new Set(['app.acme-nexus.io']) } = {}) {
-    const h = String(host || '').toLowerCase();
-    if (!activeTenantSubdomains.has(h)) {
+  inspectSubdomainTenantOwnership(opts = {}) {
+    const { host = '', activeTenantSubdomains = new Set(['app.acme-nexus.io']) } = opts && typeof opts === 'object' ? opts : {};
+    const h = safeStr(host).toLowerCase();
+    const safeTenants = activeTenantSubdomains instanceof Set ? activeTenantSubdomains : new Set(Array.isArray(activeTenantSubdomains) ? activeTenantSubdomains : ['app.acme-nexus.io']);
+    if (!safeTenants.has(h)) {
       return {
         allowed: false,
         status: 404,
@@ -1383,24 +1483,27 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 98: Universal API Pagination Bulk-Scraping Limiter (`?limit=100000`) & Canary Row Watermarker
    */
-  enforcePaginationAndCanaryWatermark({
-    requestedLimit = 20,
-    maxAllowedLimit = 50,
-    sessionId = 'sess-01',
-    records = [],
-  } = {}) {
-    if (requestedLimit > maxAllowedLimit) {
+  enforcePaginationAndCanaryWatermark(opts = {}) {
+    const {
+      requestedLimit = 20,
+      maxAllowedLimit = 50,
+      sessionId = 'sess-01',
+      records = [],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const reqNum = safeNum(requestedLimit);
+    const maxNum = safeNum(maxAllowedLimit);
+    if (!Number.isFinite(reqNum) || !Number.isFinite(maxNum) || reqNum < 0 || reqNum > maxNum) {
       return {
         allowed: false,
         status: 400,
-        reason: `BULK_PAGINATION_SCRAPING_LIMIT_EXCEEDED:${requestedLimit}>${maxAllowedLimit}`,
+        reason: `BULK_PAGINATION_SCRAPING_LIMIT_EXCEEDED:${safeStr(requestedLimit)}>${safeStr(maxAllowedLimit)}`,
       };
     }
-    const canaryId = 'canary_' + crypto.createHmac('sha256', this.secret).update(`page-wm:${sessionId}`).digest('hex').slice(0, 10);
+    const canaryId = 'canary_' + crypto.createHmac('sha256', this.secret).update(`page-wm:${safeStr(sessionId)}`).digest('hex').slice(0, 10);
     return {
       allowed: true,
       status: 200,
-      records: [...records, { id: canaryId, _aegisWatermark: true }],
+      records: [...(Array.isArray(records) ? records : []), { id: canaryId, _aegisWatermark: true }],
       canaryId,
     };
   }
@@ -1408,12 +1511,13 @@ ${scriptTags.join('\n')}`;
   /**
    * Vector 99: Universal Broken Function Level Authorization (`OWASP API5:2023` & `X-HTTP-Method-Override` Tampering) Guard
    */
-  enforceFunctionLevelAuthorization({
-    method = 'GET',
-    pathname = '/api/v1/users',
-    headers = {},
-    userRole = 'member',
-  } = {}) {
+  enforceFunctionLevelAuthorization(opts = {}) {
+    const {
+      method = 'GET',
+      pathname = '/api/v1/users',
+      headers = {},
+      userRole = 'member',
+    } = opts && typeof opts === 'object' ? opts : {};
     const lower = {};
     for (const [k, v] of Object.entries(headers || {})) lower[k.toLowerCase()] = v;
     if (lower['x-http-method-override'] || lower['x-method-override'] || lower['x-original-http-method']) {
@@ -1423,11 +1527,11 @@ ${scriptTags.join('\n')}`;
         reason: 'HTTP_METHOD_OVERRIDE_VERB_TAMPERING_BLOCKED',
       };
     }
-    if ((/^\/api\/v\d+\/admin\b/i.test(pathname) || method === 'DELETE') && userRole !== 'superadmin') {
+    if ((/^\/api\/v\d+\/admin\b/i.test(safeStr(pathname)) || method === 'DELETE') && userRole !== 'superadmin') {
       return {
         allowed: false,
         status: 403,
-        reason: `BFLA_PRIVILEGED_ENDPOINT_OR_VERB_DENIED:role=${userRole}`,
+        reason: `BFLA_PRIVILEGED_ENDPOINT_OR_VERB_DENIED:role=${safeStr(userRole)}`,
       };
     }
     return { allowed: true, status: 200 };
@@ -1437,14 +1541,15 @@ ${scriptTags.join('\n')}`;
    * Vector 100: Universal 100-Vector Sovereign Security & Zero-Regression Cryptographic Attestation Seal
    */
   generateSovereign100VectorSeal(passedVectorCount = 100) {
-    if (passedVectorCount < 100) {
+    const countNum = safeNum(passedVectorCount);
+    if (!Number.isFinite(countNum) || countNum < 100) {
       return { verified: false, seal: null };
     }
     const payload = `AEGIS_SOVEREIGN_V6_100_OF_100_VECTORS_VERIFIED`;
     const seal = crypto.createHmac('sha256', this.secret).update(payload).digest('hex');
     return {
       verified: true,
-      passedVectorCount,
+      passedVectorCount: countNum,
       seal,
     };
   }

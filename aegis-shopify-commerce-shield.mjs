@@ -26,8 +26,8 @@
 
 import crypto from 'node:crypto';
 
-// Known test/internal/agency coupon patterns exploited by commerce_probe.py
-const FORBIDDEN_TEST_COUPON_RE = /^(?:TEST\d*|DEVTEST|FREE|COMP\d*|VIP100|EMPLOYEE|STAFF\d*|PRGIFT|INFLUENCER|CREATOR100|AMBASSADOR|GIFT100|FREEGIFT|INTERNAL|SAMPLE100|PRESS100|SEEDING|PARTNER100|FOUNDER\d*|.*-TEST|TEST-.*|.*100)$/i;
+// Known test/internal/agency coupon patterns exploited by commerce_probe.py (bounded to prevent ReDoS)
+const FORBIDDEN_TEST_COUPON_RE = /^(?:TEST\d{0,8}|DEVTEST|FREE|COMP\d{0,8}|VIP100|EMPLOYEE|STAFF\d{0,8}|PRGIFT|INFLUENCER|CREATOR100|AMBASSADOR|GIFT100|FREEGIFT|INTERNAL|SAMPLE100|PRESS100|SEEDING|PARTNER100|FOUNDER\d{0,8}|[A-Z0-9_-]{1,32}-TEST|TEST-[A-Z0-9_-]{1,32}|[A-Z0-9_-]{1,32}100)$/i;
 
 export class AegisShopifyCommerceShield {
   constructor(options = {}) {
@@ -42,7 +42,7 @@ export class AegisShopifyCommerceShield {
    * Ensures `extract_pricing_intelligence()` in `commerce_probe.py` returns 0 across all 13 fields!
    */
   scrubStorefrontHtmlAndScripts(text) {
-    if (!text) return { text: '', redactions: 0 };
+    if (!text || typeof text !== 'string') return { text: '', redactions: 0 };
     let out = text;
     let redactions = 0;
     const hit = (rep) => { redactions++; return rep; };
@@ -52,8 +52,8 @@ export class AegisShopifyCommerceShield {
       hit('<!-- [Aegis Commerce Shield: Protected Storefront Config] -->')
     );
 
-    // B. Scrub myshopify.com domain leaks
-    out = out.replace(/([a-z0-9-]+)\.myshopify\.com/gi, (m, sub) => {
+    // B. Scrub myshopify.com domain leaks (anchored & bounded to prevent quadratic scanning)
+    out = out.replace(/\b([a-z0-9-]{1,63})\.myshopify\.com\b/gi, (m, sub) => {
       if (/^(?:cdn|pay|shop|checkout|extensions)$/i.test(sub)) return m;
       return hit('vault-protected.aegis.internal');
     });
@@ -81,7 +81,7 @@ export class AegisShopifyCommerceShield {
     out = out.replace(/(?:\/Users\/|\/home\/|C:\\\\Users\\\\)[A-Za-z0-9_-]{3,20}[/\\]/g, () =>
       hit('/aegis/')
     );
-    out = out.replace(/([a-z]{4,14})-test\b|\btest-([a-z]{4,14})/gi, () =>
+    out = out.replace(/\b(?:[a-z]{4,14}-test|test-[a-z]{4,14})\b/gi, () =>
       hit('protected-page')
     );
 
@@ -147,9 +147,14 @@ export class AegisShopifyCommerceShield {
    *   - `/checkouts/cn/` NegotiationResultPayload -> Emits `VALIDATION_CUSTOM` + `RemoveTermViolation` on
    *     standalone $0 gift SKUs, Penny-Anchored OMS Bypasses, and unauthorized 2-code / FREESHIP stacks!
    */
-  inspectStorefrontGraphqlAndCheckout({ ip = '127.0.0.1', query = '', cartLines = [], discountCodes = [], humanAttestationToken = null }) {
+  inspectStorefrontGraphqlAndCheckout(opts = {}) {
+    const { ip = '127.0.0.1', query = '', cartLines = [], discountCodes = [], humanAttestationToken = null } = opts && typeof opts === 'object' ? opts : {};
+    const safeQuery = typeof query === 'string' ? query.slice(0, 16384) : '';
+    const safeDiscountCodes = Array.isArray(discountCodes) ? discountCodes : [];
+    const safeCartLines = Array.isArray(cartLines) ? cartLines : [];
+
     // 1. Block raw `sortKey: PRICE` catalog scraping for $0.00 / internal SKUs
-    if (/sortKey\s*:\s*PRICE/i.test(query)) {
+    if (/sortKey\s*:\s*PRICE/i.test(safeQuery)) {
       return {
         allowed: false,
         reason: 'SORTKEY_PRICE_ZERO_SKU_SWEEP_BLOCKED',
@@ -158,8 +163,12 @@ export class AegisShopifyCommerceShield {
     }
 
     // 2. Enforce Coupon Solver Rate Limit (Stops 24-thread `solve_coupons_storefront` on attempt #4)
-    if (discountCodes.length > 0) {
-      const attempts = (this.sessionCouponAttempts.get(ip) || 0) + discountCodes.length;
+    if (safeDiscountCodes.length > 0) {
+      if (this.sessionCouponAttempts.size >= 5000 && !this.sessionCouponAttempts.has(ip)) {
+        const oldestKey = this.sessionCouponAttempts.keys().next().value;
+        if (oldestKey !== undefined) this.sessionCouponAttempts.delete(oldestKey);
+      }
+      const attempts = (this.sessionCouponAttempts.get(ip) || 0) + safeDiscountCodes.length;
       this.sessionCouponAttempts.set(ip, attempts);
       if (attempts > this.maxCouponAttemptsPerSession) {
         return {
@@ -171,7 +180,15 @@ export class AegisShopifyCommerceShield {
     }
 
     // 3. Block Forgotten Test / Agency / $0.00 / 100%-Off Coupons (`TEST100`, `<AGENCY>-TEST`, `VIP100`, `FREEGIFT`)
-    for (const code of discountCodes) {
+    for (const rawCode of safeDiscountCodes) {
+      const code = typeof rawCode === 'string' ? rawCode.trim() : '';
+      if (!code || code.length > 64) {
+        return {
+          allowed: false,
+          reason: 'MALFORMED_DISCOUNT_CODE_BLOCKED',
+          checkoutCnPayload: this.buildCheckoutCnRejection('Promo code format is invalid.', 'DISCOUNT_CODE_INVALID'),
+        };
+      }
       if (FORBIDDEN_TEST_COUPON_RE.test(code) && !this.verifyHumanAttestation(humanAttestationToken)) {
         return {
           allowed: false,
@@ -182,7 +199,7 @@ export class AegisShopifyCommerceShield {
     }
 
     // 4. Block Unauthorized 2-Code Double-Dip Stacking (`prod_level x order_level` or `+ FREESHIP`)
-    if (discountCodes.length >= 2) {
+    if (safeDiscountCodes.length >= 2) {
       return {
         allowed: false,
         reason: 'UNAUTHORIZED_MULTI_CODE_STACK_BLOCKED',
@@ -190,13 +207,33 @@ export class AegisShopifyCommerceShield {
       };
     }
 
-    // 5. Block Standalone $0.00 / $0.01 Gift SKUs & Penny-Anchored OMS Bypass (`/cart/<cheap>:1,<zero_gift>:1`)
-    const zeroOrGiftLines = cartLines.filter(l => (l.price !== undefined && l.price <= 1.00) || this.protectedGiftVariantIds.has(String(l.variantId)));
-    const paidLines = cartLines.filter(l => !zeroOrGiftLines.includes(l));
+    // 5. Validate cart line arithmetic (reject NaN, Infinity, negative price, or non-positive integer quantity)
+    for (const l of safeCartLines) {
+      if (!l || typeof l !== 'object') {
+        return {
+          allowed: false,
+          reason: 'MALFORMED_CART_LINE_BLOCKED',
+          checkoutCnPayload: this.buildCheckoutCnRejection('Invalid cart line item.', 'INVALID_CART_LINE'),
+        };
+      }
+      const priceNum = l.price === undefined ? 0 : Number(l.price);
+      const qtyNum = l.quantity === undefined ? 1 : Number(l.quantity);
+      if (!Number.isFinite(priceNum) || priceNum < 0 || !Number.isInteger(qtyNum) || qtyNum <= 0 || qtyNum > 10000) {
+        return {
+          allowed: false,
+          reason: 'INVALID_CART_ARITHMETIC_BLOCKED',
+          checkoutCnPayload: this.buildCheckoutCnRejection('Invalid cart line price or quantity.', 'INVALID_CART_ARITHMETIC'),
+        };
+      }
+    }
+
+    // 6. Block Standalone $0.00 / $0.01 Gift SKUs & Penny-Anchored OMS Bypass (`/cart/<cheap>:1,<zero_gift>:1`)
+    const zeroOrGiftLines = safeCartLines.filter(l => (l.price !== undefined && Number(l.price) <= 1.00) || this.protectedGiftVariantIds.has(String(l.variantId)));
+    const paidLines = safeCartLines.filter(l => !zeroOrGiftLines.includes(l));
     if (zeroOrGiftLines.length > 0) {
       const paidSubtotal = paidLines.reduce((sum, l) => sum + (Number(l.price || 0) * Number(l.quantity || 1)), 0);
       // If cart has only $0/$0.01 items OR uses a cheap penny-anchor item (< $50 minimum qualifying spend)
-      if (paidLines.length === 0 || paidSubtotal < 50.0) {
+      if (paidLines.length === 0 || !Number.isFinite(paidSubtotal) || paidSubtotal < 50.0) {
         return {
           allowed: false,
           reason: paidLines.length === 0 ? 'STANDALONE_ZERO_DOLLAR_GIFT_SKU_BLOCKED' : 'PENNY_ANCHORED_OMS_BYPASS_BLOCKED',

@@ -19,6 +19,29 @@ import crypto from 'node:crypto';
 import { compileProtectedBundle } from './aegis-compiler.mjs';
 import { AegisVulnAutoFixer } from './aegis-vuln-autofixer.mjs';
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
+function safeResolveProjectFile(resolvedRoot, relFile) {
+  if (typeof relFile !== 'string' || !relFile || relFile.includes('\0')) {
+    throw new Error('INVALID_PROJECT_FILE_PATH');
+  }
+  const fullPath = path.resolve(resolvedRoot, relFile);
+  if (!fullPath.startsWith(resolvedRoot + path.sep) && fullPath !== resolvedRoot) {
+    throw new Error(`PATH_TRAVERSAL_BLOCKED:${relFile}`);
+  }
+  if (fs.existsSync(fullPath)) {
+    const stat = fs.lstatSync(fullPath);
+    if (stat.isSymbolicLink()) {
+      throw new Error(`SYMLINK_FILE_BLOCKED:${relFile}`);
+    }
+  }
+  return fullPath;
+}
+
 export function detectProjectStack(projectDir) {
   const detected = {
     framework: 'universal-proxy',
@@ -26,52 +49,65 @@ export function detectProjectStack(projectDir) {
     filesFound: [],
   };
 
-  if (!fs.existsSync(projectDir)) return detected;
+  const dirStr = safeStr(projectDir).trim();
+  if (!dirStr || !fs.existsSync(dirStr)) return detected;
+  const resolvedRoot = path.resolve(dirStr);
 
-  const pkgPath = path.join(projectDir, 'package.json');
-  if (fs.existsSync(pkgPath)) {
-    detected.filesFound.push('package.json');
-    try {
-      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-      const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
-      if (allDeps.next) detected.framework = 'nextjs';
-      else if (allDeps.nuxt) detected.framework = 'nuxt';
-      else if (allDeps['@sveltejs/kit']) detected.framework = 'sveltekit';
-      else if (allDeps['@remix-run/node'] || allDeps['@remix-run/react']) detected.framework = 'remix';
-      else if (allDeps.astro) detected.framework = 'astro';
-      else if (allDeps.vite || allDeps.react) detected.framework = 'vite-spa';
-      else if (allDeps.express || allDeps.fastify || allDeps.koa) detected.framework = 'node-server';
-    } catch {}
-  } else if (fs.existsSync(path.join(projectDir, 'requirements.txt')) || fs.existsSync(path.join(projectDir, 'pyproject.toml'))) {
-    detected.language = 'python';
-    detected.framework = 'python-asgi-wsgi';
-    detected.filesFound.push('requirements.txt');
-  } else if (fs.existsSync(path.join(projectDir, 'composer.json')) || fs.existsSync(path.join(projectDir, 'index.php'))) {
-    detected.language = 'php';
-    detected.framework = 'php-fpm-shield';
-    detected.filesFound.push('composer.json');
-  } else if (fs.existsSync(path.join(projectDir, 'go.mod'))) {
-    detected.language = 'go';
-    detected.framework = 'go-http-middleware';
-    detected.filesFound.push('go.mod');
-  }
+  try {
+    const pkgPath = safeResolveProjectFile(resolvedRoot, 'package.json');
+    if (fs.existsSync(pkgPath) && fs.lstatSync(pkgPath).isFile()) {
+      detected.filesFound.push('package.json');
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        const allDeps = { ...(pkg?.dependencies || {}), ...(pkg?.devDependencies || {}) };
+        if (allDeps.next) detected.framework = 'nextjs';
+        else if (allDeps.nuxt) detected.framework = 'nuxt';
+        else if (allDeps['@sveltejs/kit']) detected.framework = 'sveltekit';
+        else if (allDeps['@remix-run/node'] || allDeps['@remix-run/react']) detected.framework = 'remix';
+        else if (allDeps.astro) detected.framework = 'astro';
+        else if (allDeps.vite || allDeps.react) detected.framework = 'vite-spa';
+        else if (allDeps.express || allDeps.fastify || allDeps.koa) detected.framework = 'node-server';
+      } catch {}
+    } else if (
+      fs.existsSync(safeResolveProjectFile(resolvedRoot, 'requirements.txt')) ||
+      fs.existsSync(safeResolveProjectFile(resolvedRoot, 'pyproject.toml'))
+    ) {
+      detected.language = 'python';
+      detected.framework = 'python-asgi-wsgi';
+      detected.filesFound.push('requirements.txt');
+    } else if (
+      fs.existsSync(safeResolveProjectFile(resolvedRoot, 'composer.json')) ||
+      fs.existsSync(safeResolveProjectFile(resolvedRoot, 'index.php'))
+    ) {
+      detected.language = 'php';
+      detected.framework = 'php-fpm-shield';
+      detected.filesFound.push('composer.json');
+    } else if (fs.existsSync(safeResolveProjectFile(resolvedRoot, 'go.mod'))) {
+      detected.language = 'go';
+      detected.framework = 'go-http-middleware';
+      detected.filesFound.push('go.mod');
+    }
+  } catch {}
 
   return detected;
 }
 
-export function initializeAegisInDirectory({
-  projectDir = process.cwd(),
-  targetUrl = 'https://your-webapp.com',
-  autoFixSource = true,
-} = {}) {
-  fs.mkdirSync(projectDir, { recursive: true });
-  const stackInfo = detectProjectStack(projectDir);
+export function initializeAegisInDirectory(opts = {}) {
+  const {
+    projectDir = process.cwd(),
+    targetUrl = 'https://your-webapp.com',
+    autoFixSource = true,
+  } = opts && typeof opts === 'object' ? opts : {};
+  const dirStr = safeStr(projectDir, process.cwd()).trim() || process.cwd();
+  const resolvedRoot = path.resolve(dirStr);
+  fs.mkdirSync(resolvedRoot, { recursive: true });
+  const stackInfo = detectProjectStack(resolvedRoot);
   const masterSecret = 'aegis-sovereign-' + crypto.randomBytes(16).toString('hex');
   const generatedFiles = [];
 
   let safeTargetOrigin = 'https://your-webapp.com';
   try {
-    const parsedTarget = new URL(String(targetUrl || 'https://your-webapp.com').trim());
+    const parsedTarget = new URL(safeStr(targetUrl, 'https://your-webapp.com').trim());
     if (parsedTarget.protocol === 'http:' || parsedTarget.protocol === 'https:') {
       safeTargetOrigin = parsedTarget.origin;
     }
@@ -93,7 +129,7 @@ export function initializeAegisInDirectory({
       layer6_continuousCanaryDefense: true,
     },
   };
-  const configPath = path.join(projectDir, 'aegis.config.json');
+  const configPath = safeResolveProjectFile(resolvedRoot, 'aegis.config.json');
   fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2) + '\n', 'utf8');
   generatedFiles.push('aegis.config.json');
 
@@ -125,7 +161,7 @@ export default {
   }
 };
 `;
-  const workerPath = path.join(projectDir, 'aegis-edge-worker.mjs');
+  const workerPath = safeResolveProjectFile(resolvedRoot, 'aegis-edge-worker.mjs');
   fs.writeFileSync(workerPath, workerCode, 'utf8');
   generatedFiles.push('aegis-edge-worker.mjs');
 
@@ -143,7 +179,7 @@ export function middleware(request) {
   return res;
 }
 `;
-    fs.writeFileSync(path.join(projectDir, 'aegis-next-middleware.js'), nextMiddleware, 'utf8');
+    fs.writeFileSync(safeResolveProjectFile(resolvedRoot, 'aegis-next-middleware.js'), nextMiddleware, 'utf8');
     generatedFiles.push('aegis-next-middleware.js');
   } else if (stackInfo.language === 'python') {
     const pyMiddleware = `# Auto-Generated by @aegis/shield v6.0 — Universal Python ASGI/WSGI (FastAPI / Django / Flask) Shield
@@ -159,7 +195,7 @@ class AegisAsgiMiddleware:
                 return
         await self.app(scope, receive, send)
 `;
-    fs.writeFileSync(path.join(projectDir, 'aegis_asgi_shield.py'), pyMiddleware, 'utf8');
+    fs.writeFileSync(safeResolveProjectFile(resolvedRoot, 'aegis_asgi_shield.py'), pyMiddleware, 'utf8');
     generatedFiles.push('aegis_asgi_shield.py');
   } else if (stackInfo.language === 'php') {
     const phpPrepend = `<?php
@@ -172,7 +208,7 @@ if (isset($_REQUEST['PHP_SESSION_UPLOAD_PROGRESS']) || stripos($_SERVER['QUERY_S
     exit('Blocked by Aegis PHP2Shell Shield');
 }
 `;
-    fs.writeFileSync(path.join(projectDir, 'aegis_prepend_shield.php'), phpPrepend, 'utf8');
+    fs.writeFileSync(safeResolveProjectFile(resolvedRoot, 'aegis_prepend_shield.php'), phpPrepend, 'utf8');
     generatedFiles.push('aegis_prepend_shield.php');
   }
 
@@ -183,8 +219,8 @@ if (isset($_REQUEST['PHP_SESSION_UPLOAD_PROGRESS']) || stripos($_SERVER['QUERY_S
     const candidateFiles = ['package.json', 'requirements.txt', 'php.ini', '.env', 'app.py', 'index.php', 'main.go'];
     const filesMap = {};
     for (const f of candidateFiles) {
-      const fp = path.join(projectDir, f);
-      if (fs.existsSync(fp)) {
+      const fp = safeResolveProjectFile(resolvedRoot, f);
+      if (fs.existsSync(fp) && fs.lstatSync(fp).isFile()) {
         filesMap[f] = fs.readFileSync(fp, 'utf8');
       }
     }
@@ -192,14 +228,16 @@ if (isset($_REQUEST['PHP_SESSION_UPLOAD_PROGRESS']) || stripos($_SERVER['QUERY_S
       const fixRes = fixer.scanAndAutoFixProject({ files: filesMap });
       autoFixedIssues = fixRes.autoFixedIssues;
       for (const [f, newContent] of Object.entries(fixRes.fixedFiles)) {
-        fs.writeFileSync(path.join(projectDir, f), newContent, 'utf8');
+        if (candidateFiles.includes(f)) {
+          fs.writeFileSync(safeResolveProjectFile(resolvedRoot, f), newContent, 'utf8');
+        }
       }
     }
   }
 
   return {
     ok: true,
-    projectDir,
+    projectDir: resolvedRoot,
     detectedFramework: stackInfo.framework,
     detectedLanguage: stackInfo.language,
     generatedFiles,

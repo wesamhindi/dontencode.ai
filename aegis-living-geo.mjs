@@ -24,13 +24,20 @@
 
 import crypto from 'node:crypto';
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
 export class AegisLivingGeoEngine {
   constructor(options = {}) {
-    this.secret = options.secret
-      ? (Buffer.isBuffer(options.secret) ? options.secret : crypto.createHash('sha256').update(String(options.secret)).digest())
+    const safeOpts = options && typeof options === 'object' ? options : {};
+    this.secret = safeOpts.secret
+      ? (Buffer.isBuffer(safeOpts.secret) ? safeOpts.secret : crypto.createHash('sha256').update(safeStr(safeOpts.secret, 'aegis')).digest())
       : crypto.randomBytes(32);
 
-    this.brandConfig = options.brandConfig || {
+    this.brandConfig = safeOpts.brandConfig || {
       name: 'Acme Nexus',
       domain: 'https://acme-nexus.io',
       tagline: 'Enterprise Cloud Intelligence Platform',
@@ -56,9 +63,9 @@ export class AegisLivingGeoEngine {
    * Scans a proposed /llms.txt or JSON-LD payload for internal staging leaks,
    * unreleased feature flags, test coupons, or secret environment keys.
    */
-  auditGeoContentForLeaks(text) {
+  auditGeoContentForLeaks(text = '') {
+    const safeText = safeStr(text);
     const leaks = [];
-    const lower = text.toLowerCase();
 
     // 1. Check for internal/staging domains or IP addresses
     const STAGING_PATTERNS = [
@@ -66,22 +73,22 @@ export class AegisLivingGeoEngine {
       /169\.254\.169\.254/g,
     ];
     for (const pat of STAGING_PATTERNS) {
-      const match = text.match(pat);
+      const match = safeText.match(pat);
       if (match) {
         leaks.push(...match.map((m) => `STAGING_URL_EXPOSURE:${m}`));
       }
     }
 
-    // 2. Check for internal test coupons or bypass codes
-    const COUPON_PATTERNS = /\b(?:[A-Z0-9_-]*(?:TEST|100FREE|FOUNDER99|VIPFREE|INTERNAL))[0-9]*\b/g;
-    const couponMatches = text.match(COUPON_PATTERNS);
+    // 2. Check for internal test coupons or bypass codes (bounded quantifier to prevent ReDoS)
+    const COUPON_PATTERNS = /\b(?:[A-Z0-9_-]{0,32}(?:TEST|100FREE|FOUNDER99|VIPFREE|INTERNAL))[0-9]{0,8}\b/g;
+    const couponMatches = safeText.match(COUPON_PATTERNS);
     if (couponMatches) {
       leaks.push(...couponMatches.map((c) => `INTERNAL_TEST_COUPON_LEAK:${c}`));
     }
 
     // 3. Check for unreleased internal feature flags or debug toggles
     const DEBUG_FLAG_PATTERNS = /\b(?:APP_DEBUG|DEBUG_MODE|ENABLE_INTERNAL_TESTS|BETA_BYPASS)\s*=\s*(?:true|1)\b/gi;
-    if (DEBUG_FLAG_PATTERNS.test(text)) {
+    if (DEBUG_FLAG_PATTERNS.test(safeText)) {
       leaks.push('INTERNAL_DEBUG_FLAG_EXPOSURE');
     }
 
@@ -95,13 +102,15 @@ export class AegisLivingGeoEngine {
    * Verifies that every factual assertion in a proposed GEO manifest is strictly
    * backed by the ground-truth configuration (Zero-Hallucination Guarantee).
    */
-  verifyFactualityAndConsistency(proposedManifest, groundTruth = this.brandConfig) {
+  verifyFactualityAndConsistency(proposedManifest = '', groundTruth = this.brandConfig) {
+    const safeManifest = safeStr(proposedManifest);
+    const safeGt = groundTruth && typeof groundTruth === 'object' ? groundTruth : this.brandConfig;
     const violations = [];
 
     // 1. Price Verification: ensure prices quoted in manifest match ground truth exactly
-    const priceMatches = proposedManifest.matchAll(/\$(\d+(?:\.\d{2})?)/g);
+    const priceMatches = safeManifest.matchAll(/\$(\d+(?:\.\d{2})?)/g);
     const validPrices = new Set(
-      Object.values(groundTruth.pricingTiers || {}).map((t) => String(t.price))
+      Object.values(safeGt.pricingTiers || {}).map((t) => safeStr(t?.price))
     );
     for (const m of priceMatches) {
       const quoted = m[1];
@@ -110,14 +119,28 @@ export class AegisLivingGeoEngine {
       }
     }
 
-    // 2. Route Verification: ensure linked public routes actually exist and are not deprecated
-    const routeMatches = proposedManifest.matchAll(/\]\((https?:\/\/[^\s)]+|\/[a-z0-9_/-]+)\)/gi);
-    const validRoutes = new Set(groundTruth.publicRoutes || []);
-    const deadRoutes = new Set(groundTruth.deprecatedRoutes || []);
+    // 2. Route Verification: ensure linked public routes actually exist and are not deprecated or domain-spoofed
+    const routeMatches = safeManifest.matchAll(/\]\((https?:\/\/[^\s)]+|\/[a-z0-9_/-]+)\)/gi);
+    const validRoutes = new Set(Array.isArray(safeGt.publicRoutes) ? safeGt.publicRoutes.map((r) => safeStr(r)) : []);
+    const deadRoutes = new Set(Array.isArray(safeGt.deprecatedRoutes) ? safeGt.deprecatedRoutes.map((r) => safeStr(r)) : []);
+    let expectedOrigin = '';
+    try {
+      expectedOrigin = new URL(safeStr(safeGt.domain, 'https://acme-nexus.io')).origin;
+    } catch {}
     for (const r of routeMatches) {
       let routePath = r[1];
-      if (routePath.startsWith(groundTruth.domain)) {
-        routePath = routePath.slice(groundTruth.domain.length);
+      if (/^https?:\/\//i.test(routePath)) {
+        try {
+          const parsedLink = new URL(routePath);
+          if (expectedOrigin && parsedLink.origin !== expectedOrigin) {
+            violations.push(`UNGROUNDED_EXTERNAL_ORIGIN: Linked URL ${routePath} does not match official domain ${expectedOrigin}`);
+            continue;
+          }
+          routePath = parsedLink.pathname;
+        } catch {
+          violations.push(`MALFORMED_ROUTE_URL:${routePath}`);
+          continue;
+        }
       }
       if (routePath.startsWith('/')) {
         if (deadRoutes.has(routePath)) {
@@ -130,7 +153,7 @@ export class AegisLivingGeoEngine {
 
     // 3. Anti-Slop, Placeholder & Serialization Corruption Guard
     const SLOP_OR_CORRUPTION_RE = /\b(?:undefined|NaN|null|\[object Object\]|Lorem ipsum|TODO:|TBD:|FIXME:|100%\s+guaranteed\s+profit|unlimited\s+free\s+forever)\b/i;
-    const slopMatch = proposedManifest.match(SLOP_OR_CORRUPTION_RE);
+    const slopMatch = safeManifest.match(SLOP_OR_CORRUPTION_RE);
     if (slopMatch) {
       violations.push(`SLOP_OR_CORRUPTED_TOKEN_DETECTED:${slopMatch[0]}`);
     }
@@ -146,24 +169,32 @@ export class AegisLivingGeoEngine {
    * updated pricing, or new enterprise certifications), prunes deprecated routes,
    * and publishes verified /llms.txt + Schema.org JSON-LD.
    */
-  syncWithCodebaseChanges(deltaConfig) {
+  syncWithCodebaseChanges(deltaConfig = {}) {
+    const safeDelta = deltaConfig && typeof deltaConfig === 'object' && !Array.isArray(deltaConfig) ? deltaConfig : {};
     if (!this.snapshotStack) this.snapshotStack = [];
     const previousSnapshot = JSON.parse(JSON.stringify(this.brandConfig));
 
-    const deprecatedSet = new Set(deltaConfig.deprecatedRoutes || []);
+    const safeDeprecated = Array.isArray(safeDelta.deprecatedRoutes) ? safeDelta.deprecatedRoutes.map((r) => safeStr(r)).filter(Boolean) : [];
+    const safePublic = Array.isArray(safeDelta.publicRoutes) ? safeDelta.publicRoutes.map((r) => safeStr(r)).filter(Boolean) : [];
+    const safeFeatures = Array.isArray(safeDelta.verifiedFeatures) ? safeDelta.verifiedFeatures.map((f) => safeStr(f)).filter(Boolean) : [];
+    const safeTiers = safeDelta.pricingTiers && typeof safeDelta.pricingTiers === 'object' && !Array.isArray(safeDelta.pricingTiers) ? safeDelta.pricingTiers : {};
+
+    const deprecatedSet = new Set(safeDeprecated);
     const mergedRoutes = [
-      ...new Set([...this.brandConfig.publicRoutes, ...(deltaConfig.publicRoutes || [])]),
+      ...new Set([...this.brandConfig.publicRoutes, ...safePublic]),
     ].filter((r) => !deprecatedSet.has(r));
 
     const updated = {
       ...this.brandConfig,
-      ...deltaConfig,
+      name: safeStr(safeDelta.name, this.brandConfig.name),
+      domain: safeStr(safeDelta.domain, this.brandConfig.domain),
+      tagline: safeStr(safeDelta.tagline, this.brandConfig.tagline),
       pricingTiers: {
         ...this.brandConfig.pricingTiers,
-        ...(deltaConfig.pricingTiers || {}),
+        ...safeTiers,
       },
       verifiedFeatures: [
-        ...new Set([...this.brandConfig.verifiedFeatures, ...(deltaConfig.verifiedFeatures || [])]),
+        ...new Set([...this.brandConfig.verifiedFeatures, ...safeFeatures]),
       ],
       publicRoutes: mergedRoutes,
       deprecatedRoutes: [...deprecatedSet],
@@ -171,21 +202,21 @@ export class AegisLivingGeoEngine {
 
     // Generate candidate /llms.txt
     const candidateLlmsTxt = [
-      `# ${updated.name}`,
-      `> ${updated.tagline}`,
+      `# ${safeStr(updated.name, 'Acme Nexus')}`,
+      `> ${safeStr(updated.tagline, 'Enterprise Platform')}`,
       '',
-      `Official Website: ${updated.domain}`,
+      `Official Website: ${safeStr(updated.domain, 'https://acme-nexus.io')}`,
       '',
       `## Key Verified Capabilities`,
-      ...updated.verifiedFeatures.map((f) => `- ${f}`),
+      ...updated.verifiedFeatures.map((f) => `- ${safeStr(f)}`),
       '',
       `## Pricing Tiers`,
       ...Object.entries(updated.pricingTiers).map(
-        ([tier, info]) => `- **${tier.toUpperCase()}**: \$${info.price} / ${info.billing}`
+        ([tier, info]) => `- **${safeStr(tier).toUpperCase()}**: \$${safeStr(info?.price, '0')} / ${safeStr(info?.billing, 'monthly')}`
       ),
       '',
       `## Public Documentation & Resources`,
-      ...updated.publicRoutes.map((r) => `- [${r}](${updated.domain}${r})`),
+      ...updated.publicRoutes.map((r) => `- [${safeStr(r)}](${safeStr(updated.domain, 'https://acme-nexus.io')}${safeStr(r)})`),
       '',
     ].join('\n');
 
@@ -211,7 +242,8 @@ export class AegisLivingGeoEngine {
       };
     }
 
-    // 3. Commit state & sign manifest
+    // 3. Commit state & sign manifest (bounded history to prevent unbounded memory growth)
+    if (this.snapshotStack.length >= 200) this.snapshotStack.shift();
     this.snapshotStack.push(previousSnapshot);
     this.brandConfig = updated;
     const manifestHash = crypto.createHmac('sha256', this.secret).update(candidateLlmsTxt).digest('hex');
@@ -222,6 +254,7 @@ export class AegisLivingGeoEngine {
       updatedAt: Date.now(),
     });
 
+    if (this.syncHistory.length >= 200) this.syncHistory.shift();
     this.syncHistory.push({
       timestamp: Date.now(),
       hash: manifestHash,
@@ -239,20 +272,19 @@ export class AegisLivingGeoEngine {
 
   /**
    * Vector 59: Autonomous Live DOM & Route Ingestion (`ingestLiveApplicationDomAndRoutes`).
-   * Parses actual production HTML/JSX templates and route manifests on deploy so `/llms.txt`
-   * and Schema.org JSON-LD stay 100% synchronized with new features and pricing changes
-   * without manual copy-writing or AI hallucination!
    */
-  ingestLiveApplicationDomAndRoutes({
-    productionHtml = '',
-    discoveredRoutes = [],
-    deprecatedRoutes = [],
-  } = {}) {
+  ingestLiveApplicationDomAndRoutes(opts = {}) {
+    const {
+      productionHtml = '',
+      discoveredRoutes = [],
+      deprecatedRoutes = [],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeHtml = safeStr(productionHtml);
     const extractedFeatures = [];
     const extractedPricing = {};
 
     // Extract verified feature headings (<h2 data-geo-feature>...</h2>)
-    const featureMatches = String(productionHtml).matchAll(/<h[23][^>]*data-geo-feature[^>]*>([\s\S]*?)<\/h[23]>/gi);
+    const featureMatches = safeHtml.matchAll(/<h[23][^>]*data-geo-feature[^>]*>([\s\S]*?)<\/h[23]>/gi);
     for (const m of featureMatches) {
       const clean = m[1].replace(/<[^>]+>/g, '').trim();
       if (clean && clean.length >= 4 && clean.length <= 140) {
@@ -261,7 +293,7 @@ export class AegisLivingGeoEngine {
     }
 
     // Extract verified pricing tiers (<div data-geo-tier="pro" data-geo-price="129" data-geo-billing="monthly">)
-    const tierMatches = String(productionHtml).matchAll(/data-geo-tier=["']([a-z0-9_-]+)["'][^>]*data-geo-price=["'](\d+(?:\.\d{2})?)["'](?:[^>]*data-geo-billing=["']([a-z]+)["'])?/gi);
+    const tierMatches = safeHtml.matchAll(/data-geo-tier=["']([a-z0-9_-]+)["'][^>]*data-geo-price=["'](\d+(?:\.\d{2})?)["'](?:[^>]*data-geo-billing=["']([a-z]+)["'])?/gi);
     for (const tm of tierMatches) {
       extractedPricing[tm[1].toLowerCase()] = {
         price: Number(tm[2]),
@@ -273,8 +305,8 @@ export class AegisLivingGeoEngine {
     return this.syncWithCodebaseChanges({
       verifiedFeatures: extractedFeatures,
       pricingTiers: extractedPricing,
-      publicRoutes: discoveredRoutes,
-      deprecatedRoutes,
+      publicRoutes: Array.isArray(discoveredRoutes) ? discoveredRoutes : [],
+      deprecatedRoutes: Array.isArray(deprecatedRoutes) ? deprecatedRoutes : [],
     });
   }
 

@@ -21,9 +21,21 @@
 
 import crypto from 'node:crypto';
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
+function safeNum(val) {
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string' && val.trim() !== '') return Number(val);
+  return NaN;
+}
+
 function constantTimeEqual(a, b) {
-  const strA = String(a ?? '');
-  const strB = String(b ?? '');
+  const strA = safeStr(a);
+  const strB = safeStr(b);
   if (!strA || !strB || strA.length !== strB.length) return false;
   return crypto.timingSafeEqual(Buffer.from(strA, 'utf8'), Buffer.from(strB, 'utf8'));
 }
@@ -62,8 +74,8 @@ const AI_PIPELINE_SENSITIVE_KEYS = new Set([
 
 export class AegisCloudAssetShield {
   constructor( options = {} ) {
-    this.secret = options.secret
-      ? (Buffer.isBuffer(options.secret) ? options.secret : crypto.createHash('sha256').update(String(options.secret)).digest())
+    this.secret = options?.secret
+      ? (Buffer.isBuffer(options.secret) ? options.secret : crypto.createHash('sha256').update(safeStr(options.secret, 'aegis')).digest())
       : crypto.randomBytes(32);
     this.assetVault = new Map(); // ticketId -> { realUrl, sessionId, expiresAt, used }
   }
@@ -73,20 +85,23 @@ export class AegisCloudAssetShield {
    * so the real bucket name, region, and presigned signature never touch the client!
    */
   issueCloudAssetTicket(realUrl, sessionId = 'global', ttlMs = 10000) {
+    const safeUrl = safeStr(realUrl);
+    const safeSession = safeStr(sessionId, 'global');
+    const safeTtl = Number.isFinite(safeNum(ttlMs)) ? safeNum(ttlMs) : 10000;
     if (this.assetVault.size >= 5000) {
       const oldest = this.assetVault.keys().next().value;
       if (oldest !== undefined) this.assetVault.delete(oldest);
     }
     const rawId = crypto.randomBytes(12).toString('hex');
     const mac = crypto.createHmac('sha256', this.secret)
-      .update(`${rawId}:${sessionId}:${realUrl}`)
+      .update(`${rawId}:${safeSession}:${safeUrl}`)
       .digest('hex')
       .slice(0, 16);
     const ticket = `${rawId}.${mac}`;
     this.assetVault.set(ticket, {
-      realUrl,
-      sessionId,
-      expiresAt: Date.now() + ttlMs,
+      realUrl: safeUrl,
+      sessionId: safeSession,
+      expiresAt: Date.now() + safeTtl,
       used: false,
     });
     return ticket;
@@ -94,13 +109,10 @@ export class AegisCloudAssetShield {
 
   /**
    * Redeems a `/_aegis/cloud-vault?t=...` ticket at the Edge Proxy.
-   * Enforces:
-   *   1. Single-use atomic burn (`entry.used = true` — copying the URL from DevTools Network tab to `curl` fails!)
-   *   2. Session binding (`entry.sessionId === sessionId`)
-   *   3. Cryptographic header attestation (`x-aegis-sig` required so non-browser Python/curl scripts cannot redeem)
-   *   4. Attaches `X-Aegis-Origin-Lock` header when fetching from the upstream AWS S3 bucket.
    */
   redeemCloudAssetTicket(ticket, sessionId = 'global', headers = {}) {
+    const safeSession = safeStr(sessionId, 'global');
+    const safeHeaders = headers && typeof headers === 'object' ? headers : {};
     if (!ticket || typeof ticket !== 'string' || !ticket.includes('.')) {
       return { ok: false, status: 403, reason: 'CLOUD_TICKET_NOT_FOUND' };
     }
@@ -110,7 +122,7 @@ export class AegisCloudAssetShield {
       return { ok: false, status: 403, reason: 'CLOUD_TICKET_NOT_FOUND' };
     }
     const expectedMac = crypto.createHmac('sha256', this.secret)
-      .update(`${rawId}:${sessionId}:${entry.realUrl}`)
+      .update(`${rawId}:${safeSession}:${entry.realUrl}`)
       .digest('hex')
       .slice(0, 16);
     if (!constantTimeEqual(providedMac, expectedMac)) {
@@ -120,10 +132,10 @@ export class AegisCloudAssetShield {
       this.assetVault.delete(ticket);
       return { ok: false, status: 403, reason: 'CLOUD_TICKET_ALREADY_USED_OR_EXPIRED' };
     }
-    if (entry.sessionId !== sessionId) {
+    if (entry.sessionId !== safeSession) {
       return { ok: false, status: 403, reason: 'CLOUD_TICKET_SESSION_MISMATCH' };
     }
-    const sig = headers['x-aegis-sig'] || headers['X-Aegis-Sig'] || '';
+    const sig = safeStr(safeHeaders['x-aegis-sig'] || safeHeaders['X-Aegis-Sig']);
     if (!sig.startsWith('aegis-v')) {
       return { ok: false, status: 403, reason: 'MISSING_BROWSER_ATTESTATION_ON_CLOUD_VAULT' };
     }
@@ -141,11 +153,9 @@ export class AegisCloudAssetShield {
 
   /**
    * Generates an AWS S3 Bucket Policy that blocks 100% of direct S3 access (`s3:GetObject`, `s3:ListBucket`)
-   * unless the request arrives through Aegis Edge Gate with the secret `X-Aegis-Origin-Lock` header
-   * (or CloudFront Origin Access Control). Even if an attacker guesses the bucket name via Certificate
-   * Transparency or DNS brute-forcing, direct AWS S3 requests return 403 AccessDenied!
    */
   generateAwsS3BucketLockdownPolicy(bucketName) {
+    const safeBucket = safeStr(bucketName, 'default-bucket');
     const originLockToken = crypto.createHmac('sha256', this.secret).update('aws-s3-origin-lock').digest('hex');
     return {
       Version: '2012-10-17',
@@ -155,14 +165,14 @@ export class AegisCloudAssetShield {
           Effect: 'Deny',
           Principal: '*',
           Action: 's3:ListBucket',
-          Resource: `arn:aws:s3:::${bucketName}`,
+          Resource: `arn:aws:s3:::${safeBucket}`,
         },
         {
           Sid: 'DenyDirectGetObjectWithoutAegisOriginLock',
           Effect: 'Deny',
           Principal: '*',
           Action: 's3:GetObject',
-          Resource: `arn:aws:s3:::${bucketName}/*`,
+          Resource: `arn:aws:s3:::${safeBucket}/*`,
           Condition: {
             StringNotEquals: {
               'aws:Referer': originLockToken,
@@ -266,9 +276,11 @@ export class AegisCloudAssetShield {
    *   - Only an authorized browser WebAssembly loader with the ephemeral session key can instantiate it in RAM!
    */
   encryptBinaryArtifact(rawBuffer, sessionContext = 'aegis-v3') {
-    const buf = Buffer.isBuffer(rawBuffer) ? rawBuffer : Buffer.from(rawBuffer);
+    const buf = Buffer.isBuffer(rawBuffer)
+      ? rawBuffer
+      : Buffer.from(typeof rawBuffer === 'string' ? rawBuffer : JSON.stringify(rawBuffer ?? ''), 'utf8');
     const iv = crypto.randomBytes(12);
-    const key = crypto.createHmac('sha256', this.secret).update(String(sessionContext)).digest();
+    const key = crypto.createHmac('sha256', this.secret).update(safeStr(sessionContext, 'aegis-v3')).digest();
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     const ciphertext = Buffer.concat([cipher.update(buf), cipher.final()]);
     const authTag = cipher.getAuthTag();
@@ -296,7 +308,7 @@ export class AegisCloudAssetShield {
     const iv = encryptedBuffer.subarray(4, 16);
     const authTag = encryptedBuffer.subarray(16, 32);
     const ciphertext = encryptedBuffer.subarray(32);
-    const key = crypto.createHmac('sha256', this.secret).update(String(sessionContext)).digest();
+    const key = crypto.createHmac('sha256', this.secret).update(safeStr(sessionContext, 'aegis-v3')).digest();
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(authTag);
     return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
@@ -306,7 +318,8 @@ export class AegisCloudAssetShield {
    * Inspects inbound AI requests and outbound AI JSON/SSE streams to prevent the
    * "Landra Prompt & Skill Pipeline Extraction" (`ai-pipeline.md` & `ai-exposure-assessment.md`).
    */
-  inspectAndSanitizeAiPipeline({ requestBody = null, responseObject = null, sseChunk = null } = {}) {
+  inspectAndSanitizeAiPipeline(opts = {}) {
+    const { requestBody = null, responseObject = null, sseChunk = null } = opts && typeof opts === 'object' ? opts : {};
     // 1. Check inbound prompt for the 9-Stage Prompt Injection Ladder (`playbook.md` Stage 9)
     if (requestBody) {
       const bodyStr = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody);
@@ -325,11 +338,15 @@ export class AegisCloudAssetShield {
     let scrubbedFields = 0;
     let sanitizedResponse = responseObject;
     if (responseObject && typeof responseObject === 'object') {
-      const deepClean = (obj) => {
-        if (Array.isArray(obj)) return obj.map(deepClean);
-        if (!obj || typeof obj !== 'object') return obj;
+      const seenObjects = new WeakSet();
+      const deepClean = (obj, depth = 0) => {
+        if (depth > 24 || !obj || typeof obj !== 'object') return obj;
+        if (seenObjects.has(obj)) return '[CIRCULAR_REF_STRIPPED]';
+        seenObjects.add(obj);
+        if (Array.isArray(obj)) return obj.map((item) => deepClean(item, depth + 1));
         const out = {};
         for (const [k, v] of Object.entries(obj)) {
+          if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
           if (AI_PIPELINE_SENSITIVE_KEYS.has(k)) {
             scrubbedFields++;
             continue;
@@ -344,12 +361,12 @@ export class AegisCloudAssetShield {
             scrubbedFields += awsClean.redactions;
             out[k] = awsClean.text;
           } else {
-            out[k] = deepClean(v);
+            out[k] = deepClean(v, depth + 1);
           }
         }
         return out;
       };
-      sanitizedResponse = deepClean(responseObject);
+      sanitizedResponse = deepClean(responseObject, 0);
     }
 
     // 3. Scrub intermediate SSE (`text/event-stream`) tool/debug events targeted by `capture_realtime.py` & `ai-pipeline.md`
@@ -371,16 +388,12 @@ export class AegisCloudAssetShield {
 
   /**
    * Defeats `capcut_draft_decrypt.py` & `capcut_project_to_recipe.py` (`references/capcut-templates.md`).
-   * CapCut was cracked because it interleaved its 32-byte AES-GCM key + 16-byte IV directly inside the
-   * payload at 12 fixed offsets (`0, 7, 20, 33, 40, 47, 59, 66, 76, 89, 99, 127`).
-   * Aegis encrypts project/template recipes using a server-only PBKDF2-HMAC-SHA256 derived key with
-   * ZERO key bytes embedded in the payload!
    */
-  encryptProjectRecipe(recipeJson, sessionContext = 'default') {
-    const raw = Buffer.from(typeof recipeJson === 'string' ? recipeJson : JSON.stringify(recipeJson), 'utf8');
+  encryptProjectRecipe(recipeJson = {}, sessionContext = 'default') {
+    const raw = Buffer.from(typeof recipeJson === 'string' ? recipeJson : JSON.stringify(recipeJson ?? {}), 'utf8');
     const salt = crypto.randomBytes(16);
     const iv = crypto.randomBytes(12);
-    const key = crypto.pbkdf2Sync(this.secret, Buffer.concat([salt, Buffer.from(String(sessionContext))]), 10000, 32, 'sha256');
+    const key = crypto.pbkdf2Sync(this.secret, Buffer.concat([salt, Buffer.from(safeStr(sessionContext, 'default'))]), 10000, 32, 'sha256');
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     const ct = Buffer.concat([cipher.update(raw), cipher.final()]);
     const tag = cipher.getAuthTag();
@@ -388,7 +401,7 @@ export class AegisCloudAssetShield {
   }
 
   decryptProjectRecipe(encryptedRecipeB64, sessionContext = 'default') {
-    const buf = Buffer.from(String(encryptedRecipeB64), 'base64url');
+    const buf = Buffer.from(safeStr(encryptedRecipeB64), 'base64url');
     if (buf.length < 44 || buf.subarray(0, 4).toString('ascii') !== 'AEGR') {
       throw new Error('INVALID_AEGIS_RECIPE_ENVELOPE');
     }
@@ -396,7 +409,7 @@ export class AegisCloudAssetShield {
     const iv = buf.subarray(20, 32);
     const tag = buf.subarray(32, 48);
     const ct = buf.subarray(48);
-    const key = crypto.pbkdf2Sync(this.secret, Buffer.concat([salt, Buffer.from(String(sessionContext))]), 10000, 32, 'sha256');
+    const key = crypto.pbkdf2Sync(this.secret, Buffer.concat([salt, Buffer.from(safeStr(sessionContext, 'default'))]), 10000, 32, 'sha256');
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(tag);
     return JSON.parse(Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8'));
@@ -404,8 +417,6 @@ export class AegisCloudAssetShield {
 
   /**
    * Defeats `references/traps.md` #6 (X/Twitter `x-client-transaction-id` Static Bundle Signing Extraction).
-   * Instead of static key-byte indices in `ondemand.s.<hash>.js`, Aegis issues a single-use dynamic nonce
-   * bound to session + viewport dimensions + HTTP method + path.
    */
   createDynamicTransactionSigner(sessionId = 'anon', viewportW = 1440, viewportH = 900) {
     if (!this.txNonceStore) this.txNonceStore = new Map();
@@ -415,7 +426,7 @@ export class AegisCloudAssetShield {
     }
     const nonce = crypto.randomBytes(16).toString('hex');
     this.txNonceStore.set(nonce, {
-      sessionId,
+      sessionId: safeStr(sessionId, 'anon'),
       viewportW,
       viewportH,
       expiresAt: Date.now() + 60_000,
@@ -427,20 +438,21 @@ export class AegisCloudAssetShield {
   computeExpectedTransactionHeader(nonce, path, method = 'POST', viewportW = 1440, viewportH = 900) {
     return crypto
       .createHmac('sha256', this.secret)
-      .update(`${nonce}:${method.toUpperCase()}:${path}:${viewportW}x${viewportH}`)
+      .update(`${safeStr(nonce)}:${safeStr(method, 'POST').toUpperCase()}:${safeStr(path)}:${safeStr(viewportW, '1440')}x${safeStr(viewportH, '900')}`)
       .digest('base64url');
   }
 
   verifyDynamicTransactionHeader(nonce, signature, path, method = 'POST', viewportW = 1440, viewportH = 900) {
     if (!this.txNonceStore) return { ok: false, reason: 'NO_NONCE_STORE' };
-    const entry = this.txNonceStore.get(nonce);
+    const safeNonce = safeStr(nonce);
+    const entry = this.txNonceStore.get(safeNonce);
     if (!entry || entry.used || Date.now() > entry.expiresAt) {
       return { ok: false, reason: 'TRANSACTION_NONCE_REPLAY_OR_EXPIRED' };
     }
     if (entry.viewportW !== viewportW || entry.viewportH !== viewportH) {
       return { ok: false, reason: 'TRANSACTION_VIEWPORT_ATTESTATION_MISMATCH' };
     }
-    const expected = this.computeExpectedTransactionHeader(nonce, path, method, viewportW, viewportH);
+    const expected = this.computeExpectedTransactionHeader(safeNonce, path, method, viewportW, viewportH);
     if (!constantTimeEqual(signature, expected)) {
       return { ok: false, reason: 'INVALID_TRANSACTION_SIGNATURE' };
     }
@@ -450,20 +462,14 @@ export class AegisCloudAssetShield {
 
   /**
    * Defeats `references/native-tools.md` & `scripts/frida_hooks/` (Frida dynamic instrumentation).
-   * Specifically targets `crypto_tap.js` (hooking CCCrypt, EVP_CipherInit_ex, BCryptEncrypt),
-   * `tls_tap.js` (SSL_write, SSL_read, SSLWrite), and `objc_bridge_tap.js`.
-   *
-   * Scans the process environment, native modules, and runtime function descriptors.
-   * If Frida or dynamic hooks are detected:
-   *   1. Halts execution and wipes cryptographic RAM buffers with zeros.
-   *   2. Yields an unhookable, isolated inline cipher pipeline with decoy outputs.
    */
-  detectAndNeutralizeFridaHooks({
-    loadedModules = [],
-    envVariables = {},
-    functionPointers = {},
-    activePorts = [],
-  } = {}) {
+  detectAndNeutralizeFridaHooks(opts = {}) {
+    const {
+      loadedModules = [],
+      envVariables = {},
+      functionPointers = {},
+      activePorts = [],
+    } = opts && typeof opts === 'object' ? opts : {};
     const fridaSignatures = [
       'frida-agent',
       'frida-gadget',
@@ -476,26 +482,31 @@ export class AegisCloudAssetShield {
 
     let fridaDetected = false;
     let detectedVector = null;
+    const safeModules = Array.isArray(loadedModules) ? loadedModules : [];
+    const safePorts = Array.isArray(activePorts) ? activePorts : [];
+    const safeEnv = envVariables && typeof envVariables === 'object' ? envVariables : {};
+    const safePtrs = functionPointers && typeof functionPointers === 'object' ? functionPointers : {};
 
     // 1. Check loaded modules for frida libraries
-    for (const mod of loadedModules) {
-      const lower = String(mod).toLowerCase();
+    for (const mod of safeModules) {
+      const modStr = safeStr(mod);
+      const lower = modStr.toLowerCase();
       if (fridaSignatures.some((sig) => lower.includes(sig))) {
         fridaDetected = true;
-        detectedVector = `MODULE_INTERCEPTION:${mod}`;
+        detectedVector = `MODULE_INTERCEPTION:${modStr}`;
         break;
       }
     }
 
     // 2. Check Frida default communication port (27042)
-    if (!fridaDetected && activePorts.includes(27042)) {
+    if (!fridaDetected && safePorts.includes(27042)) {
       fridaDetected = true;
       detectedVector = 'FRIDA_DEFAULT_COMMUNICATION_PORT_27042_OPEN';
     }
 
     // 3. Check for hooked native function pointers (e.g. CCCrypt, SSL_write trampoline jumps)
-    if (!fridaDetected && functionPointers) {
-      for (const [fnName, ptrInfo] of Object.entries(functionPointers)) {
+    if (!fridaDetected) {
+      for (const [fnName, ptrInfo] of Object.entries(safePtrs)) {
         if (ptrInfo && (ptrInfo.isTrampoline || ptrInfo.hasHookJump || ptrInfo.interceptorAttached)) {
           fridaDetected = true;
           detectedVector = `FUNCTION_TRAMPOLINE_HOOK:${fnName}`;
@@ -506,7 +517,7 @@ export class AegisCloudAssetShield {
 
     // 4. Check environment variables
     if (!fridaDetected) {
-      if (envVariables['FRIDA'] || envVariables['LIBFRIDA'] || envVariables['DYLD_INSERT_LIBRARIES']?.includes('frida')) {
+      if (safeEnv['FRIDA'] || safeEnv['LIBFRIDA'] || safeStr(safeEnv['DYLD_INSERT_LIBRARIES']).includes('frida')) {
         fridaDetected = true;
         detectedVector = 'ENVIRONMENT_INJECTION_FRIDA';
       }
@@ -518,7 +529,6 @@ export class AegisCloudAssetShield {
         fridaDetected: true,
         detectedVector,
         action: 'ZERO_WIPE_AND_EMIT_DECOY',
-        // Decoy unhooked cipher that returns empty garbage to Frida without leaking real keys
         safeExecute: () => ({ status: 'POISONED_DECOY_EMITTED', bytes: 0 }),
       };
     }
@@ -533,18 +543,18 @@ export class AegisCloudAssetShield {
 
   /**
    * Defeats `references/rea.md` line 39 (Electron `.asar` unpacking, preload tampering, and IPC hijacking).
-   * Validates ASAR cryptographic HMAC and strictly filters `ipcRenderer.send` / `ipcMain.handle` messages.
    */
-  secureElectronRuntime({
-    asarBuffer = null,
-    expectedAsarHmac = null,
-    ipcChannel = '',
-    ipcPayload = null,
-    ipcNonce = '',
-    allowedChannels = ['aegis-app-sync', 'aegis-render-ping'],
-  } = {}) {
+  secureElectronRuntime(opts = {}) {
+    const {
+      asarBuffer = null,
+      expectedAsarHmac = null,
+      ipcChannel = '',
+      ipcPayload = null,
+      ipcNonce = '',
+      allowedChannels = ['aegis-app-sync', 'aegis-render-ping'],
+    } = opts && typeof opts === 'object' ? opts : {};
     // 1. Verify ASAR integrity (defeats `asar extract` modification of main.js / preload.js)
-    if (asarBuffer && expectedAsarHmac) {
+    if (asarBuffer && expectedAsarHmac && (Buffer.isBuffer(asarBuffer) || typeof asarBuffer === 'string')) {
       const actualHmac = crypto.createHmac('sha256', this.secret).update(asarBuffer).digest('hex');
       if (!constantTimeEqual(actualHmac, expectedAsarHmac)) {
         return {
@@ -555,11 +565,13 @@ export class AegisCloudAssetShield {
     }
 
     // 2. Validate IPC channel against strict whitelist
-    if (ipcChannel) {
-      if (!allowedChannels.includes(ipcChannel)) {
+    const safeChannels = Array.isArray(allowedChannels) ? allowedChannels : ['aegis-app-sync', 'aegis-render-ping'];
+    const safeChannel = safeStr(ipcChannel);
+    if (safeChannel) {
+      if (!safeChannels.includes(safeChannel)) {
         return {
           allowed: false,
-          reason: `UNAUTHORIZED_ELECTRON_IPC_CHANNEL:${ipcChannel}`,
+          reason: `UNAUTHORIZED_ELECTRON_IPC_CHANNEL:${safeChannel}`,
         };
       }
 
@@ -582,27 +594,21 @@ export class AegisCloudAssetShield {
 
   /**
    * Defeats the "LANDR Audio DSP Pipeline Extraction" vector.
-   * LANDR and modern audio web apps compile DSP mastering algorithms (EQ curves, multi-band compressors,
-   * impulse response convolution files `.wav`) into AudioWorklet processors and Float32Array PCM buffers.
-   *
-   * Attackers hook `AudioContext.prototype.createScriptProcessor` or tap `AudioNode.connect` to dump
-   * the proprietary mastering filter curves and impulse responses.
-   *
-   * Aegis encrypts mastering impulse responses and dynamic filter coefficients with session-bound AES-GCM
-   * and wraps them in a self-wiping closure that decodes directly in AudioWorklet RAM.
    */
-  encryptWebAudioDspPipeline({
-    impulseResponseBuffers = [],
-    masteringCurves = {},
-    workletProcessorSource = '',
-  } = {}, sessionContext = 'mastering-v1') {
+  encryptWebAudioDspPipeline(opts = {}, sessionContext = 'mastering-v1') {
+    const {
+      impulseResponseBuffers = [],
+      masteringCurves = {},
+      workletProcessorSource = '',
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeIr = Array.isArray(impulseResponseBuffers) ? impulseResponseBuffers : [];
     const dspPayload = {
-      ir: impulseResponseBuffers.map((b) => (Buffer.isBuffer(b) ? b.toString('base64') : String(b))),
-      curves: masteringCurves,
-      code: workletProcessorSource,
+      ir: safeIr.map((b) => (Buffer.isBuffer(b) ? b.toString('base64') : safeStr(b))),
+      curves: masteringCurves || {},
+      code: safeStr(workletProcessorSource),
     };
 
-    const key = crypto.createHmac('sha256', this.secret).update(`dsp:${sessionContext}`).digest();
+    const key = crypto.createHmac('sha256', this.secret).update(`dsp:${safeStr(sessionContext, 'mastering-v1')}`).digest();
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
     const raw = Buffer.from(JSON.stringify(dspPayload), 'utf8');
@@ -617,42 +623,43 @@ export class AegisCloudAssetShield {
 
     return {
       sealedEnvelope,
-      // AudioWorklet loader stub that instantiates the DSP pipeline inside isolated worklet scope
       workletLoader: `(function(){/* AEGIS SEALED DSP PIPELINE — ZERO EXPOSED AUDIO NODES */})();`,
     };
   }
 
   decryptWebAudioDspPipeline(sealedEnvelope, sessionContext = 'mastering-v1') {
-    if (!String(sealedEnvelope).startsWith('AEDSP_')) {
+    const envStr = safeStr(sealedEnvelope);
+    if (!envStr.startsWith('AEDSP_')) {
       throw new Error('INVALID_AEGIS_DSP_ENVELOPE');
     }
-    const buf = Buffer.from(String(sealedEnvelope).slice(6), 'base64url');
+    const buf = Buffer.from(envStr.slice(6), 'base64url');
     if (buf.length < 28) {
       throw new Error('INVALID_AEGIS_DSP_PAYLOAD_LENGTH');
     }
     const iv = buf.subarray(0, 12);
     const tag = buf.subarray(12, 28);
     const ct = buf.subarray(28);
-    const key = crypto.createHmac('sha256', this.secret).update(`dsp:${sessionContext}`).digest();
+    const key = crypto.createHmac('sha256', this.secret).update(`dsp:${safeStr(sessionContext, 'mastering-v1')}`).digest();
     const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
     decipher.setAuthTag(tag);
     return JSON.parse(Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8'));
   }
 
   /**
-   * Defeats advanced AWS S3 exploitation:
-   *   - Pre-signed PUT parameter tampering (e.g. adding `x-amz-acl: public-read` to make uploaded assets public)
-   *   - S3 multipart upload hijacking and master asset overwrite attacks
+   * Defeats advanced AWS S3 exploitation
    */
-  validateAndEnforceS3UploadPolicy({
-    targetBucket = '',
-    targetKey = '',
-    headers = {},
-    expectedContentSha256 = null,
-    actualContentSha256 = null,
-  } = {}) {
+  validateAndEnforceS3UploadPolicy(opts = {}) {
+    const {
+      targetBucket = '',
+      targetKey = '',
+      headers = {},
+      expectedContentSha256 = null,
+      actualContentSha256 = null,
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeHeaders = headers && typeof headers === 'object' ? headers : {};
+    const safeKey = safeStr(targetKey);
     // 1. Prevent ACL tampering (attackers trying to make private assets publicly readable)
-    const acl = headers['x-amz-acl'] || headers['X-Amz-Acl'] || '';
+    const acl = safeStr(safeHeaders['x-amz-acl'] || safeHeaders['X-Amz-Acl']);
     if (acl && acl.toLowerCase() !== 'private') {
       return {
         allowed: false,
@@ -662,9 +669,9 @@ export class AegisCloudAssetShield {
 
     // 2. Prevent overwriting protected master assets (e.g. production WASM binaries or models)
     const PROTECTED_PREFIXES = ['masters/', 'production/dsp/', 'models/weights/', 'releases/'];
-    if (PROTECTED_PREFIXES.some((p) => targetKey.startsWith(p))) {
-      const overrideKey = headers['x-aegis-master-override'] || '';
-      const expectedOverride = crypto.createHmac('sha256', this.secret).update(`override:${targetKey}`).digest('hex');
+    if (PROTECTED_PREFIXES.some((p) => safeKey.startsWith(p))) {
+      const overrideKey = safeStr(safeHeaders['x-aegis-master-override']);
+      const expectedOverride = crypto.createHmac('sha256', this.secret).update(`override:${safeKey}`).digest('hex');
       if (!constantTimeEqual(overrideKey, expectedOverride)) {
         return {
           allowed: false,
@@ -688,31 +695,29 @@ export class AegisCloudAssetShield {
   }
 
   /**
-   * Vector 51: Defeats `scripts/frida_hooks/objc_ui_inspector.js` & `objc_bridge_tap.js` (`references/native-tools.md`).
-   *   - `objc_ui_inspector.js` enumerates non-system `ObjC.classes`, reconstructs `@interface` headers
-   *     (`$ivars`, `$ownMethods`), resolves ASLR slides (`Process.enumerateModules()[0].base`), and walks
-   *     `NSApplication.sharedApplication().windows()` view hierarchies.
-   *   - `objc_bridge_tap.js` swizzles/hooks `NSMutableURLRequest[- setValue:forHTTPHeaderField:]` and
-   *     `NSURLSession[- dataTaskWithRequest:completionHandler:]`.
+   * Vector 51: Defeats `scripts/frida_hooks/objc_ui_inspector.js` & `objc_bridge_tap.js`
    */
-  protectObjectiveCAndSwiftRuntime({
-    swizzledSelectors = [],
-    enumeratedClasses = [],
-    inspectViewHierarchy = false,
-  } = {}) {
+  protectObjectiveCAndSwiftRuntime(opts = {}) {
+    const {
+      swizzledSelectors = [],
+      enumeratedClasses = [],
+      inspectViewHierarchy = false,
+    } = opts && typeof opts === 'object' ? opts : {};
     const CRITICAL_OBJC_SELECTORS = [
       'NSMutableURLRequest.setValue:forHTTPHeaderField:',
       'NSURLSession.dataTaskWithRequest:completionHandler:',
       'NSApplication.sharedApplication',
       'UIApplication.sharedApplication',
     ];
+    const safeSwizzled = Array.isArray(swizzledSelectors) ? swizzledSelectors : [];
+    const safeClasses = Array.isArray(enumeratedClasses) ? enumeratedClasses : [];
 
-    const swizzleHit = swizzledSelectors.find((s) => CRITICAL_OBJC_SELECTORS.includes(s));
+    const swizzleHit = safeSwizzled.find((s) => CRITICAL_OBJC_SELECTORS.includes(s));
     if (swizzleHit) {
       return {
         secure: false,
         objcHookDetected: true,
-        reason: `OBJC_METHOD_SWIZZLING_OR_IMP_HOOK_DETECTED:${swizzleHit}`,
+        reason: `OBJC_METHOD_SWIZZLING_OR_IMP_HOOK_DETECTED:${safeStr(swizzleHit)}`,
         reconstructedHeaders: {},
         viewHierarchy: [],
         aslrSlideMasked: true,
@@ -720,7 +725,7 @@ export class AegisCloudAssetShield {
     }
 
     // Obfuscate non-system ObjC class metadata & block NSWindow/UIWindow view hierarchy dumping
-    const cloakedClasses = enumeratedClasses.map((_, idx) => `_AegisOpaqueSymbol_${idx}`);
+    const cloakedClasses = safeClasses.map((_, idx) => `_AegisOpaqueSymbol_${idx}`);
     return {
       secure: true,
       objcHookDetected: false,
@@ -733,35 +738,36 @@ export class AegisCloudAssetShield {
   }
 
   /**
-   * Vector 52: Defeats `references/rea.md` lines 38, 40 & 67–68:
-   *   - Android `.apk` JADX headless (`inspect-android-package`, `search_android_classes` for `okhttp3`
-   *     and `retrofit2` request builders, `inspect_android_method`).
-   *   - .NET Managed `.exe`/`.dll` (`inspect-managed-artifact`, `inspect-managed-members`,
-   *     `inspect-managed-native-boundaries` P/Invoke tables).
+   * Vector 52: Defeats Android `.apk` JADX headless & .NET Managed `.exe`/`.dll`
    */
-  sealMobileAndManagedMetadata({
-    dexStrings = [],
-    retrofitInterfaces = [],
-    dotnetUserStrings = [],
-    pinvokeImports = [],
-  } = {}, sessionContext = 'mobile-v4') {
-    const key = crypto.createHmac('sha256', this.secret).update(`mobile:${sessionContext}`).digest();
+  sealMobileAndManagedMetadata(opts = {}, sessionContext = 'mobile-v4') {
+    const {
+      dexStrings = [],
+      retrofitInterfaces = [],
+      dotnetUserStrings = [],
+      pinvokeImports = [],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const key = crypto.createHmac('sha256', this.secret).update(`mobile:${safeStr(sessionContext, 'mobile-v4')}`).digest();
     const encryptItem = (str) => {
       const iv = crypto.randomBytes(12);
       const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-      const ct = Buffer.concat([cipher.update(Buffer.from(String(str), 'utf8')), cipher.final()]);
+      const ct = Buffer.concat([cipher.update(Buffer.from(safeStr(str), 'utf8')), cipher.final()]);
       return 'AEMOB_' + Buffer.concat([iv, cipher.getAuthTag(), ct]).toString('base64url');
     };
+    const safeDex = Array.isArray(dexStrings) ? dexStrings : [];
+    const safeRetrofit = Array.isArray(retrofitInterfaces) ? retrofitInterfaces : [];
+    const safeDotnet = Array.isArray(dotnetUserStrings) ? dotnetUserStrings : [];
+    const safePinvoke = Array.isArray(pinvokeImports) ? pinvokeImports : [];
 
     return {
-      sealedDexStringPool: dexStrings.map(encryptItem),
-      sealedRetrofitDispatchTable: retrofitInterfaces.map((iface, i) => ({
+      sealedDexStringPool: safeDex.map(encryptItem),
+      sealedRetrofitDispatchTable: safeRetrofit.map((iface, i) => ({
         dispatchId: `0x${(0xae00 + i).toString(16)}`,
         sealedContract: encryptItem(JSON.stringify(iface)),
       })),
-      sealedDotnetUserStrings: dotnetUserStrings.map(encryptItem),
-      sealedPInvokeTable: pinvokeImports.map((imp) => ({
-        ordinalHash: crypto.createHmac('sha256', key).update(String(imp)).digest('hex').slice(0, 12),
+      sealedDotnetUserStrings: safeDotnet.map(encryptItem),
+      sealedPInvokeTable: safePinvoke.map((imp) => ({
+        ordinalHash: crypto.createHmac('sha256', key).update(safeStr(imp)).digest('hex').slice(0, 12),
         sealedTarget: encryptItem(imp),
       })),
       jadxVisibleEndpoints: 0,
@@ -770,8 +776,7 @@ export class AegisCloudAssetShield {
   }
 
   /**
-   * Vector 53: Multi-Cloud BaaS (Supabase / Firebase), Sourcemap (`rea_web.py --fetch-source-maps`),
-   * Exposed `.git`/Docker Registry, and gRPC-Web Protobuf Wire Frame Vault.
+   * Vector 53: Multi-Cloud BaaS (Supabase / Firebase), Sourcemap, Exposed `.git`/Docker Registry, and gRPC-Web Protobuf Wire Frame Vault.
    */
   scrubMultiCloudBaasAndSourcemapSurface(inputText, sessionId = 'global') {
     if (typeof inputText !== 'string' || !inputText) {
@@ -817,14 +822,14 @@ export class AegisCloudAssetShield {
   }
 
   /**
-   * Vector 54: Defeats `references/traps.md` #3 & `references/lanes.md` line 233 (`npx hyperframes capture`
-   * and `getdesign-private` WebGL GLSL Shader & Lottie Animation Manifest Extractors).
+   * Vector 54: Defeats WebGL GLSL Shader & Lottie Animation Manifest Extractors
    */
-  sealWebGlShadersAndLottieManifests({
-    glslShaders = [],
-    lottieManifests = [],
-    callerIsExternalHook = false,
-  } = {}, sessionContext = 'webgl-v4') {
+  sealWebGlShadersAndLottieManifests(opts = {}, sessionContext = 'webgl-v4') {
+    const {
+      glslShaders = [],
+      lottieManifests = [],
+      callerIsExternalHook = false,
+    } = opts && typeof opts === 'object' ? opts : {};
     if (callerIsExternalHook) {
       return {
         blocked: true,
@@ -834,61 +839,64 @@ export class AegisCloudAssetShield {
       };
     }
 
-    const key = crypto.createHmac('sha256', this.secret).update(`shader:${sessionContext}`).digest();
+    const key = crypto.createHmac('sha256', this.secret).update(`shader:${safeStr(sessionContext, 'webgl-v4')}`).digest();
     const seal = (payload) => {
       const iv = crypto.randomBytes(12);
       const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-      const ct = Buffer.concat([cipher.update(Buffer.from(String(payload), 'utf8')), cipher.final()]);
+      const ct = Buffer.concat([cipher.update(Buffer.from(safeStr(payload), 'utf8')), cipher.final()]);
       return 'AEGLSL_' + Buffer.concat([iv, cipher.getAuthTag(), ct]).toString('base64url');
     };
+    const safeShaders = Array.isArray(glslShaders) ? glslShaders : [];
+    const safeLottie = Array.isArray(lottieManifests) ? lottieManifests : [];
 
     return {
       blocked: false,
-      sealedShaders: glslShaders.map(seal),
-      sealedLottieManifests: lottieManifests.map((m) => seal(typeof m === 'string' ? m : JSON.stringify(m))),
+      sealedShaders: safeShaders.map(seal),
+      sealedLottieManifests: safeLottie.map((m) => seal(typeof m === 'string' ? m : JSON.stringify(m))),
       decoyGetShaderSourceStub: 'void main() { gl_Position = vec4(0.0); }',
     };
   }
 
   /**
-   * Vector 55: Defeats the 3 Advanced Landra AI Extraction Techniques (`references/lanes.md` lines 251–265):
-   *   1. Transitive Lieutenant Endpoint Leaks (`/api/editor`, `/api/section-writer`, `/api/planner`
-   *      sharing the master doctrine library without the master orchestrator's gate).
-   *   2. Entitlement Counter Desync (counting `page_save` instead of `generation`, allowing free replay).
-   *   3. Structured-Output `500` Schema-Break Near-Miss Signal (returning a `500` when the model
-   *      complies with a prompt leak and breaks the JSON output schema, which attackers use as an oracle!).
+   * Vector 55: Defeats the 3 Advanced Landra AI Extraction Techniques (`references/lanes.md` lines 251–265)
    */
-  enforceLandraZeroOracleAndLieutenantGuard({
-    endpoint = '/api/editor',
-    actionType = 'generation',
-    userId = 'anon',
-    creditsAvailable = 0,
-    creditCost = 10,
-    promptText = '',
-    rawModelOutput = null,
-    requiredSchemaKeys = ['headline', 'sections'],
-    doctrineCanaryTokens = ['DOCTRINE_MASTER_RUBRIC_V4', 'SYSTEM_PROMPT_CONFIDENTIAL'],
-  } = {}) {
+  enforceLandraZeroOracleAndLieutenantGuard(opts = {}) {
+    const {
+      endpoint = '/api/editor',
+      actionType = 'generation',
+      userId = 'anon',
+      creditsAvailable = 0,
+      creditCost = 10,
+      promptText = '',
+      rawModelOutput = null,
+      requiredSchemaKeys = ['headline', 'sections'],
+      doctrineCanaryTokens = ['DOCTRINE_MASTER_RUBRIC_V4', 'SYSTEM_PROMPT_CONFIDENTIAL'],
+    } = opts && typeof opts === 'object' ? opts : {};
+    const availNum = safeNum(creditsAvailable);
+    const costNum = safeNum(creditCost);
+    const epStr = safeStr(endpoint, '/api/editor');
+    const safeSchemaKeys = Array.isArray(requiredSchemaKeys) ? requiredSchemaKeys : ['headline', 'sections'];
+    const safeCanaries = Array.isArray(doctrineCanaryTokens) ? doctrineCanaryTokens : [];
     // 1. Atomic Pre-Generation Credit Deduction (never wait for `page_save`!)
-    if (actionType === 'generation' || endpoint.includes('editor') || endpoint.includes('section-writer') || endpoint.includes('planner')) {
-      if (creditsAvailable < creditCost) {
+    if (actionType === 'generation' || epStr.includes('editor') || epStr.includes('section-writer') || epStr.includes('planner')) {
+      if (!Number.isFinite(availNum) || !Number.isFinite(costNum) || costNum < 0 || availNum < costNum) {
         return {
           allowed: false,
           httpStatus: 402,
           reason: 'PRE_GENERATION_ATOMIC_ENTITLEMENT_LOCK_INSUFFICIENT_CREDITS',
-          remainingCredits: creditsAvailable,
+          remainingCredits: Number.isFinite(availNum) ? availNum : 0,
         };
       }
     }
 
     // 2. Uniform Prompt Firewall across ALL Lieutenant Sub-Endpoints (`/api/editor`, `/api/section-writer`, `/api/planner`)
-    if (PROMPT_INJECTION_LADDER_RE.test(String(promptText))) {
+    if (PROMPT_INJECTION_LADDER_RE.test(safeStr(promptText))) {
       return {
         allowed: false,
         httpStatus: 200, // Never emit 500 near-miss oracle!
         reason: 'LIEUTENANT_ENDPOINT_TRANSITIVE_PROMPT_EXTRACTION_BLOCKED',
-        safeOutput: Object.fromEntries(requiredSchemaKeys.map((k) => [k, k === 'sections' ? [] : 'Content filtered by Aegis AI Guard.'])),
-        remainingCredits: Math.max(0, creditsAvailable - creditCost),
+        safeOutput: Object.fromEntries(safeSchemaKeys.map((k) => [safeStr(k), k === 'sections' ? [] : 'Content filtered by Aegis AI Guard.'])),
+        remainingCredits: Math.max(0, (Number.isFinite(availNum) ? availNum : 0) - (Number.isFinite(costNum) ? costNum : 0)),
       };
     }
 
@@ -900,11 +908,11 @@ export class AegisCloudAssetShield {
         parsed = JSON.parse(rawModelOutput);
       }
       const rawStr = JSON.stringify(parsed || {});
-      if (doctrineCanaryTokens.some((tok) => rawStr.includes(tok))) {
+      if (safeCanaries.some((tok) => rawStr.includes(safeStr(tok)))) {
         schemaBrokenOrLeaked = true;
       }
-      for (const reqKey of requiredSchemaKeys) {
-        if (!parsed || typeof parsed !== 'object' || !(reqKey in parsed)) {
+      for (const reqKey of safeSchemaKeys) {
+        if (!parsed || typeof parsed !== 'object' || !(safeStr(reqKey) in parsed)) {
           schemaBrokenOrLeaked = true;
         }
       }
@@ -913,15 +921,13 @@ export class AegisCloudAssetShield {
     }
 
     if (schemaBrokenOrLeaked) {
-      // Instead of returning HTTP 500 (which tells the attacker the model complied with the leak!),
-      // return HTTP 200 with a valid schema-compliant fallback envelope!
       return {
         allowed: true,
         httpStatus: 200,
         schemaOracleSuppressed: true,
         reason: 'ZERO_ORACLE_STRUCTURED_FALLBACK_EMITTED',
-        safeOutput: Object.fromEntries(requiredSchemaKeys.map((k) => [k, k === 'sections' ? [] : 'Generated Section'])),
-        remainingCredits: Math.max(0, creditsAvailable - creditCost),
+        safeOutput: Object.fromEntries(safeSchemaKeys.map((k) => [safeStr(k), k === 'sections' ? [] : 'Generated Section'])),
+        remainingCredits: Math.max(0, (Number.isFinite(availNum) ? availNum : 0) - (Number.isFinite(costNum) ? costNum : 0)),
       };
     }
 
@@ -930,49 +936,54 @@ export class AegisCloudAssetShield {
       httpStatus: 200,
       schemaOracleSuppressed: false,
       safeOutput: parsed,
-      remainingCredits: Math.max(0, creditsAvailable - creditCost),
+      remainingCredits: Math.max(0, (Number.isFinite(availNum) ? availNum : 0) - (Number.isFinite(costNum) ? costNum : 0)),
     };
   }
 
   /**
    * Vector 62: Universal Realtime Transport Shield (WebSockets `wss://` & WebRTC `RTCDataChannel`)
-   * Encrypts realtime frames with AES-256-GCM + strictly increasing sequence numbers (`seq`) so
-   * DevTools Network -> WS inspector sees only `AEWS_` ciphertext and frame replay is blocked.
    */
-  protectRealtimeAndRpcTransports({
-    sessionId = 'ws-sess-01',
-    direction = 'seal',
-    payload = '',
-    seq = 1,
-    lastSeenSeq = 0,
-  } = {}) {
-    const key = crypto.createHmac('sha256', this.secret).update(`realtime-ws:${sessionId}`).digest();
+  protectRealtimeAndRpcTransports(opts = {}) {
+    const {
+      sessionId = 'ws-sess-01',
+      direction = 'seal',
+      payload = '',
+      seq = 1,
+      lastSeenSeq = 0,
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeSession = safeStr(sessionId, 'ws-sess-01');
+    const safeSeq = Number.isSafeInteger(safeNum(seq)) ? safeNum(seq) : 1;
+    const key = crypto.createHmac('sha256', this.secret).update(`realtime-ws:${safeSession}`).digest();
     if (direction === 'seal') {
       const iv = crypto.randomBytes(12);
       const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-      const aad = Buffer.from(`seq:${seq}`, 'utf8');
+      const aad = Buffer.from(`seq:${safeSeq}`, 'utf8');
       cipher.setAAD(aad);
-      const plainBuf = Buffer.from(typeof payload === 'string' ? payload : JSON.stringify(payload), 'utf8');
+      const plainBuf = Buffer.from(typeof payload === 'string' ? payload : JSON.stringify(payload ?? ''), 'utf8');
       const ct = Buffer.concat([cipher.update(plainBuf), cipher.final()]);
       const tag = cipher.getAuthTag();
       return {
-        sealedFrame: `AEWS_${seq}_` + Buffer.concat([iv, tag, ct]).toString('base64url'),
-        seq,
+        sealedFrame: `AEWS_${safeSeq}_` + Buffer.concat([iv, tag, ct]).toString('base64url'),
+        seq: safeSeq,
       };
     }
 
     // Verify & unseal incoming frame
-    const raw = String(payload || '');
+    const raw = safeStr(payload);
     const m = raw.match(/^AEWS_(\d+)_([A-Za-z0-9_-]+)$/);
     if (!m) {
       return { allowed: false, reason: 'UNSEALED_WEBSOCKET_OR_WEBRTC_FRAME_BLOCKED' };
     }
     const frameSeq = Number(m[1]);
-    if (frameSeq <= lastSeenSeq) {
+    const lastSeqNum = safeNum(lastSeenSeq);
+    if (!Number.isSafeInteger(frameSeq) || !Number.isSafeInteger(lastSeqNum) || frameSeq <= lastSeqNum) {
       return { allowed: false, reason: `WEBSOCKET_FRAME_REPLAY_OR_OUT_OF_ORDER_BLOCKED:seq=${frameSeq}` };
     }
     try {
       const buf = Buffer.from(m[2], 'base64url');
+      if (buf.length < 28) {
+        return { allowed: false, reason: 'WEBSOCKET_FRAME_GCM_TAG_TAMPERED' };
+      }
       const iv = buf.subarray(0, 12);
       const tag = buf.subarray(12, 28);
       const ct = buf.subarray(28);
@@ -989,23 +1000,26 @@ export class AegisCloudAssetShield {
   /**
    * Vector 63: Universal RPC & API Schema Shield (tRPC Batch Enumeration, gRPC-Web Reflection & GraphQL Alias/Depth Bombing)
    */
-  enforceUniversalRpcAndGraphqlShield({
-    pathname = '',
-    query = '',
-    body = '',
-    maxBatchSize = 3,
-    maxGraphqlAliases = 4,
-    maxGraphqlDepth = 6,
-  } = {}) {
-    const pathStr = String(pathname || '');
-    const qStr = String(query || '');
+  enforceUniversalRpcAndGraphqlShield(opts = {}) {
+    const {
+      pathname = '',
+      query = '',
+      body = '',
+      maxBatchSize = 3,
+      maxGraphqlAliases = 4,
+      maxGraphqlDepth = 6,
+    } = opts && typeof opts === 'object' ? opts : {};
+    const pathStr = safeStr(pathname);
     const bStr = typeof body === 'string' ? body : JSON.stringify(body || {});
+    const safeMaxBatch = Number.isFinite(safeNum(maxBatchSize)) ? safeNum(maxBatchSize) : 3;
+    const safeMaxAliases = Number.isFinite(safeNum(maxGraphqlAliases)) ? safeNum(maxGraphqlAliases) : 4;
+    const safeMaxDepth = Number.isFinite(safeNum(maxGraphqlDepth)) ? safeNum(maxGraphqlDepth) : 6;
 
     // 1. Block tRPC Batch Enumeration (`/api/trpc/proc1,proc2,proc3,proc4?batch=1`)
     if (pathStr.includes('/trpc/')) {
       const procPart = pathStr.split('/trpc/')[1] || '';
       const procs = procPart.split(',').filter(Boolean);
-      if (procs.length > maxBatchSize || procs.some((p) => /admin|internal|debug|exportAll|listUsers/i.test(p))) {
+      if (procs.length > safeMaxBatch || procs.some((p) => /admin|internal|debug|exportAll|listUsers/i.test(p))) {
         return {
           allowed: false,
           status: 403,
@@ -1025,7 +1039,7 @@ export class AegisCloudAssetShield {
 
     // 3. Block GraphQL Alias Amplification (`a1: user ... a2: user ...`) & Circular Depth Bombing
     const aliasMatches = bStr.match(/\b[a-zA-Z0-9_]+\s*:\s*[a-zA-Z0-9_]+\s*[\({]/g) || [];
-    if (aliasMatches.length > maxGraphqlAliases) {
+    if (aliasMatches.length > safeMaxAliases) {
       return {
         allowed: false,
         status: 429,
@@ -1043,7 +1057,7 @@ export class AegisCloudAssetShield {
         depth = Math.max(0, depth - 1);
       }
     }
-    if (maxSeenDepth > maxGraphqlDepth) {
+    if (maxSeenDepth > safeMaxDepth) {
       return {
         allowed: false,
         status: 400,
@@ -1057,15 +1071,34 @@ export class AegisCloudAssetShield {
   /**
    * Vector 64: Universal Client Persistence & Offline DB Vault (`IndexedDB`, `OPFS`, `CacheStorage` & `ServiceWorker` Guard)
    */
-  sealClientPersistenceAndWorkers({
-    sessionId = 'idb-sess-01',
-    idbRecords = [],
-    serviceWorkerScriptUrl = '',
-    allowedWorkerOrigins = ['https://acme-nexus.io'],
-  } = {}) {
+  sealClientPersistenceAndWorkers(opts = {}) {
+    const {
+      sessionId = 'idb-sess-01',
+      idbRecords = [],
+      serviceWorkerScriptUrl = '',
+      allowedWorkerOrigins = ['https://acme-nexus.io'],
+    } = opts && typeof opts === 'object' ? opts : {};
     if (serviceWorkerScriptUrl) {
-      const isAllowed = allowedWorkerOrigins.some((orig) => serviceWorkerScriptUrl.startsWith(orig) || serviceWorkerScriptUrl.startsWith('/'));
-      if (!isAllowed || /evil|mitm|hook|intercept/i.test(serviceWorkerScriptUrl)) {
+      const swStr = safeStr(serviceWorkerScriptUrl).trim();
+      const safeOrigins = new Set(
+        (Array.isArray(allowedWorkerOrigins) ? allowedWorkerOrigins : [])
+          .map((o) => {
+            try { return new URL(safeStr(o)).origin; } catch { return ''; }
+          })
+          .filter(Boolean)
+      );
+      let isAllowed = false;
+      if (/^\/(?!\/|\\)/.test(swStr)) {
+        isAllowed = true;
+      } else {
+        try {
+          const parsedSw = new URL(swStr);
+          isAllowed = (parsedSw.protocol === 'https:' || parsedSw.protocol === 'http:') && safeOrigins.has(parsedSw.origin);
+        } catch {
+          isAllowed = false;
+        }
+      }
+      if (!isAllowed || /evil|mitm|hook|intercept/i.test(swStr)) {
         return {
           allowed: false,
           reason: 'ROGUE_SERVICE_WORKER_PERSISTENCE_MITM_BLOCKED',
@@ -1074,11 +1107,12 @@ export class AegisCloudAssetShield {
       }
     }
 
-    const key = crypto.createHmac('sha256', this.secret).update(`idb-opfs:${sessionId}`).digest();
-    const sealedRecords = idbRecords.map((rec) => {
+    const key = crypto.createHmac('sha256', this.secret).update(`idb-opfs:${safeStr(sessionId, 'idb-sess-01')}`).digest();
+    const safeRecords = Array.isArray(idbRecords) ? idbRecords : [];
+    const sealedRecords = safeRecords.map((rec) => {
       const iv = crypto.randomBytes(12);
       const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-      const raw = Buffer.from(typeof rec === 'string' ? rec : JSON.stringify(rec), 'utf8');
+      const raw = Buffer.from(typeof rec === 'string' ? rec : JSON.stringify(rec ?? ''), 'utf8');
       const ct = Buffer.concat([cipher.update(raw), cipher.final()]);
       return 'AEIDB_' + Buffer.concat([iv, cipher.getAuthTag(), ct]).toString('base64url');
     });
@@ -1092,20 +1126,25 @@ export class AegisCloudAssetShield {
 
   /**
    * Vector 65: Universal Multi-Tenant BOLA / IDOR Cryptographic Object-ID Sealing (`OWASP API1:2023`)
-   * Binds resource/object IDs (`orgId`, `invoiceId`, `accountId`) to the authenticated `sessionId` and `tenantId`.
    */
-  sealObjectIdForTenant(objectId, { sessionId = 'sess-01', tenantId = 'tenant-01' } = {}) {
-    const idStr = String(objectId);
+  sealObjectIdForTenant(objectId, opts = {}) {
+    const { sessionId = 'sess-01', tenantId = 'tenant-01' } = opts && typeof opts === 'object' ? opts : {};
+    const idStr = safeStr(objectId);
+    const safeSession = safeStr(sessionId, 'sess-01');
+    const safeTenant = safeStr(tenantId, 'tenant-01');
     const mac = crypto
       .createHmac('sha256', this.secret)
-      .update(`bola:${sessionId}:${tenantId}:${idStr}`)
+      .update(`bola:${safeSession}:${safeTenant}:${idStr}`)
       .digest('hex')
       .slice(0, 16);
     return `AEOBJ_${idStr}_${mac}`;
   }
 
-  verifyObjectIdBola(sealedOrRawId, { sessionId = 'sess-01', tenantId = 'tenant-01' } = {}) {
-    const str = String(sealedOrRawId || '');
+  verifyObjectIdBola(sealedOrRawId, opts = {}) {
+    const { sessionId = 'sess-01', tenantId = 'tenant-01' } = opts && typeof opts === 'object' ? opts : {};
+    const str = safeStr(sealedOrRawId);
+    const safeSession = safeStr(sessionId, 'sess-01');
+    const safeTenant = safeStr(tenantId, 'tenant-01');
     const m = str.match(/^AEOBJ_(.+)_([0-9a-f]{16})$/);
     if (!m) {
       return {
@@ -1118,7 +1157,7 @@ export class AegisCloudAssetShield {
     const providedMac = m[2];
     const expectedMac = crypto
       .createHmac('sha256', this.secret)
-      .update(`bola:${sessionId}:${tenantId}:${rawId}`)
+      .update(`bola:${safeSession}:${safeTenant}:${rawId}`)
       .digest('hex')
       .slice(0, 16);
     if (!constantTimeEqual(providedMac, expectedMac)) {
@@ -1133,26 +1172,26 @@ export class AegisCloudAssetShield {
 
   /**
    * Vector 66: Universal JWT, OAuth2/PKCE & Device-Bound Session Integrity Guard
-   * Blocks `alg: "none"`, `jku`/`x5u` SSRF header injection, PKCE S256 verifier mismatch, and session token replay from foreign devices.
    */
-  verifyUniversalJwtAndOAuthIntegrity({
-    jwtToken = '',
-    expectedFingerprint = '',
-    actualFingerprint = '',
-    oauthCodeVerifier = '',
-    oauthCodeChallenge = '',
-  } = {}) {
+  verifyUniversalJwtAndOAuthIntegrity(opts = {}) {
+    const {
+      jwtToken = '',
+      expectedFingerprint = '',
+      actualFingerprint = '',
+      oauthCodeVerifier = '',
+      oauthCodeChallenge = '',
+    } = opts && typeof opts === 'object' ? opts : {};
     if (jwtToken) {
-      const parts = String(jwtToken).split('.');
+      const parts = safeStr(jwtToken).split('.');
       if (parts.length < 2) {
         return { allowed: false, reason: 'MALFORMED_JWT_BLOCKED' };
       }
       try {
         const headerJson = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
-        if (!headerJson.alg || /^none$/i.test(headerJson.alg)) {
+        if (!headerJson || !headerJson.alg || /^none$/i.test(safeStr(headerJson.alg))) {
           return { allowed: false, reason: 'JWT_ALG_NONE_SIGNATURE_BYPASS_BLOCKED' };
         }
-        if (headerJson.jku || headerJson.x5u || (headerJson.kid && /(?:\.\.|\/|'|;|--|\bunion\b)/i.test(headerJson.kid))) {
+        if (headerJson.jku || headerJson.x5u || (headerJson.kid && /(?:\.\.|\/|'|;|--|\bunion\b)/i.test(safeStr(headerJson.kid)))) {
           return { allowed: false, reason: 'JWT_HEADER_JKU_SSRF_OR_KID_INJECTION_BLOCKED' };
         }
       } catch {
@@ -1170,7 +1209,7 @@ export class AegisCloudAssetShield {
     if (oauthCodeChallenge) {
       const computedChallenge = crypto
         .createHash('sha256')
-        .update(String(oauthCodeVerifier || ''))
+        .update(safeStr(oauthCodeVerifier))
         .digest('base64url');
       if (!constantTimeEqual(computedChallenge, oauthCodeChallenge)) {
         return {
@@ -1185,13 +1224,13 @@ export class AegisCloudAssetShield {
 
   /**
    * Vector 67: Universal FinTech / SaaS Atomic Race-Condition & Double-Spend (`TOCTOU`) Mutex
-   * Defeats parallel `Promise.all` burst attacks (e.g., 25 simultaneous withdrawal/coupon/credit requests).
    */
-  acquireAtomicIdempotencyLock({
-    actorId = 'user-01',
-    operation = 'withdraw',
-    idempotencyKey = 'tx-01',
-  } = {}) {
+  acquireAtomicIdempotencyLock(opts = {}) {
+    const {
+      actorId = 'user-01',
+      operation = 'withdraw',
+      idempotencyKey = 'tx-01',
+    } = opts && typeof opts === 'object' ? opts : {};
     if (!this._atomicLocks) {
       this._atomicLocks = new Set();
     }
@@ -1199,7 +1238,7 @@ export class AegisCloudAssetShield {
       const oldest = this._atomicLocks.values().next().value;
       if (oldest !== undefined) this._atomicLocks.delete(oldest);
     }
-    const lockId = `${actorId}:${operation}:${idempotencyKey}`;
+    const lockId = `${safeStr(actorId, 'user-01')}:${safeStr(operation, 'withdraw')}:${safeStr(idempotencyKey, 'tx-01')}`;
     if (this._atomicLocks.has(lockId)) {
       return {
         allowed: false,

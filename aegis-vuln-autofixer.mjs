@@ -22,29 +22,40 @@
  *      - Log4Shell / SpEL Injection (`${jndi:...}`, `#{...}`), Path Traversal (`../`), `.env` / `.git/config` exposure
  */
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
 export class AegisVulnAutoFixer {
   constructor(options = {}) {
-    this.allowedHosts = new Set(options.allowedHosts || ['acme-nexus.io', 'api.acme-nexus.io', 'localhost']);
+    const safeOpts = options && typeof options === 'object' ? options : {};
+    this.allowedHosts = new Set(Array.isArray(safeOpts.allowedHosts) ? safeOpts.allowedHosts : ['acme-nexus.io', 'api.acme-nexus.io', 'localhost']);
   }
 
   /**
    * 1. REAL-TIME EDGE VIRTUAL PATCHING (WAF)
    * Blocks exploit payloads on the wire BEFORE they reach an unpatched PHP, Python, Node.js, Next.js, Java, or Go backend!
    */
-  inspectRequestVirtualPatch({
-    method = 'GET',
-    url = '/',
-    headers = {},
-    query = {},
-    body = null,
-  } = {}) {
+  inspectRequestVirtualPatch(opts = {}) {
+    const {
+      method = 'GET',
+      url = '/',
+      headers = {},
+      query = {},
+      body = null,
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeUrl = safeStr(url, '/');
     const lowerHeaders = {};
-    for (const [k, v] of Object.entries(headers || {})) {
-      lowerHeaders[k.toLowerCase()] = String(v || '');
+    if (headers && typeof headers === 'object') {
+      for (const [k, v] of Object.entries(headers)) {
+        lowerHeaders[k.toLowerCase()] = safeStr(v);
+      }
     }
     const bodyStr = typeof body === 'string' ? body : JSON.stringify(body || {});
     const queryStr = typeof query === 'string' ? query : JSON.stringify(query || {});
-    const combinedInput = `${url}\n${queryStr}\n${bodyStr}`;
+    const combinedInput = `${safeUrl}\n${queryStr}\n${bodyStr}`;
 
     // A. Next.js Middleware Authorization Bypass (CVE-2025-29927)
     if (lowerHeaders['x-middleware-subrequest']) {
@@ -82,7 +93,7 @@ export class AegisVulnAutoFixer {
       /PHP_SESSION_UPLOAD_PROGRESS/i.test(combinedInput) ||
       /PHPSESSID=[^;\s]{128,}/i.test(lowerHeaders['cookie'] || '') ||
       /(?:%AD|-d)\s*allow_url_include|auto_prepend_file\s*=|php:\/\/input|php:\/\/filter/i.test(combinedInput) ||
-      /\/_ignition\/execute-solution|\/_profiler\/|phpinfo\.php/i.test(url)
+      /\/_ignition\/execute-solution|\/_profiler\/|phpinfo\.php/i.test(safeUrl)
     ) {
       return {
         blocked: true,
@@ -118,7 +129,7 @@ export class AegisVulnAutoFixer {
     // G. React Server Components (RSC) Flight Protocol RCE (CVE-2025-55182) & Next.js SVG Image RCE (CVE-2026-96889)
     if (
       (lowerHeaders['next-action'] && /(?:\$@|__proto__|constructor\.prototype)/i.test(bodyStr)) ||
-      (/\/_next\/image\b/i.test(url) && /\.svg\b|<svg/i.test(combinedInput))
+      (/\/_next\/image\b/i.test(safeUrl) && /\.svg\b|<svg/i.test(combinedInput))
     ) {
       return {
         blocked: true,
@@ -147,22 +158,21 @@ export class AegisVulnAutoFixer {
 
   /**
    * 2. STATIC SOURCE & CONFIG VULNERABILITY SCANNER + AUTOMATIC CODE PATCHER + MANUAL INSTRUCTIONS GENERATOR
-   *
-   * Scans PHP, Python, Node.js/Next.js/React, and config files:
-   *   - Auto-fixes everything that can be deterministically patched in source/config files
-   *   - Emits step-by-step developer/DevOps instructions for runtime binaries, OS packages, and infrastructure settings
    */
-  scanAndAutoFixProject({
-    files = {},
-    runtimeVersions = {},
-  } = {}) {
+  scanAndAutoFixProject(opts = {}) {
+    const {
+      files = {},
+      runtimeVersions = {},
+    } = opts && typeof opts === 'object' ? opts : {};
+    const safeFiles = files && typeof files === 'object' ? files : {};
+    const safeRv = runtimeVersions && typeof runtimeVersions === 'object' ? runtimeVersions : {};
     const fixedFiles = {};
     const autoFixedIssues = [];
     const manualInstructions = [];
 
     // 1. Check Server Runtime Binary Versions (Cannot be fixed by editing JS/PHP/PY source alone -> Emit exact instructions + Virtual Patch!)
-    if (runtimeVersions.php) {
-      const v = String(runtimeVersions.php);
+    if (safeRv.php) {
+      const v = String(safeRv.php);
       const isVulnPhp =
         (v.startsWith('8.2.') && Number(v.split('.')[2]) < 35) ||
         (v.startsWith('8.3.') && Number(v.split('.')[2]) < 36) ||
@@ -185,8 +195,8 @@ export class AegisVulnAutoFixer {
       }
     }
 
-    if (runtimeVersions.node) {
-      const v = String(runtimeVersions.node).replace(/^v/, '');
+    if (safeRv.node) {
+      const v = String(safeRv.node).replace(/^v/, '');
       const [maj, min, pat] = v.split('.').map(Number);
       const isVulnNode =
         maj < 22 ||
@@ -209,7 +219,7 @@ export class AegisVulnAutoFixer {
     }
 
     // 2. Scan and Auto-Fix Project Source & Configuration Files
-    for (const [filePath, rawContent] of Object.entries(files)) {
+    for (const [filePath, rawContent] of Object.entries(safeFiles)) {
       let content = String(rawContent);
       let modified = false;
 

@@ -127,34 +127,72 @@ function redactMiddle(str, keepStart = 12, keepEnd = 6) {
 
 /**
  * Evaluates whether an IPv4 or IPv6 literal belongs to a private, loopback, link-local,
- * cloud metadata, CGNAT, multicast, or IPv4-mapped IPv6 address space.
+ * cloud metadata, CGNAT, NAT64, 6to4, Teredo, multicast, or IPv4-mapped/compatible IPv6 address space.
  */
 export function classifyIpAddress(rawIp) {
-  const ip = String(rawIp || '').toLowerCase().replace(/^\[|\]$/g, '').trim();
+  let ip = safeStr(rawIp).toLowerCase().replace(/^\[|\]$/g, '').trim();
   if (!ip) return { isPrivate: false, isLoopback: false };
 
-  // Handle IPv6 (including IPv4-mapped IPv6 in dotted-quad `::ffff:169.254.169.254` or hex `::ffff:a9fe:a9fe`)
+  // Any IPv6 address with a zone index (`%lo0`, `%25en0`, etc.) is strictly link-local or loopback
+  if (ip.includes('%')) {
+    const basePart = ip.split('%')[0];
+    const isLoop = basePart === '::1' || basePart === '0:0:0:0:0:0:0:1';
+    return { isPrivate: true, isLoopback: isLoop, reason: 'IPV6_ZONE_INDEX_LOCAL' };
+  }
+
+  // Handle IPv6 (including IPv4-mapped, IPv4-compatible, NAT64, 6to4, Teredo, Site-Local)
   if (ip.includes(':')) {
+    // Canonicalize compressed/expanded IPv6 via WHATWG URL parser (RFC 5952)
+    try {
+      const canonical = new URL(`http://[${ip}]/`).hostname.replace(/^\[|\]$/g, '').toLowerCase();
+      if (canonical) ip = canonical;
+    } catch {
+      return { isPrivate: true, isLoopback: false, reason: 'MALFORMED_IPV6_LITERAL' };
+    }
+
     if (ip === '::1' || ip === '0:0:0:0:0:0:0:1') {
       return { isPrivate: true, isLoopback: true, reason: 'IPV6_LOOPBACK' };
     }
     if (ip === '::' || ip === '0:0:0:0:0:0:0:0') {
       return { isPrivate: true, isLoopback: false, reason: 'IPV6_UNSPECIFIED_ZERO' };
     }
-    // Extract embedded IPv4 from `::ffff:a.b.c.d` or `::ffff:xxxx:yyyy`
-    const v4MappedDotted = ip.match(/^(?:0*:)*?:?ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i);
-    if (v4MappedDotted) {
-      return classifyIpAddress(v4MappedDotted[1]);
+    // Extract embedded IPv4 from `::ffff:a.b.c.d`, `::a.b.c.d`, or `64:ff9b::a.b.c.d`
+    const v4EmbeddedDotted = ip.match(/(?::ffff:|::|64:ff9b::)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i);
+    if (v4EmbeddedDotted) {
+      const inner = classifyIpAddress(v4EmbeddedDotted[1]);
+      if (inner.isPrivate || inner.isLoopback) {
+        return { isPrivate: true, isLoopback: inner.isLoopback, reason: 'IPV6_TUNNELED_PRIVATE_OR_LOOPBACK' };
+      }
+      return inner;
     }
-    const v4MappedHex = ip.match(/^(?:0*:)*?:?ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
-    if (v4MappedHex) {
-      const hi = parseInt(v4MappedHex[1], 16);
-      const lo = parseInt(v4MappedHex[2], 16);
+    // Extract embedded IPv4 from `::ffff:xxxx:yyyy`, `::xxxx:yyyy`, or `64:ff9b::xxxx:yyyy`
+    const v4EmbeddedHex = ip.match(/^(?:(?:0*:)*?:?(?:ffff:)?|64:ff9b:(?:0*:)*?:?)([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+    if (v4EmbeddedHex) {
+      const hi = parseInt(v4EmbeddedHex[1], 16);
+      const lo = parseInt(v4EmbeddedHex[2], 16);
       const dotted = `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
-      return classifyIpAddress(dotted);
+      const inner = classifyIpAddress(dotted);
+      if (inner.isPrivate || inner.isLoopback) {
+        return { isPrivate: true, isLoopback: inner.isLoopback, reason: 'IPV6_TUNNELED_PRIVATE_OR_LOOPBACK' };
+      }
+      return inner;
     }
-    if (/^(?:fe[89ab][0-9a-f]|fc[0-9a-f]{2}|fd[0-9a-f]{2}|ff[0-9a-f]{2}):/i.test(ip)) {
-      return { isPrivate: true, isLoopback: false, reason: 'IPV6_PRIVATE_OR_LINK_LOCAL' };
+    // 6to4 (`2002:xxxx:yyyy::`) embeds an IPv4 address in the 2nd and 3rd 16-bit blocks
+    const sixToFour = ip.match(/^2002:([0-9a-f]{1,4}):([0-9a-f]{1,4}):/i);
+    if (sixToFour) {
+      const hi = parseInt(sixToFour[1], 16);
+      const lo = parseInt(sixToFour[2], 16);
+      const dotted = `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+      const inner = classifyIpAddress(dotted);
+      if (inner.isPrivate || inner.isLoopback) {
+        return { isPrivate: true, isLoopback: inner.isLoopback, reason: 'IPV6_6TO4_TUNNELED_PRIVATE' };
+      }
+      return inner;
+    }
+    if (
+      /^(?:fe[89ab][0-9a-f]|fec[0-9a-f]|fc[0-9a-f]{2}|fd[0-9a-f]{2}|ff[0-9a-f]{2}|64:ff9b|2001:db8|2001:0+|2001:|100):/i.test(ip)
+    ) {
+      return { isPrivate: true, isLoopback: false, reason: 'IPV6_PRIVATE_OR_RESERVED_TUNNEL' };
     }
     return { isPrivate: false, isLoopback: false };
   }
@@ -175,10 +213,12 @@ export function classifyIpAddress(rawIp) {
       (a === 100 && b >= 64 && b <= 127) ||           // 100.64.0.0/10 (CGNAT / Alibaba Metadata 100.100.100.200)
       (a === 169 && b === 254) ||                     // 169.254.0.0/16 (AWS/GCP/Azure Cloud IMDS & Link-Local)
       (a === 172 && b >= 16 && b <= 31) ||            // 172.16.0.0/12 (RFC1918)
-      (a === 192 && b === 0 && c === 0) ||            // 192.0.0.0/24
+      (a === 192 && b === 0 && (c === 0 || c === 2)) || // 192.0.0.0/24 & 192.0.2.0/24 (TEST-NET-1)
       (a === 192 && b === 168) ||                     // 192.168.0.0/16 (RFC1918)
       (a === 198 && (b === 18 || b === 19)) ||        // 198.18.0.0/15 (Benchmark)
-      a >= 224                                        // 224.0.0.0/4 Multicast & 240.0.0.0/4 Reserved
+      (a === 198 && b === 51 && c === 100) ||         // 198.51.100.0/24 (TEST-NET-2)
+      (a === 203 && b === 0 && c === 113) ||          // 192/203 TEST-NET-3
+      a >= 224                                        // 224.0.0.0/4 Multicast & 240.0.0.0/4 Reserved & 255.255.255.255
     ) {
       return { isPrivate: true, isLoopback: false, reason: `IPV4_PRIVATE_OR_METADATA:${ip}` };
     }
@@ -187,10 +227,42 @@ export function classifyIpAddress(rawIp) {
   return { isPrivate: false, isLoopback: false };
 }
 
-export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) {
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
+export function validateSafeAuditUrl(rawUrl, opts = {}) {
+  const { allowLocalhostDev = true } = opts && typeof opts === 'object' ? opts : {};
+  const rawStr = safeStr(rawUrl).trim();
+  if (
+    !rawStr ||
+    rawStr.length > 2048 ||
+    /[\u0000-\u001f\u007f\u3002\uff0e\uff61]/.test(rawStr) ||
+    rawStr.split(/[?#]/)[0].includes('\\') ||
+    !/^https?:\/\/[^/\\]/i.test(rawStr)
+  ) {
+    return { safe: false, reason: 'INVALID_OR_OBFUSCATED_URL_CHARS' };
+  }
+
+  // Extract raw authority host BEFORE `new URL()` normalizes hex/octal/short-IPv4 (e.g. `0x7f.0.0.1` or `0177.0.0.1` or `127.1`)
+  const preHostMatch = rawStr.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\/([^/?#]+)/);
+  if (preHostMatch) {
+    const rawHost = preHostMatch[1].replace(/^.*@/, '').split(':')[0].toLowerCase();
+    if (
+      /(?:^|\.)0x[0-9a-f]+/i.test(rawHost) ||
+      /(?:^|\.)0[0-7]+(?:\.|$)/.test(rawHost) ||
+      /^\d+(?:\.\d+){1,2}$/.test(rawHost) ||
+      /^\d+$/.test(rawHost)
+    ) {
+      return { safe: false, reason: `SSRF_OBFUSCATED_IP_ENCODING:${rawHost}` };
+    }
+  }
+
   let parsed;
   try {
-    parsed = new URL(rawUrl);
+    parsed = new URL(rawStr);
   } catch {
     return { safe: false, reason: 'INVALID_URL_SYNTAX' };
   }
@@ -207,10 +279,11 @@ export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) 
   // Block Cloud Metadata hostnames, DNS Rebinding services, and non-standard IP encodings
   if (
     host === 'metadata.google.internal' ||
+    host === 'metadata' ||
     host === 'instance-data' ||
-    /\.(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|internal|localhost)$/i.test(host) ||
+    /\.(?:nip\.io|sslip\.io|xip\.io|localtest\.me|lvh\.me|vcap\.me|lacolhost\.com|internal|localhost|local)$/i.test(host) ||
     /^0x[0-9a-f]+$/i.test(host) ||
-    /^\d{8,10}$/.test(host) ||
+    /^\d+$/.test(host) ||
     /^0\d+\./.test(host)
   ) {
     return { safe: false, reason: `SSRF_FORBIDDEN_HOST:${host}` };
@@ -236,20 +309,29 @@ export function validateSafeAuditUrl(rawUrl, { allowLocalhostDev = true } = {}) 
   return { safe: true, parsed };
 }
 
-async function fetchBoundedText(urlStr, { timeoutMs = 4500, maxBytes = 512 * 1024, allowLocalhostDev = true } = {}) {
+async function fetchBoundedText(urlStr, opts = {}) {
+  const { timeoutMs = 4500, maxBytes = 512 * 1024, allowLocalhostDev = true } = opts && typeof opts === 'object' ? opts : {};
   let currentUrl = urlStr;
+  let initialWasLoopback = false;
   for (let hop = 0; hop <= 3; hop++) {
-    const check = validateSafeAuditUrl(currentUrl, { allowLocalhostDev });
+    const allowLocalhostOnHop = hop === 0 ? allowLocalhostDev : (allowLocalhostDev && initialWasLoopback);
+    const check = validateSafeAuditUrl(currentUrl, { allowLocalhostDev: allowLocalhostOnHop });
     if (!check.safe) {
       throw new Error(check.reason);
     }
 
-    // Resolve DNS before fetching to block custom domains that resolve to 127.0.0.1 / 169.254.169.254 / RFC1918
+    // Resolve DNS before fetching (dual-probe to defeat 0-TTL DNS Rebinding TOCTOU)
     const targetHost = check.parsed.hostname.replace(/^\[|\]$/g, '');
     const isExplicitLoopback = targetHost === 'localhost' || classifyIpAddress(targetHost).isLoopback;
+    if (hop === 0) {
+      initialWasLoopback = isExplicitLoopback;
+    }
     if (!isExplicitLoopback && net.isIP(targetHost) === 0) {
-      const records = await dns.promises.lookup(targetHost, { all: true });
-      for (const rec of records) {
+      const [records1, records2] = await Promise.all([
+        dns.promises.lookup(targetHost, { all: true }),
+        dns.promises.lookup(targetHost, { all: true }),
+      ]);
+      for (const rec of [...records1, ...records2]) {
         const resolvedClass = classifyIpAddress(rec.address);
         if (resolvedClass.isPrivate || resolvedClass.isLoopback) {
           throw new Error(`SSRF_DNS_REBINDING_PRIVATE_IP:${rec.address}`);
@@ -319,9 +401,10 @@ export class AegisDiagnosticAuditEngine {
     this.cachedTargets.set(key, data);
   }
 
-  async runLiveUrlAudit(rawInputUrl = 'https://acme-nexus.io', { allowLocalhostDev = true } = {}) {
+  async runLiveUrlAudit(rawInputUrl = 'https://acme-nexus.io', opts = {}) {
+    const { allowLocalhostDev = true } = opts && typeof opts === 'object' ? opts : {};
     const startMs = Date.now();
-    let normalizedUrl = String(rawInputUrl || 'https://acme-nexus.io').trim();
+    let normalizedUrl = safeStr(rawInputUrl, 'https://acme-nexus.io').trim() || 'https://acme-nexus.io';
     if (!/^https?:\/\//i.test(normalizedUrl)) {
       normalizedUrl = 'https://' + normalizedUrl;
     }
@@ -346,6 +429,9 @@ export class AegisDiagnosticAuditEngine {
 
     // Perform REAL Live HTTP Crawl for any URL not in synthetic presets
     if (!targetData && urlSafety.safe) {
+      const initialHost = parsedUrl.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+      const initialIsLoopback = initialHost === 'localhost' || classifyIpAddress(initialHost).isLoopback;
+      const allowLocalhostSubresource = allowLocalhostDev && initialIsLoopback;
       liveStepLog.push(`Connecting to ${parsedUrl.origin} via TLS/HTTP...`);
       try {
         const { res, finalUrl: resolvedFinalUrl, text: html } = await fetchBoundedText(normalizedUrl, {
@@ -356,9 +442,12 @@ export class AegisDiagnosticAuditEngine {
 
         httpStatus = res.status;
         finalUrl = resolvedFinalUrl || normalizedUrl;
-        const headersObj = {};
+        const headersObj = Object.create(null);
         res.headers.forEach((v, k) => {
-          headersObj[k.toLowerCase()] = v;
+          const lk = k.toLowerCase();
+          if (lk !== '__proto__' && lk !== 'constructor' && lk !== 'prototype') {
+            headersObj[lk] = v;
+          }
         });
 
         liveStepLog.push(`HTTP ${httpStatus} received from ${finalUrl} (${html.length.toLocaleString()} bytes HTML)`);
@@ -369,7 +458,7 @@ export class AegisDiagnosticAuditEngine {
           const { res: llmsRes, text: llmsText } = await fetchBoundedText(llmsUrl, {
             timeoutMs: 2000,
             maxBytes: 64 * 1024,
-            allowLocalhostDev,
+            allowLocalhostDev: allowLocalhostSubresource,
           });
           if (llmsRes.ok) {
             if (llmsText && llmsText.length > 10 && !llmsText.trim().startsWith('<!DOCTYPE')) {
@@ -405,7 +494,7 @@ export class AegisDiagnosticAuditEngine {
                 const { res: scRes, text: txt } = await fetchBoundedText(absUrl, {
                   timeoutMs: 2500,
                   maxBytes: 256 * 1024,
-                  allowLocalhostDev,
+                  allowLocalhostDev: allowLocalhostSubresource,
                 });
                 if (scRes.ok) {
                   discoveredScripts.push({ url: absUrl, sizeBytes: txt.length });
@@ -771,7 +860,7 @@ export class AegisDiagnosticAuditEngine {
    * so the user sees actual bytecode and a custom /llms.txt generated from their real site.
    */
   simulateAegisShieldOnTarget(rawInputUrl = 'https://acme-nexus.io') {
-    let normalizedUrl = String(rawInputUrl || 'https://acme-nexus.io').trim();
+    let normalizedUrl = safeStr(rawInputUrl, 'https://acme-nexus.io').trim() || 'https://acme-nexus.io';
     if (!/^https?:\/\//i.test(normalizedUrl)) {
       normalizedUrl = 'https://' + normalizedUrl;
     }

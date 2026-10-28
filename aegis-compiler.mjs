@@ -62,12 +62,19 @@ const HONEY_DECOY_POOL = [
   'CANARY_TRAP_DO_NOT_USE_100',
 ];
 
+function safeStr(val, fallback = '') {
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return String(val);
+  return fallback;
+}
+
 /**
  * Polymorphic Split-Key + Challenge-Derived Vault & Universal Turing-Complete Stack-VM Bytecode Generator (v6.0)
  */
 export class PolymorphicVault {
   constructor(seedHex = null) {
-    const fullSeed = seedHex ? Buffer.from(seedHex, 'hex') : crypto.randomBytes(16);
+    const safeHex = typeof seedHex === 'string' && /^[0-9a-fA-F]{32}$/.test(seedHex) ? seedHex : null;
+    const fullSeed = safeHex ? Buffer.from(safeHex, 'hex') : crypto.randomBytes(16);
     // Challenge-Derived Ephemeral Key: can be supplied either via runtime challenge integer `challengeSeed`
     // (derived from Clean-Realm DOM verification so raw key bytes NEVER cross the network!) or `ephemeralKey`.
     this.challengeSeed = (crypto.randomBytes(2).readUInt16LE(0) | 0x1001) & 0x7fff;
@@ -111,7 +118,7 @@ export class PolymorphicVault {
   }
 
   addString(str) {
-    const s = String(str);
+    const s = safeStr(str);
     if (this.stringIndex.has(s)) return this.stringIndex.get(s);
     const idx = this.entries.length;
     const raw = Buffer.from(s, 'utf8');
@@ -174,8 +181,9 @@ export class PolymorphicVault {
       return null;
     }
     const paramNames = [];
-    for (const p of fnNode.params || []) {
-      if (p.type !== 'Identifier') return null;
+    if (!Array.isArray(fnNode.params) || fnNode.params.length > 250) return null;
+    for (const p of fnNode.params) {
+      if (!p || p.type !== 'Identifier') return null;
       paramNames.push(p.name);
     }
 
@@ -292,6 +300,7 @@ export class PolymorphicVault {
           // OP_SET_PROP_DYN leaves assigned value on stack; store in scratch local
           let scratch = locals.get('__aegis_scratch__');
           if (scratch === undefined) {
+            if (locals.size >= 250) return false;
             scratch = locals.size;
             locals.set('__aegis_scratch__', scratch);
           }
@@ -452,7 +461,7 @@ export class PolymorphicVault {
           const kName = prop.key?.name ?? prop.key?.value;
           if (!kName) return false;
           if (!compileExpr(prop.value)) return false;
-          const kIdx = self.addString(String(kName));
+          const kIdx = self.addString(safeStr(kName));
           code.push(OP.OP_SET_PROP, (kIdx >>> 8) & 0xff, kIdx & 0xff);
         }
         return true;
@@ -515,6 +524,7 @@ export class PolymorphicVault {
           }
           let slot = locals.get(decl.id.name);
           if (slot === undefined) {
+            if (locals.size >= 250) return false;
             slot = locals.size;
             locals.set(decl.id.name, slot);
           }
@@ -605,7 +615,7 @@ export class PolymorphicVault {
       code.push(OP.OP_RET);
     }
 
-    if (code.length === 0) return null;
+    if (code.length === 0 || code.length > 65530) return null;
     if (code[code.length - 1] !== OP.OP_RET) {
       code.push(OP.OP_PUSH_UNDEF, OP.OP_RET);
     }
@@ -622,7 +632,9 @@ export class PolymorphicVault {
     return progIdx;
   }
 
-  emitRuntimeBootstrap(transformedBodyCode, { enableAntiCdp = true, enableNodeVmTrap = true, enableDomFirewall = true } = {}) {
+  emitRuntimeBootstrap(transformedBodyCode, opts = {}) {
+    const { enableAntiCdp = true, enableNodeVmTrap = true, enableDomFirewall = true } = opts && typeof opts === 'object' ? opts : {};
+    const safeBodyCode = safeStr(transformedBodyCode);
     const sFetch = this.addString('fetch');
     const sTelemUrl = this.addString('/_aegis/telemetry');
     const sPost = this.addString('POST');
@@ -779,7 +791,8 @@ export class PolymorphicVault {
       const lo = _rb();
       return (hi << 8) | lo;
     };
-    while (pc < bc.length) {
+    let _steps = 0;
+    while (pc < bc.length && ++_steps <= 100000) {
       const op = _rb();
       switch (op) {
         case ${OP.OP_PUSH_CONST}: {
@@ -974,7 +987,7 @@ export class PolymorphicVault {
         case ${OP.OP_GET_PROP}: {
           const key = stack.pop();
           const obj = stack.pop();
-          stack.push(obj != null && key !== '__proto__' && key !== 'constructor' ? obj[key] : undefined);
+          stack.push(obj != null && key !== '__proto__' && key !== 'prototype' && key !== 'constructor' ? obj[key] : undefined);
           break;
         }
         case ${OP.OP_SET_PROP_DYN}: {
@@ -1007,7 +1020,7 @@ export class PolymorphicVault {
           if (typeof target === 'string' && _g && _g[target] && /^(?:Math|Object|JSON|Number|String|Array)$/.test(target)) {
             target = _g[target];
           }
-          const fn = target != null ? target[mName] : null;
+          const fn = target != null && mName !== '__proto__' && mName !== 'prototype' && mName !== 'constructor' ? target[mName] : null;
           stack.push(typeof fn === 'function' ? fn.apply(target, mArgs) : undefined);
           break;
         }
@@ -1276,7 +1289,7 @@ export class PolymorphicVault {
   ` : ''}
 
   // Protected Application Body (Inside the same private lexical closure — zero global leakage of _aV or _aVM!)
-  ${transformedBodyCode}
+  ${safeBodyCode}
 })(typeof globalThis !== 'undefined' ? globalThis : window);
 `.trim();
   }
@@ -1286,8 +1299,10 @@ export class PolymorphicVault {
  * Compile JS source code into an Aegis v3.0 Military-Grade Protected Bundle
  */
 export function compileProtectedBundle(sourceCode, options = {}) {
-  const vault = new PolymorphicVault(options.seedHex);
-  let cleanedSource = String(sourceCode || '').replace(/\/\/[#@]\s*sourceMappingURL=[^\s'"]+/g, '');
+  const safeOpts = options && typeof options === 'object' ? options : {};
+  const vault = new PolymorphicVault(safeOpts.seedHex);
+  const rawSourceStr = safeStr(sourceCode);
+  let cleanedSource = rawSourceStr.replace(/\/\/[#@]\s*sourceMappingURL=[^\s'"]+/g, '');
   let ast;
   try {
     ast = babelParser.parse(cleanedSource, {
@@ -1575,7 +1590,7 @@ export function compileProtectedBundle(sourceCode, options = {}) {
     if (node.type === 'ObjectProperty' && !node.computed) {
       const rawKey = node.key?.name ?? node.key?.value;
       if (rawKey !== undefined) {
-        const kIdx = vault.addString(String(rawKey));
+        const kIdx = vault.addString(safeStr(rawKey));
         const valSrc = transformSlice(node.value);
         patches.push({
           start: node.start,
@@ -1661,7 +1676,7 @@ export function compileProtectedBundle(sourceCode, options = {}) {
     lastStart = p.start;
   }
 
-  const finalBundle = vault.emitRuntimeBootstrap(transformed, options) + '\n';
+  const finalBundle = vault.emitRuntimeBootstrap(transformed, safeOpts) + '\n';
 
   return {
     code: finalBundle,
@@ -1670,7 +1685,7 @@ export function compileProtectedBundle(sourceCode, options = {}) {
     bundleMask: vault.bundleMask,
     renameMap: Object.fromEntries(renameMap),
     stats: {
-      originalBytes: Buffer.byteLength(sourceCode),
+      originalBytes: Buffer.byteLength(rawSourceStr),
       protectedBytes: Buffer.byteLength(finalBundle),
       vaultedStrings: vault.entries.length,
       encryptedStrings: vault.entries.length,
