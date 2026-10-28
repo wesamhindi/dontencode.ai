@@ -964,21 +964,26 @@ export class PolymorphicVault {
           const kIdx = _ru16();
           const val = stack.pop();
           const obj = stack.pop();
-          obj[_aV(kIdx)] = val;
+          const kName = _aV(kIdx);
+          if (obj != null && kName !== '__proto__' && kName !== 'prototype' && kName !== 'constructor') {
+            obj[kName] = val;
+          }
           stack.push(obj);
           break;
         }
         case ${OP.OP_GET_PROP}: {
           const key = stack.pop();
           const obj = stack.pop();
-          stack.push(obj != null ? obj[key] : undefined);
+          stack.push(obj != null && key !== '__proto__' && key !== 'constructor' ? obj[key] : undefined);
           break;
         }
         case ${OP.OP_SET_PROP_DYN}: {
           const val = stack.pop();
           const key = stack.pop();
           const obj = stack.pop();
-          if (obj != null) obj[key] = val;
+          if (obj != null && key !== '__proto__' && key !== 'prototype' && key !== 'constructor') {
+            obj[key] = val;
+          }
           stack.push(val);
           break;
         }

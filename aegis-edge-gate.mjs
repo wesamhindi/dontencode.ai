@@ -71,16 +71,22 @@ export class AegisEdgeGate {
    * to throw `RuntimeError('provider_rate_limit_stop')` and self-terminate its Mullvad VM!
    */
   buildFatalBlockResponse(reason) {
+    const safeReason = String(reason || 'BLOCKED')
+      .replace(/[^a-zA-Z0-9_.:-]/g, '_')
+      .slice(0, 64);
     return {
       allowed: false,
       status: 403,
-      reason,
+      reason: safeReason,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
         'X-Aegis-Protection': 'BLOCKED',
-        'X-Aegis-Reason': reason,
+        'X-Aegis-Reason': safeReason,
       },
-      body: `<!DOCTYPE html><html><body><h1>403 Forbidden — Automated access blocked</h1><p>Too many requests: rate limit exceeded. Automation prohibited by Aegis Shield (${reason}).</p></body></html>`,
+      body: `<!DOCTYPE html><html><body><h1>403 Forbidden — Automated access blocked</h1><p>Too many requests: rate limit exceeded. Automation prohibited by Aegis Shield (${safeReason}).</p></body></html>`,
     };
   }
 
