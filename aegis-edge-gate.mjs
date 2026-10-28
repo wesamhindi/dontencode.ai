@@ -126,22 +126,31 @@ export class AegisEdgeGate {
 
     if (this.blockedIps.has(ip)) {
       const info = this.blockedIps.get(ip);
-      info.hits++;
-      return this.buildFatalBlockResponse(`BLACKLISTED_AI_AGENT:${info.reason}`);
+      const blockTtlMs = this.blockTtlMs || 15 * 60 * 1000; // 15-min auto-recovery for shared mobile/Wi-Fi IPs
+      if (Date.now() - (info.timestamp || 0) > blockTtlMs) {
+        this.blockedIps.delete(ip);
+      } else {
+        info.hits++;
+        return this.buildFatalBlockResponse(`BLACKLISTED_AI_AGENT:${info.reason}`);
+      }
     }
 
     // 1. Burst rate detector (catches commerce_probe.py parallel harvest & matrix_probe.py loops)
-    const now = Date.now();
-    if (this.ipRateWindow.size >= 5000 && !this.ipRateWindow.has(ip)) {
-      const oldestKey = this.ipRateWindow.keys().next().value;
-      if (oldestKey !== undefined) this.ipRateWindow.delete(oldestKey);
-    }
-    const recent = (this.ipRateWindow.get(ip) || []).filter(t => now - t < 2500);
-    recent.push(now);
-    this.ipRateWindow.set(ip, recent);
-    if (recent.length > 12) {
-      this.blockClient(ip, 'PARALLEL_HARVEST_BURST', { requestsIn2_5s: recent.length, path: pathname });
-      return this.buildFatalBlockResponse('PARALLEL_HARVEST_BURST');
+    //    Exempts static visual/font/CSS assets so a real shopper loading 30 product photos never gets false-blocked!
+    const isBenignStaticAsset = /\.(?:png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|css)$/i.test(pathname);
+    if (!isBenignStaticAsset) {
+      const now = Date.now();
+      if (this.ipRateWindow.size >= 5000 && !this.ipRateWindow.has(ip)) {
+        const oldestKey = this.ipRateWindow.keys().next().value;
+        if (oldestKey !== undefined) this.ipRateWindow.delete(oldestKey);
+      }
+      const recent = (this.ipRateWindow.get(ip) || []).filter(t => now - t < 2500);
+      recent.push(now);
+      this.ipRateWindow.set(ip, recent);
+      if (recent.length > 12) {
+        this.blockClient(ip, 'PARALLEL_HARVEST_BURST', { requestsIn2_5s: recent.length, path: pathname });
+        return this.buildFatalBlockResponse('PARALLEL_HARVEST_BURST');
+      }
     }
 
     // 2. Direct User-Agent / Automation signature block
@@ -190,11 +199,12 @@ export class AegisEdgeGate {
 
   /**
    * Layer 1: Single-Use Cryptographic Tickets for JS Scripts, Cloud Assets & Media Streams
+   * Default 30s TTL prevents broken page loads on slow 3G/subway connections while still enforcing 1-time use.
    */
-  issueScriptTicket(sessionId, resourcePath, ttlMs = 8000) {
+  issueScriptTicket(sessionId, resourcePath, ttlMs = 30000) {
     const safeSession = safeStr(sessionId, 'anon');
     const safePath = safeStr(resourcePath, '/');
-    const safeTtl = Number.isFinite(safeNum(ttlMs)) ? safeNum(ttlMs) : 8000;
+    const safeTtl = Number.isFinite(safeNum(ttlMs)) ? safeNum(ttlMs) : 30000;
     if (this.tickets.size >= 5000) {
       const oldest = this.tickets.keys().next().value;
       if (oldest !== undefined) this.tickets.delete(oldest);
@@ -252,22 +262,42 @@ export class AegisEdgeGate {
 
   /**
    * Strips all 17 HEADER_SIGNALS, 8 COOKIE_SIGNALS, and wildcard CORS headers
+   * while maintaining a bidirectional cookie map so client backend login sessions never break.
    */
   sanitizeResponseHeaders(rawHeaders = {}) {
     if (!rawHeaders || typeof rawHeaders !== 'object') return {};
+    if (!this.cookieAliasMap) this.cookieAliasMap = new Map();
     const clean = {};
     for (const [k, v] of Object.entries(rawHeaders)) {
       if (LEAKY_HEADERS_RE.test(k)) continue;
       if (k.toLowerCase() === 'set-cookie') {
         const cookies = Array.isArray(v) ? v.map((c) => safeStr(c)) : [safeStr(v)];
         clean[k] = cookies.map(c =>
-          c.replace(/\b(?:PHPSESSID|JSESSIONID|laravel_session|csrftoken|_shopify_y|ASP\.NET_SessionId|wordpress_logged_in|_rails_session|sb-[a-z0-9]+-auth-token)=/gi, '_aegis_sid=')
+          c.replace(/\b(PHPSESSID|JSESSIONID|laravel_session|csrftoken|_shopify_y|ASP\.NET_SessionId|wordpress_logged_in|_rails_session|sb-[a-z0-9]+-auth-token)=/gi, (_m, origName) => {
+            this.cookieAliasMap.set('_aegis_sid', origName);
+            return '_aegis_sid=';
+          })
         );
       } else {
         clean[k] = v;
       }
     }
     return clean;
+  }
+
+  /**
+   * Restores masked `_aegis_sid` cookies back to the original framework cookie name (e.g. `wordpress_logged_in`,
+   * `_shopify_y`, `laravel_session`) before forwarding the request to the client's origin server so logins & carts never break!
+   */
+  restoreIncomingCookies(reqHeaders = {}) {
+    if (!reqHeaders || typeof reqHeaders !== 'object') return {};
+    const cloned = { ...reqHeaders };
+    const rawCookie = safeStr(cloned.cookie || cloned.Cookie, '');
+    if (rawCookie && this.cookieAliasMap && this.cookieAliasMap.has('_aegis_sid')) {
+      const origName = this.cookieAliasMap.get('_aegis_sid');
+      cloned.cookie = rawCookie.replace(/\b_aegis_sid=/g, `${origName}=`);
+    }
+    return cloned;
   }
 
   /**
@@ -444,6 +474,11 @@ ${ghostTrapHtml}
     const _html = new TextDecoder().decode(_u);
     const _root = _host.attachShadow({ mode: "closed" });
     _root.innerHTML = _html;
+    if (document.head) {
+      document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach(function(_s) {
+        _root.insertBefore(_s.cloneNode(true), _root.firstChild);
+      });
+    }
     const _cur = document.currentScript;
     if (_cur && _cur.parentNode) _cur.parentNode.removeChild(_cur);
   } catch (_e) {}
