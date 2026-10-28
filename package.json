@@ -1,7 +1,7 @@
 {
   "name": "donotencode.ai",
-  "version": "1.0.0",
-  "description": "DoNotEncode.ai — Automated Website Security Audit, Source Code Protection, Edge Firewall & AI Search (/llms.txt) Optimization",
+  "version": "0.6.0",
+  "description": "DoNotEncode.ai v0.6 — Automated Website Security Audit, Source Code Protection, Edge Firewall & AI Search (AI SEO) Optimization",
   "type": "module",
   "bin": {
     "donotencode": "./aegis-cli.mjs",

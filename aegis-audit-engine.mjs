@@ -685,113 +685,113 @@ export class AegisDiagnosticAuditEngine {
 
     const findings = [
       {
-        id: 'SECURITY-HEADERS',
-        layer: 'HTTP Security Headers',
-        severity: missingSecurityHeaders.length >= 3 ? 'High' : 'Medium',
-        title:
-          missingSecurityHeaders.length > 0
-            ? `${missingSecurityHeaders.length} Browser Security Headers Are Missing`
-            : `Server Fingerprint Headers Are Publicly Visible`,
-        summary:
-          missingSecurityHeaders.length > 0
-            ? `Your server does not send standard browser protection headers like CSP or COOP. Without these, browsers cannot block unauthorized iframe embedding (clickjacking) or third-party script injection.`
-            : `Your server includes baseline headers, but still broadcasts internal server software fingerprints to automated scanners.`,
-        technicalDetails: [
-          {
-            label: 'Missing Headers',
-            value: missingSecurityHeaders.length > 0 ? missingSecurityHeaders.join(', ') : 'None',
-          },
-          {
-            label: 'Server Footprint',
-            value: disclosedHeaders.length > 0 ? disclosedHeaders.join(' • ') : `HTTP ${httpStatus}`,
-          },
-        ],
-        whyCodingAgentFails: `DoNotEncode.ai injects strict Content-Security-Policy, HSTS, and isolation headers at the edge while hiding server version headers automatically.`,
-      },
-      {
         id: 'AI-SEARCH-LLMS',
-        layer: 'AI Search & /llms.txt SEO',
+        layer: 'AI Search & Recommendations (AI SEO)',
         severity: llmsTxtStatus.startsWith('200') ? 'Low' : 'High',
         title: llmsTxtStatus.startsWith('200')
-          ? `/llms.txt Found, But Page Has ${scriptNoisePct}% Code Overhead`
-          : `No /llms.txt Guide Found for AI Search Engines`,
-        summary: `When AI assistants like ChatGPT, Perplexity, and Claude visit ${parsedUrl.hostname}, ${scriptNoisePct}% of the response is raw HTML and JavaScript code instead of clean product information, and /llms.txt returned "${llmsTxtStatus.split('(')[0].trim()}".`,
+          ? `AI Search Guide Active, But ${scriptNoisePct}% of Your Page Is Still Messy Design Code`
+          : `ChatGPT, Perplexity & Google AI Can't Read Your Website Clearly`,
+        summary: `When buyers ask ChatGPT, Perplexity, or Claude what to buy, AI assistants scan your website for answers. Right now, ${scriptNoisePct}% of what ${parsedUrl.hostname} sends back is messy layout and design code instead of clear product info. Because AI assistants have strict reading limits and answer in a split second, they get confused by the clutter, guess wrong prices, or skip your business and recommend a competitor.`,
         technicalDetails: [
-          { label: 'Endpoint Checked', value: `${parsedUrl.origin}/llms.txt → ${llmsTxtStatus}` },
+          { label: 'AI Readiness Status', value: llmsTxtStatus.startsWith('200') ? 'AI Summary Active' : 'No Instant AI Summary Found' },
           {
-            label: 'HTML vs. Text Weight',
-            value: `${(totalHtmlBytes / 1024).toFixed(1)} KB total HTML vs. ${(visibleText.length / 1024).toFixed(1)} KB readable text (${scriptNoisePct}% markup overhead)`,
+            label: 'Code Clutter vs. Real Words',
+            value: `${(totalHtmlBytes / 1024).toFixed(1)} KB total page size vs. only ${(visibleText.length / 1024).toFixed(1)} KB readable words (${scriptNoisePct}% code clutter)`,
           },
         ],
-        whyCodingAgentFails: `DoNotEncode.ai automatically generates and updates a clean /llms.txt file from your live pages so AI search engines cite your website accurately.`,
+        whyCodingAgentFails: `Our revolutionary AI SEO Engine automatically feeds visiting AI assistants a clean, always-updated summary of what you sell, your exact prices, and your best pages. Every time you update your website, it updates itself automatically—so ChatGPT, Perplexity, and Google AI understand your business instantly and recommend you #1.`,
       },
       {
         id: 'SOURCE-CODE-EXPOSURE',
-        layer: 'Client Code & API Visibility',
+        layer: 'Copycat & Code Lock',
         severity: apiMatches.length > 0 || hasSourcemap ? 'High' : 'Medium',
-        title: `Readable JavaScript Bundles (${(rawJs.length / 1024).toFixed(1)} KB) Exposed to Scrapers`,
-        summary: `Anyone opening browser DevTools or running a scraper on ${parsedUrl.hostname} can inspect your client-side JavaScript functions, internal route structures, and application logic in plain text.`,
+        title: `Your Website Code & Formulas (${(rawJs.length / 1024).toFixed(1)} KB) Can Be Copied in Seconds`,
+        summary: `Anyone can right-click "Inspect" on ${parsedUrl.hostname}—or paste your link into an AI coding tool—to read and copy how your website works, your pricing calculators, and your behind-the-scenes features for free.`,
         technicalDetails: [
           {
-            label: 'Public Script Files',
-            value: scriptNames.length > 0 ? scriptNames.join(', ') : 'Inline <script> blocks',
+            label: 'Public Code Files Found',
+            value: scriptNames.length > 0 ? scriptNames.join(', ') : 'Inline <script> code blocks',
           },
           {
-            label: 'Exposed Functions / Routes',
+            label: 'Visible Formulas & Internal Links',
             value:
               [...apiMatches.slice(0, 3), ...fnNames.slice(0, 4)].join(', ') ||
-              `${(rawJs.length / 1024).toFixed(1)} KB of unverified client script`,
+              `${(rawJs.length / 1024).toFixed(1)} KB of readable browser code`,
           },
         ],
-        whyCodingAgentFails: `Standard minification only shortens variable names—tools easily format it back into readable code. DoNotEncode.ai protects sensitive client logic at the edge without breaking SSR.`,
-      },
-      {
-        id: 'ASSET-AND-SCRIPT-INTEGRITY',
-        layer: 'Script & Cloud Asset Integrity',
-        severity: keyMatches.length > 0 || !hasSri ? 'Medium' : 'Low',
-        title: !hasSri
-          ? `External Scripts & Assets Lack Integrity Verification`
-          : `Cloud Assets & Client Tokens Accessible in Network Tab`,
-        summary: `Scripts and assets loaded by ${parsedUrl.hostname} do not enforce cryptographic Subresource Integrity (SRI) or single-use request tokens, allowing direct asset hotlinking and replay outside your browser session.`,
-        technicalDetails: [
-          {
-            label: 'Script Integrity (SRI)',
-            value: hasSri ? 'Present on static tags' : 'No sha384 integrity hashes on <script> tags',
-          },
-          {
-            label: 'Cloud / Token References',
-            value:
-              [...cloudMatches.slice(0, 2), ...keyMatches.slice(0, 2)].join(' • ') ||
-              'Direct unsigned browser asset requests',
-          },
-        ],
-        whyCodingAgentFails: `DoNotEncode.ai automatically adds integrity hashes to scripts and wraps cloud downloads in single-use expiring tokens.`,
+        whyCodingAgentFails: `Traditional "encoding" just scrambles text, which AI tools unscramble in 1 second. DoNotEncode.ai turns your code into a locked vault that browsers can run smoothly, but humans and copycat bots can never read or steal.`,
       },
       {
         id: 'SCRAPING-DEFENSE',
-        layer: 'Bot & Scraping Protection',
+        layer: 'Bot, Scraper & Checkout Guard',
         severity: ssrContainers.length > 0 ? 'High' : 'Medium',
         title:
           ssrContainers.length > 0
-            ? `Embedded Page State (${ssrContainers[0]}) Open to Bulk Harvesting`
-            : `Public Pages & Routes Open to Automated Bot Crawling`,
-        summary: `Automated bots can fetch ${parsedUrl.hostname} in parallel to scrape structured page data, harvest routes, or flood endpoints without passing an edge verification check.`,
+            ? `Hidden Background Data (${ssrContainers[0]}) & Pages Are Open to Scraper Bots`
+            : `Your Pages & Prices Are Wide Open to Copycat Scraper Bots`,
+        summary: `Modern websites accidentally hide behind-the-scenes data (like inventory counts, internal IDs, or private store settings) right inside the page background. Automated bots can also scan thousands of pages on ${parsedUrl.hostname} per minute to copy your catalog or guess promo codes at checkout.`,
         technicalDetails: [
           {
-            label: 'Exposed State / Routes',
+            label: 'Hidden Background Data Found',
             value:
               ssrContainers.length > 0
                 ? ssrContainers.join(', ')
                 : sameOriginRoutes.length > 0
-                ? `Internal routes: ${sameOriginRoutes.join(', ')}`
+                ? `Discoverable pages: ${sameOriginRoutes.join(', ')}`
                 : `Public HTML document (${(totalHtmlBytes / 1024).toFixed(1)} KB)`,
           },
           {
-            label: 'Rate & Bot Guard',
-            value: 'No edge request signing or burst rate-limiting detected',
+            label: 'Bot & Coupon Protection',
+            value: 'No invisible bot bouncer or checkout coupon lock detected',
           },
         ],
-        whyCodingAgentFails: `DoNotEncode.ai filters internal hydration state from public HTML and blocks automated scraping bursts at the edge before they hit your server.`,
+        whyCodingAgentFails: `DoNotEncode.ai wipes hidden background data clean before the page loads and acts like an invisible bouncer—silently blocking copycat bots and coupon-guessers without ever annoying real customers with CAPTCHAs.`,
+      },
+      {
+        id: 'SECURITY-HEADERS',
+        layer: 'Browser Safety Locks',
+        severity: missingSecurityHeaders.length >= 3 ? 'High' : 'Medium',
+        title:
+          missingSecurityHeaders.length > 0
+            ? `${missingSecurityHeaders.length} Standard Browser Safety Locks Are Missing`
+            : `Your Server Software Footprint Is Visible to Scanners`,
+        summary:
+          missingSecurityHeaders.length > 0
+            ? `Think of browser safety headers like deadbolts on your website's front door. Right now, ${missingSecurityHeaders.length} of those locks are missing—meaning scammers could embed your site inside a fake page or inject unwanted scripts.`
+            : `Your website has basic safety locks turned on, but still broadcasts its internal server software type to automated hacker scanners.`,
+        technicalDetails: [
+          {
+            label: 'Unlocked Browser Deadbolts',
+            value: missingSecurityHeaders.length > 0 ? missingSecurityHeaders.join(', ') : 'None',
+          },
+          {
+            label: 'Visible Server Info',
+            value: disclosedHeaders.length > 0 ? disclosedHeaders.join(' • ') : `HTTP ${httpStatus}`,
+          },
+        ],
+        whyCodingAgentFails: `DoNotEncode.ai automatically installs all 6 browser safety deadbolts and hides your server software details in 1 click—no developer needed.`,
+      },
+      {
+        id: 'ASSET-AND-SCRIPT-INTEGRITY',
+        layer: 'Private Files & Cloud Link Lock',
+        severity: keyMatches.length > 0 || !hasSri ? 'Medium' : 'Low',
+        title: !hasSri
+          ? `Your Files, Scripts & Cloud Links Can Be Copied Outside Your Site`
+          : `Direct Cloud Links & Keys Are Visible in the Browser`,
+        summary: `When ${parsedUrl.hostname} loads images, videos, AI models, or cloud files (like AWS S3, Supabase, or Firebase), visitors can grab those direct links and download or share them for free—running up your cloud bill.`,
+        technicalDetails: [
+          {
+            label: 'Tamper-Proof Script Seal (SRI)',
+            value: hasSri ? 'Present on static tags' : 'Missing tamper-proof seals on <script> files',
+          },
+          {
+            label: 'Exposed Cloud / Key Links',
+            value:
+              [...cloudMatches.slice(0, 2), ...keyMatches.slice(0, 2)].join(' • ') ||
+              'Direct unlocked file & asset requests',
+          },
+        ],
+        whyCodingAgentFails: `DoNotEncode.ai puts a "one-time self-destructing pass" on every cloud file and connection so links only work inside your real website once.`,
       },
     ];
 
@@ -901,7 +901,7 @@ export class AegisDiagnosticAuditEngine {
     const geoSync = this.gate.livingGeo.syncWithCodebaseChanges({
       name: liveTitle,
       domain: `https://${parsedHost}`,
-      tagline: `Official AI-Search & LLM Discovery Manifest for ${liveTitle} (${parsedHost}), verified by Aegis Shield v6.0.`,
+      tagline: `Official AI-Search & Product Discovery Summary for ${liveTitle} (${parsedHost}), verified by DoNotEncode.ai v0.6.`,
       verifiedFeatures: headings.length > 0 ? headings : ['Autonomous Edge Protection & Verified Ground-Truth Telemetry'],
       publicRoutes: links.length > 0 ? links : ['/'],
     });
@@ -924,7 +924,7 @@ export class AegisDiagnosticAuditEngine {
           (scrubbed.baasScrubbedCount || 0) +
           (ssrScrubbed.scrubbedCount || 0),
       },
-      compiledBytecodePreview: compiled.code.slice(0, 1100) + '\n/* ... [AEGIS TURING-COMPLETE _aVM v6.0 BYTECODE SEALED] ... */',
+      compiledBytecodePreview: compiled.code.slice(0, 1100) + '\n/* ... [DONOTENCODE.AI v0.6 PROTECTED VAULT SEALED] ... */',
       verifiedLlmsTxtPreview: geoSync.llmsTxt || this.gate.livingGeo.publishedManifests.get('/llms.txt')?.content || '',
       manifestHmacHash: geoSync.manifestHash || '9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c',
     };

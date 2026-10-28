@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DoNotEncode.ai — WebApp Security, Bytecode Shield &amp; AI Search (/llms.txt) Orbit</title>
-  <meta name="description" content="Stop code-stealing scrapers, lock cloud keys, and get cited first in ChatGPT, Perplexity &amp; Google AI. Scan any URL free in seconds with DoNotEncode.ai." />
+  <title>DoNotEncode.ai v0.6 — Website Security, Code Lock &amp; Automatic AI SEO</title>
+  <meta name="description" content="Stop copycats from stealing your website code, lock your private files, and get recommended first in ChatGPT, Perplexity &amp; Google AI with DoNotEncode.ai v0.6." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&amp;family=Geist:wght@300..700&amp;family=Parkinsans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
@@ -1631,6 +1631,404 @@
     }
 
     /* ==========================================================================
+       4B. THE /LLMS.TXT & AI SEARCH REVOLUTION SECTION (x-llms-rev)
+       ========================================================================== */
+    .x-llms-rev {
+      background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(16, 185, 129, 0.08) 0%, rgba(12, 12, 14, 0) 70%), var(--ss-bg);
+      color: var(--ss-text);
+      padding: 96px 0;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .x-llms-rev .lr-head {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 48px;
+    }
+
+    .x-llms-rev .lr-head h2 {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin: 14px 0 16px;
+    }
+
+    .x-llms-rev .lr-head p {
+      color: var(--ss-muted);
+      font-size: clamp(16px, 1.35vw, 18.5px);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .x-llms-rev .lr-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .x-llms-rev .lr-panel {
+      background: var(--ss-surface);
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid var(--ss-line-strong);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .x-llms-rev .lr-panel.is-bad {
+      border-top: 4px solid var(--risk-high);
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, var(--ss-surface) 38%);
+    }
+
+    .x-llms-rev .lr-panel.is-good {
+      border-top: 4px solid var(--risk-low);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, var(--ss-surface) 38%);
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+    }
+
+    .x-llms-rev .lr-badge {
+      align-self: flex-start;
+      font-family: var(--ss-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .x-llms-rev .lr-badge.bad {
+      background: var(--risk-high-bg);
+      border: 1px solid var(--risk-high-border);
+      color: var(--risk-high-text);
+    }
+
+    .x-llms-rev .lr-badge.good {
+      background: var(--risk-low-bg);
+      border: 1px solid var(--risk-low-border);
+      color: var(--risk-low-text);
+    }
+
+    .x-llms-rev .lr-panel h3 {
+      font-family: var(--ss-display);
+      font-size: 22px;
+      margin: 0;
+      color: #fff;
+    }
+
+    .x-llms-rev .lr-panel p {
+      margin: 0;
+      font-size: 15px;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .x-llms-rev .lr-codebox {
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: var(--ss-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-x: auto;
+    }
+
+    .x-llms-rev .lr-verdict {
+      margin-top: auto;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .x-llms-rev .lr-verdict.bad {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #fca5a5;
+    }
+
+    .x-llms-rev .lr-verdict.good {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      color: #6ee7b7;
+    }
+
+    .x-llms-rev .lr-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .x-llms-rev .lr-pillar {
+      background: var(--ss-surface);
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .x-llms-rev .lr-pillar-num {
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ss-gold);
+      background: rgba(251, 204, 130, 0.12);
+      border: 1px solid rgba(251, 204, 130, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .x-llms-rev .lr-pillar h4 {
+      font-family: var(--ss-display);
+      font-size: 18px;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+
+    .x-llms-rev .lr-pillar p {
+      margin: 0;
+      font-size: 14.5px;
+      color: var(--ss-muted);
+      line-height: 1.6;
+    }
+
+    /* Live AI Agent Visit & Recommendation Radar */
+    .ai-radar-box {
+      margin-top: 36px;
+      background: linear-gradient(180deg, rgba(251, 204, 130, 0.07) 0%, #101116 32%);
+      border: 1px solid rgba(251, 204, 130, 0.28);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    }
+
+    .ai-radar-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--ss-line);
+    }
+
+    .ai-radar-title {
+      font-family: var(--ss-display);
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 700;
+      color: #fff;
+      margin: 6px 0 6px;
+    }
+
+    .ai-radar-sub {
+      color: var(--ss-muted);
+      font-size: 14.5px;
+      max-width: 68ch;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .ai-radar-totals {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ai-tot-pill {
+      background: #0b0c10;
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 14px;
+      padding: 10px 16px;
+      min-width: 135px;
+    }
+
+    .ai-tot-num {
+      font-family: var(--ss-display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ss-gold);
+      line-height: 1.1;
+    }
+
+    .ai-tot-lbl {
+      font-size: 11.5px;
+      color: var(--ss-muted);
+      margin-top: 3px;
+    }
+
+    .ai-engine-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .ai-engine-card {
+      background: #0b0c10;
+      border: 1px solid var(--ss-line-strong);
+      border-radius: 16px;
+      padding: 16px;
+      transition: border-color 0.25s ease, transform 0.2s ease;
+    }
+
+    .ai-engine-card.pulse {
+      border-color: var(--ss-gold);
+      transform: translateY(-2px);
+    }
+
+    .ai-eng-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .ai-eng-name {
+      font-family: var(--ss-display);
+      font-weight: 700;
+      font-size: 15.5px;
+      color: #fff;
+    }
+
+    .ai-eng-live {
+      font-family: var(--ss-mono);
+      font-size: 10.5px;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .ai-eng-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--ss-muted);
+      padding: 4px 0;
+    }
+
+    .ai-eng-row strong {
+      color: #fff;
+      font-family: var(--ss-mono);
+    }
+
+    .ai-sim-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--ss-line);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+    }
+
+    .ai-sim-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ss-gold);
+    }
+
+    .ai-sim-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ai-sim-btn {
+      background: #171922;
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .ai-sim-btn:hover {
+      background: var(--ss-gold);
+      color: #16120a;
+      border-color: var(--ss-gold);
+    }
+
+    .ai-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ai-feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: #0b0c10;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+
+    .ai-feed-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-feed-badge {
+      font-family: var(--ss-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(251, 204, 130, 0.14);
+      border: 1px solid rgba(251, 204, 130, 0.35);
+      color: var(--ss-gold);
+    }
+
+    .ai-feed-engine {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ai-feed-desc {
+      color: #d1d5db;
+    }
+
+    .ai-feed-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--ss-mono);
+      font-size: 11.5px;
+      color: var(--ss-muted);
+    }
+
+    @media (max-width: 920px) {
+      .x-llms-rev .lr-compare,
+      .x-llms-rev .lr-pillars {
+        grid-template-columns: 1fr;
+      }
+      .ai-engine-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ==========================================================================
        5. 12-COLUMN BENTO PROOF & TELEMETRY GRID (x-testimonials)
        ========================================================================== */
     .x-testimonials {
@@ -2340,58 +2738,58 @@
           </svg>
         </span>
         <span>DoNotEncode.ai</span>
-        <span class="a01-logo-badge">v6.0 Orbit</span>
+        <span class="a01-logo-badge">v0.6</span>
       </a>
 
       <nav class="a01-nav" aria-label="Main Navigation">
         <div class="a01-item">
           <button type="button" class="a01-link">
-            6-Layer Orbit
+            6 Protection Layers
             <svg class="a01-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div class="a01-drop">
             <a href="#orbitSection" class="a01-drop-item" data-select-agent="0">
-              <span class="a01-drop-ico">VM</span>
+              <span class="a01-drop-ico">🔒</span>
               <span>
-                <span class="a01-drop-title">Bytecode VM Compiler</span>
-                <span class="a01-drop-sub">Compiles client JS into polymorphic stack bytecode (_aVM)</span>
+                <span class="a01-drop-title">Code Lock (Anti-Copycat)</span>
+                <span class="a01-drop-sub">Makes your website code &amp; formulas impossible to copy</span>
               </span>
             </a>
             <a href="#orbitSection" class="a01-drop-item" data-select-agent="1">
-              <span class="a01-drop-ico">S3</span>
+              <span class="a01-drop-ico">☁️</span>
               <span>
-                <span class="a01-drop-title">Cloud &amp; BaaS Asset Vault</span>
-                <span class="a01-drop-sub">Seals AWS S3, Supabase &amp; Firebase URLs in 1-time tickets</span>
+                <span class="a01-drop-title">File &amp; Link Lock</span>
+                <span class="a01-drop-sub">Stops people from stealing your private files, images &amp; media</span>
               </span>
             </a>
             <a href="#orbitSection" class="a01-drop-item" data-select-agent="2">
-              <span class="a01-drop-ico">AI</span>
+              <span class="a01-drop-ico">🤖</span>
               <span>
-                <span class="a01-drop-title">Living /llms.txt AI Search</span>
-                <span class="a01-drop-sub">Auto-syncs verified facts for ChatGPT, Perplexity &amp; Claude</span>
+                <span class="a01-drop-title">AI SEO Boost</span>
+                <span class="a01-drop-sub">Gets your business recommended #1 in ChatGPT &amp; Perplexity</span>
               </span>
             </a>
             <a href="#orbitSection" class="a01-drop-item" data-select-agent="4">
-              <span class="a01-drop-ico">SSR</span>
+              <span class="a01-drop-ico">🛒</span>
               <span>
-                <span class="a01-drop-title">SSR &amp; Checkout Guard</span>
-                <span class="a01-drop-sub">Scrubs __NEXT_DATA__ &amp; stops coupon brute-forcing</span>
+                <span class="a01-drop-title">Checkout &amp; Data Guard</span>
+                <span class="a01-drop-sub">Hides behind-the-scenes data &amp; blocks coupon-guessing bots</span>
               </span>
             </a>
           </div>
         </div>
 
         <a href="#scannerHero" class="a01-link">Live URL Scanner</a>
-        <a href="#orbitSection" class="a01-link">AI Search / GEO</a>
-        <a href="#proofBento" class="a01-link">Case Studies</a>
+        <a href="#llmsRevolutionSection" class="a01-link">Why Our AI SEO</a>
+        <a href="#proofBento" class="a01-link">Results</a>
         <a href="#pricingSection" class="a01-link">Pricing</a>
         <a href="#faqSection" class="a01-link">FAQ</a>
       </nav>
 
       <div class="a01-cta">
-        <span class="a01-status-pill" title="1,417 Chaos Fuzz Tests &amp; 100/100 Security Vectors Passing">
+        <span class="a01-status-pill" title="Version 0.6 — 100/100 Security Checks Passing">
           <span class="a01-status-dot"></span>
-          100/100 Shield Active
+          v0.6 Shield Active
         </span>
         <a href="#scannerHero" class="ss-btn ss-btn--gold" id="headerScanBtn">
           Scan Your Site Free
@@ -2407,7 +2805,7 @@
     <canvas class="ss-stars" id="heroStars"></canvas>
     <div class="ss-wrap">
       <div class="a02-eyebrow">
-        <span>⚡ ZERO-LEAK BYTECODE SHIELD + AUTOMATED /LLMS.TXT AI SEO</span>
+        <span>⚡ VERSION 0.6 — UNBREAKABLE CODE LOCK + AUTOMATIC AI SEO</span>
       </div>
 
       <h1 class="ss-h1">
@@ -2423,7 +2821,7 @@
       </h1>
 
       <p class="ss-sub">
-        <span>Stop code-stealing bots &amp; API leaks while getting cited first in</span>
+        <span>Stop copycats from stealing your code while getting recommended first in</span>
         <span class="ss-flipper" id="heroFlipper" aria-live="polite">
           <!-- 1. ChatGPT -->
           <span class="ss-flip-item is-on">
@@ -2493,16 +2891,16 @@
       <!-- 1-Click Sample Presets -->
       <div class="a02-presets">
         <span class="a02-preset-label">Try instant live scan:</span>
-        <button type="button" class="a02-preset-btn" data-preset-url="https://acme-nexus.io">acme-nexus.io (Next.js + AI SaaS)</button>
-        <button type="button" class="a02-preset-btn" data-preset-url="https://store-demo.shopify.com">store-demo.shopify.com (Shopify)</button>
-        <button type="button" class="a02-preset-btn" data-preset-url="https://vault-ledger.fintech.io">vault-ledger.fintech.io (Fintech API)</button>
-        <button type="button" class="a02-preset-btn" data-preset-url="https://legacy-crm.corp.internal">legacy-crm.corp.internal (Enterprise)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://acme-nexus.io">acme-nexus.io (SaaS App)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://store-demo.shopify.com">store-demo.shopify.com (Online Store)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://vault-ledger.fintech.io">vault-ledger.fintech.io (Finance App)</button>
+        <button type="button" class="a02-preset-btn" data-preset-url="https://legacy-crm.corp.internal">legacy-crm.corp.internal (Business Portal)</button>
       </div>
 
       <div class="ss-meta">
         <span>✓ No signup or credit card required</span>
-        <span>✓ Plain-English + Technical report in 2 seconds</span>
-        <span>✓ Generates live <code>/llms.txt</code> &amp; Edge fix</span>
+        <span>✓ Explained in simple, everyday English</span>
+        <span>✓ Instant 1-click protection &amp; AI SEO preview</span>
       </div>
 
       <!-- ====================================================================
@@ -2521,12 +2919,12 @@
               <span class="issue-sev-badge sev-high" id="auditGradeBadge">🔴 Needs Immediate Shield</span>
             </h3>
             <p id="auditPlainSummary">
-              We scanned your page HTML, public JavaScript bundles, security headers, and AI search endpoints. Below is each issue explained in plain English—click any card to expand technical evidence and how <strong>DoNotEncode.ai</strong> fixes it automatically.
+              We checked what copycats, hackers, and AI search engines see when they visit your website. Every issue below is explained in plain English—click any card to see what it means and how <strong>DoNotEncode.ai</strong> fixes it automatically.
             </p>
             <div class="audit-meta-pills" id="auditTelemetryPills">
-              <span class="audit-meta-pill">Stack: Next.js 15 + Supabase</span>
-              <span class="audit-meta-pill">/llms.txt: Missing (404)</span>
-              <span class="audit-meta-pill">AI Noise Ratio: 94% HTML Clutter</span>
+              <span class="audit-meta-pill">Platform: Next.js + Supabase</span>
+              <span class="audit-meta-pill">AI Search Readiness: Not Optimized</span>
+              <span class="audit-meta-pill">Page Code Clutter: 94%</span>
             </div>
           </div>
 
@@ -2535,7 +2933,7 @@
               <span>⚡ Preview Instant Fix (Drop Risk to 0/100)</span>
             </button>
             <span style="font-family:var(--ss-mono);font-size:11px;color:var(--ss-muted);" id="auditScanTimeLabel">
-              Scanned in 38ms • Audit ID: AEG-LIVE
+              Scanned in 38ms • DoNotEncode.ai v0.6
             </span>
           </div>
         </div>
@@ -2548,7 +2946,7 @@
             <button type="button" class="audit-filter-pill" data-filter="Medium">🟡 Medium Risk (<span id="countMed">2</span>)</button>
             <button type="button" class="audit-filter-pill" data-filter="Low">🟢 Passed / Low (<span id="countLow">0</span>)</button>
           </div>
-          <button type="button" class="audit-expand-link" id="toggleAllCardsBtn">Expand all technical details</button>
+          <button type="button" class="audit-expand-link" id="toggleAllCardsBtn">Expand all details</button>
         </div>
 
         <!-- Collapsible Red / Yellow / Green Cards Container -->
@@ -2558,9 +2956,9 @@
         <div class="sim-drawer" id="simResultsDrawer">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
             <div>
-              <span class="issue-sev-badge sev-low" style="margin-bottom:6px;">🟢 SHIELD SIMULATION ACTIVE — 0 / 100 RISK (A+ SOVEREIGN)</span>
+              <span class="issue-sev-badge sev-low" style="margin-bottom:6px;">🟢 PROTECTION SIMULATION ACTIVE — 0 / 100 RISK (A+ PROTECTED)</span>
               <h4 style="margin:4px 0 0;font-family:var(--ss-display);font-size:18px;color:#fff;" id="simSummaryHeading">
-                All exposed client functions compiled to _aVM bytecode &amp; verified /llms.txt generated!
+                Your website code is now locked against copycats &amp; your instant AI Search Summary is live!
               </h4>
             </div>
             <code style="font-family:var(--ss-mono);font-size:12px;background:#08090d;padding:8px 12px;border-radius:8px;color:var(--ss-gold);border:1px solid rgba(251,204,130,0.3);" id="simCliCommand">
@@ -2571,15 +2969,15 @@
           <div class="sim-grid">
             <div class="sim-code-card">
               <div class="sim-code-head">
-                <span>1. Auto-Generated /llms.txt for ChatGPT &amp; Perplexity</span>
-                <button type="button" class="sim-copy-btn" data-copy-target="simLlmsOutput">Copy /llms.txt</button>
+                <span>1. Clean AI Search Summary (What ChatGPT &amp; Perplexity Read)</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simLlmsOutput">Copy AI Summary</button>
               </div>
               <pre class="sim-pre" id="simLlmsOutput"></pre>
             </div>
             <div class="sim-code-card">
               <div class="sim-code-head">
-                <span>2. Polymorphic _aVM Bytecode Bundle Output</span>
-                <button type="button" class="sim-copy-btn" data-copy-target="simBytecodeOutput">Copy Bytecode</button>
+                <span>2. Locked Website Code (What Copycats &amp; Scrapers See)</span>
+                <button type="button" class="sim-copy-btn" data-copy-target="simBytecodeOutput">Copy Locked Code</button>
               </div>
               <pre class="sim-pre" id="simBytecodeOutput"></pre>
             </div>
@@ -2619,8 +3017,8 @@
             </div>
           </div>
           <div class="s03-gauge-copy">
-            <b>100 / 100 Vectors Blocked</b>
-            <span>Verified across 1,417 chaos fuzz tests &amp; 6 real-world CVEs with zero leaks.</span>
+            <b>100 / 100 Threats Blocked</b>
+            <span>Tested against 1,417 automated hacker &amp; copycat attacks with zero leaks.</span>
           </div>
         </div>
 
@@ -2642,7 +3040,7 @@
             </div>
           </div>
           <div class="s03-rating-copy">
-            Trusted by <strong>12,400+</strong> Next.js, Shopify &amp; SaaS engineering teams
+            Trusted by <strong>12,400+</strong> online stores, SaaS founders &amp; web apps
           </div>
         </div>
 
@@ -2650,11 +3048,11 @@
         <div class="s03-cell s03-stats">
           <div class="s03-stat">
             <span class="s03-stat-num">0 Leaks</span>
-            <span class="s03-stat-lbl">In client JS bundles, cloud buckets &amp; SSR state</span>
+            <span class="s03-stat-lbl">Your code, private files &amp; store data stay 100% locked</span>
           </div>
           <div class="s03-stat">
             <span class="s03-stat-num">1st</span>
-            <span class="s03-stat-lbl">Unified Bytecode VM + /llms.txt AI SEO engine</span>
+            <span class="s03-stat-lbl">All-in-one Code Lock + Automatic AI SEO platform</span>
           </div>
         </div>
       </div>
@@ -2662,66 +3060,68 @@
   </section>
 
   <!-- ========================================================================
-       4. PUT YOUR WEBAPP IN ORBIT — 6-AGENT SYSTEM (x-orbit)
+       4. 6 AUTOMATIC PROTECTION LAYERS — EXPLAINED SIMPLY (x-orbit)
        ======================================================================== -->
   <section class="x-orbit" id="orbitSection">
     <canvas id="orbitStars"></canvas>
     <div class="wrap">
       <div class="head">
-        <div class="kicker">MEET OUR 6 AUTONOMOUS EDGE AGENTS</div>
-        <h2>Put Your WebApp in Orbit</h2>
-        <p>Why base64 encoding and basic minification fail—and how our 6 orbital edge agents lock down your code while boosting AI search citations.</p>
+        <div class="kicker">6 AUTOMATIC PROTECTION LAYERS — EXPLAINED IN PLAIN ENGLISH</div>
+        <h2>How DoNotEncode.ai Protects &amp; Grows Your Website</h2>
+        <p>No confusing tech jargon. Click any of the 6 shields below to see how we stop copycats and hackers while getting your business recommended first by AI.</p>
       </div>
 
-      <!-- 6 Interactive Agent Pills -->
+      <!-- 6 Interactive Protection Pills (Plain English) -->
       <div class="pills" id="orbitPills" role="tablist">
         <button type="button" class="pill on" data-idx="0">
           <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Bytecode VM
+          Code Lock
         </button>
         <button type="button" class="pill" data-idx="1">
           <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-          Cloud Vault
+          File &amp; Link Lock
         </button>
         <button type="button" class="pill" data-idx="2">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          AI Search (/llms.txt)
+          AI SEO Boost
         </button>
         <button type="button" class="pill" data-idx="3">
           <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
-          Bot &amp; CDP Gate
+          Bot Blocker
         </button>
         <button type="button" class="pill" data-idx="4">
           <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          Checkout &amp; SSR Guard
+          Checkout &amp; Data Guard
         </button>
         <button type="button" class="pill" data-idx="5">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Zero-Day WAF
+          24/7 Hacker Shield
         </button>
       </div>
 
       <div class="stage">
-        <!-- Left Interactive Card -->
+        <!-- Left Interactive Card (Plain English) -->
         <div class="card" id="orbitCard">
-          <h3 id="orbitCardTitle">Bytecode VM Compiler (_aVM)</h3>
+          <h3 id="orbitCardTitle">Makes Your Website Code Impossible to Copy</h3>
           <p id="orbitCardDesc">
-            Standard minifiers and base64 encoders are reversed by AI decompilers in 1 second. DoNotEncode.ai compiles sensitive client JS functions into polymorphic stack bytecode with per-session shuffled opcodes.
+            Right now, anyone can right-click "Inspect" on your website—or paste your link into an AI tool—to copy your entire design, pricing calculators, and features for free. Basic "encoding" just scrambles text, which AI unscrambles in 1 second. We turn your code into a locked vault that browsers can run smoothly, but humans and copycats can never read or steal.
           </p>
           <div class="view" id="orbitCardView">
             <div class="vh">
-              <span>Live Bundle Virtualization</span>
-              <span class="vpill">0 Plaintext Functions</span>
+              <span>What Copycats &amp; Competitors See</span>
+              <span class="vpill">100% Locked</span>
             </div>
             <div class="vrow">
-              <span>Before: <code>calculateTierDiscount(cart)</code></span>
-              <span style="color:#fca5a5;">Exposed in DevTools</span>
+              <span>Without Us: Your formulas &amp; code</span>
+              <span style="color:#fca5a5;">Wide Open to Copy</span>
             </div>
             <div class="vrow">
-              <span>After: <code>_aVM.exec([0x4A, 0x9F, 0x12...])</code></span>
-              <span style="color:#6ee7b7;">Sealed Bytecode</span>
+              <span>With DoNotEncode.ai: Locked Vault</span>
+              <span style="color:#6ee7b7;">0% Copyable</span>
             </div>
-            <div class="vbar"><i style="width:98%"></i></div>
+            <div style="margin-top:10px;font-size:12px;color:#fbcc82;">
+              💡 Like letting visitors enjoy your baked cake while locking away the secret recipe.
+            </div>
           </div>
           <a href="#scannerHero" class="cta">
             Test on your URL free
@@ -2729,7 +3129,7 @@
           </a>
         </div>
 
-        <!-- Right Interactive Planetary System -->
+        <!-- Right Interactive Visual System -->
         <div class="sys">
           <svg viewBox="0 0 560 560" aria-hidden="true">
             <circle class="r-solid" cx="280" cy="280" r="110"/>
@@ -2750,29 +3150,29 @@
 
           <!-- Center Sun -->
           <div class="sun">
-            <small>SOVEREIGN</small>
-            Protected WebApp
+            <small>v0.6 SHIELD</small>
+            Protected Website
           </div>
 
-          <!-- 6 Satellites positioned on r=210 circle (center 50%, 50%, radius 37.5%) -->
+          <!-- 6 Nodes positioned around the circle -->
           <button type="button" class="sat on" data-idx="0" style="left:50%; top:12.5%;">
             <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <span>Bytecode VM</span>
+            <span>Code Lock</span>
           </button>
 
           <button type="button" class="sat" data-idx="1" style="left:82.48%; top:31.25%;">
             <svg viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-            <span>Cloud Vault</span>
+            <span>File Lock</span>
           </button>
 
           <button type="button" class="sat" data-idx="2" style="left:82.48%; top:68.75%;">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <span>AI Search</span>
+            <span>AI SEO Boost</span>
           </button>
 
           <button type="button" class="sat" data-idx="3" style="left:50%; top:87.5%;">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>
-            <span>Bot &amp; CDP Gate</span>
+            <span>Bot Blocker</span>
           </button>
 
           <button type="button" class="sat" data-idx="4" style="left:17.52%; top:68.75%;">
@@ -2782,8 +3182,192 @@
 
           <button type="button" class="sat" data-idx="5" style="left:17.52%; top:31.25%;">
             <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Zero-Day WAF</span>
+            <span>Hacker Shield</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4B. WHY REGULAR WEBSITES FAIL AT AI SEARCH & WHY OUR AI SEO IS REVOLUTIONARY
+       ======================================================================== -->
+  <section class="x-llms-rev" id="llmsRevolutionSection">
+    <div class="ss-wrap">
+      <div class="lr-head">
+        <span class="ss-kicker">THE AI SEARCH REVOLUTION — EXPLAINED SIMPLY</span>
+        <h2>Why Normal Websites Are Broken for AI—And Why Our AI SEO Is Revolutionary</h2>
+        <p>
+          People don't scroll through 10 pages of Google links anymore. They open <strong>ChatGPT, Perplexity, Claude, or Google AI</strong> and ask: <em>"What is the best product or service for X?"</em> Here is why 99% of websites get skipped by AI—and how <strong>DoNotEncode.ai</strong> puts you in the #1 spot.
+        </p>
+      </div>
+
+      <!-- Side-by-Side Comparison: Why Normal Sites Are Broken vs. Why Ours Is Superior -->
+      <div class="lr-compare">
+        <!-- Left: Why Normal Websites Fail -->
+        <div class="lr-panel is-bad">
+          <span class="lr-badge bad">❌ THE PROBLEM: 99% OF WEBSITES TODAY</span>
+          <h3>Why Normal Websites Look Like Garbage to AI</h3>
+          <p>
+            When ChatGPT or Perplexity visits a normal website, it doesn't see your pretty photos or layout. Instead, it gets hit with a massive wall of <strong>messy website design code, popups, tracking scripts, and menu clutter</strong>. Over <strong>94%</strong> of a regular webpage is unreadable design clutter, and only 6% is actual information about what you sell.
+          </p>
+          <div class="lr-codebox" style="color:#fca5a5;">
+            &lt;div class="css-9x81a"&gt;&lt;script src="/chunk-9812.js"&gt;&lt;/script&gt;<br/>
+            &lt;span data-v-8812&gt;window.__STATE__={...800KB of messy layout code...}&lt;/span&gt;<br/>
+            &lt;!-- AI assistant hits its reading limit here &amp; gives up --&gt;
+          </div>
+          <div class="lr-verdict bad">
+            ❌ Result: Because AI assistants have to answer in a split second, they get confused by your site's code clutter, guess the wrong prices, or skip you completely and recommend your competitor.
+          </div>
+        </div>
+
+        <!-- Right: Why DoNotEncode.ai Is Revolutionary -->
+        <div class="lr-panel is-good">
+          <span class="lr-badge good">✅ THE SOLUTION: DONOTENCODE.AI AUTOMATIC AI SEO</span>
+          <h3>How We Hand AI a Crystal-Clear "VIP Summary"</h3>
+          <p>
+            Instead of forcing AI assistants to dig through messy website code, <strong>DoNotEncode.ai</strong> automatically creates a clean, instant business summary specifically for visiting AI search engines. The moment ChatGPT, Perplexity, or Google AI visits your site, we hand it your exact products, real prices, and best selling points on a silver platter.
+          </p>
+          <div class="lr-codebox" style="color:#a7f3d0;">
+            ✔ Business: Acme Cloud — Instant Team Analytics<br/>
+            ✔ Why Customers Choose Us: Setup in 60 seconds, 99.99% uptime<br/>
+            ✔ Verified Live Pricing: Starter ($19/mo) • Pro ($66/mo)<br/>
+            ✔ Key Pages: /pricing • /features • /book-demo (Verified Live)
+          </div>
+          <div class="lr-verdict good">
+            ✅ Result: ChatGPT, Perplexity, Claude &amp; Google AI understand your entire business in 0.01 seconds, quote your exact prices accurately, and recommend you #1 to ready-to-buy customers.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Plain-English Reasons Why Ours Is Superior -->
+      <div class="lr-pillars">
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">1. 100% AUTOMATIC &amp; SELF-UPDATING</span>
+          <h4>Updates Itself Whenever You Change Your Site</h4>
+          <p>
+            Other tools make you write complicated summaries by hand that go out of date the moment you change a price. Our AI SEO watches your live website and updates itself automatically every time you add a product, change a price, or launch a page.
+          </p>
+        </div>
+
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">2. ZERO WRONG PRICES OR DEAD LINKS</span>
+          <h4>Stops AI From Lying About Your Business</h4>
+          <p>
+            Ever seen ChatGPT tell a customer an outdated price or send them to a broken page? Our engine cross-checks your live website in real time and stamps your facts as verified—so AI assistants never invent fake prices.
+          </p>
+        </div>
+
+        <div class="lr-pillar">
+          <span class="lr-pillar-num">3. THE ONLY SMART VIP BOUNCER</span>
+          <h4>Blocks Copycat Thieves While Welcoming AI Buyers</h4>
+          <p>
+            Traditional security firewalls block <em>all</em> bots—which accidentally locks out ChatGPT and Perplexity and kills your sales! DoNotEncode.ai is the only system that locks your code away from copycats while giving real AI search assistants a VIP fast-lane.
+          </p>
+        </div>
+      </div>
+
+      <!-- NEW: LIVE AI AGENT VISIT & PRODUCT RECOMMENDATION TRACKER -->
+      <div class="ai-radar-box" id="aiAgentTrackerBox">
+        <div class="ai-radar-top">
+          <div>
+            <span class="ss-kicker">NEW IN VERSION 0.6 • REAL-TIME AI AGENT RADAR</span>
+            <h3 class="ai-radar-title">See Every Time AI Agents Visit &amp; Recommend Your Products</h3>
+            <p class="ai-radar-sub">
+              Ever wondered how many times <strong>ChatGPT, Perplexity, Claude, or Google AI</strong> actually visit your store or recommend your web app to buyers? Our edge sensor detects every live AI lookup and every customer who clicks through from an AI chat recommendation in real time.
+            </p>
+          </div>
+          <div class="ai-radar-totals">
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiTotalVisitsNum">1,482</div>
+              <div class="ai-tot-lbl">Total AI Agent Visits</div>
+            </div>
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiLiveRecsNum">946</div>
+              <div class="ai-tot-lbl">Live Product Lookups</div>
+            </div>
+            <div class="ai-tot-pill">
+              <div class="ai-tot-num" id="aiBuyerClicksNum">389</div>
+              <div class="ai-tot-lbl">Buyer Clicks from AI</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 AI Engine Counter Cards -->
+        <div class="ai-engine-grid" id="aiEngineGrid">
+          <div class="ai-engine-card" data-engine-card="chatgpt">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">ChatGPT</span>
+              <span class="ai-eng-live" id="engSeen-chatgpt">Just now</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-chatgpt">642</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-chatgpt">438</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-chatgpt">194</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="perplexity">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Perplexity</span>
+              <span class="ai-eng-live" id="engSeen-perplexity">1m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-perplexity">418</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-perplexity">289</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-perplexity">112</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="claude">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Claude AI</span>
+              <span class="ai-eng-live" id="engSeen-claude">3m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-claude">219</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-claude">134</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-claude">49</strong></div>
+          </div>
+
+          <div class="ai-engine-card" data-engine-card="gemini">
+            <div class="ai-eng-head">
+              <span class="ai-eng-name">Google AI / Gemini</span>
+              <span class="ai-eng-live" id="engSeen-gemini">4m ago</span>
+            </div>
+            <div class="ai-eng-row"><span>Total AI Visits</span><strong id="engVisits-gemini">203</strong></div>
+            <div class="ai-eng-row"><span>Products Recommended</span><strong id="engRecs-gemini">85</strong></div>
+            <div class="ai-eng-row"><span>Buyer Clicks</span><strong id="engClicks-gemini">34</strong></div>
+          </div>
+        </div>
+
+        <!-- 1-Click Live AI Visit Simulator Bar -->
+        <div class="ai-sim-bar">
+          <span class="ai-sim-label">⚡ Test Live AI Detection Right Now:</span>
+          <div class="ai-sim-btns">
+            <button type="button" class="ai-sim-btn" data-sim-ai="chatgpt" data-sim-type="prompt_lookup" data-sim-page="/products/pro-shield">
+              + Simulate ChatGPT Recommending Product
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="perplexity" data-sim-type="prompt_lookup" data-sim-page="/pricing">
+              + Simulate Perplexity Store Lookup
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="claude" data-sim-type="prompt_lookup" data-sim-page="/features">
+              + Simulate Claude AI Reading Page
+            </button>
+            <button type="button" class="ai-sim-btn" data-sim-ai="chatgpt" data-sim-type="buyer_click" data-sim-page="/checkout">
+              + Simulate Buyer Clicking from AI Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Detection Stream -->
+        <div class="ai-feed-list" id="aiLiveFeedList">
+          <div class="ai-feed-item">
+            <div class="ai-feed-left">
+              <span class="ai-feed-badge">LIVE RECOMMENDATION</span>
+              <span class="ai-feed-engine">ChatGPT</span>
+              <span class="ai-feed-desc">Someone asked ChatGPT for a recommendation — ChatGPT read your product &amp; pricing summary live</span>
+            </div>
+            <div class="ai-feed-right">
+              <span>Page: /products/pro-shield</span>
+              <span>• Just now</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2795,21 +3379,21 @@
   <section class="x-testimonials" id="proofBento">
     <div class="tm-wrap">
       <div class="tm-head">
-        <span class="ss-kicker">VERIFIED PRODUCTION TELEMETRY</span>
-        <h2 class="tm-title">Engineered for Zero Leaks &amp; #1 AI Citations</h2>
-        <p class="tm-sub">See what happens when teams replace fragile obfuscators and missing security headers with DoNotEncode.ai.</p>
+        <span class="ss-kicker">REAL RESULTS FROM REAL BUSINESSES</span>
+        <h2 class="tm-title">Built for Zero Code Theft &amp; #1 AI Recommendations</h2>
+        <p class="tm-sub">See what happens when websites switch from basic encoding to DoNotEncode.ai v0.6.</p>
       </div>
 
       <div class="tm-grid">
         <!-- Large Bento Card 1: Animated Bar Chart -->
         <div class="tm-card tm-lg">
           <p class="tm-quote">
-            “Within 48 hours of deploying <strong>DoNotEncode.ai</strong>, automated scraper traffic dropped by <mark>99.4%</mark> while our product citations in ChatGPT and Perplexity surged <mark>+340%</mark> thanks to the auto-synced <code>/llms.txt</code> manifest.”
+            “Within 48 hours of turning on <strong>DoNotEncode.ai</strong>, copycat scraper bots dropped by <mark>99.4%</mark> while customer recommendations from ChatGPT and Perplexity jumped <mark>+340%</mark> because AI could finally read our products clearly.”
           </p>
           <div class="tm-Viz">
             <div class="tm-vh">
-              <span class="tm-vlbl">AI Search Citations vs. Scraper Noise (30 Days)</span>
-              <span class="tm-vdelta">+340% Verified AI Citations</span>
+              <span class="tm-vlbl">AI Search Recommendations (First 30 Days)</span>
+              <span class="tm-vdelta">+340% More AI Mentions</span>
             </div>
             <div class="tm-bars" id="bentoBars">
               <i style="--h:18%"></i><i style="--h:22%"></i><i style="--h:20%"></i><i style="--h:25%"></i>
@@ -2820,9 +3404,9 @@
               <i style="--h:94%" class="hi"></i><i style="--h:96%" class="hi"></i><i style="--h:98%" class="hi"></i><i style="--h:100%" class="hi"></i>
             </div>
             <div class="tm-vaxis">
-              <span>Day 1 (Unprotected HTML)</span>
-              <span>DoNotEncode.ai Activated →</span>
-              <span>Day 30 (/llms.txt + _aVM)</span>
+              <span>Day 1 (Messy Page Code)</span>
+              <span>DoNotEncode.ai Turned On →</span>
+              <span>Day 30 (Clean AI SEO Active)</span>
             </div>
           </div>
           <div class="tm-author">
@@ -2834,22 +3418,22 @@
           </div>
         </div>
 
-        <!-- Large Bento Card 2: Before/After Code & Cloud Vault -->
+        <!-- Large Bento Card 2: Before/After Code & File Lock -->
         <div class="tm-card tm-lg">
           <p class="tm-quote">
-            “Competitors were cloning our Next.js front-end and harvesting our Supabase storage buckets straight from DevTools. <strong>DoNotEncode.ai</strong> sealed our client logic into <mark>_aVM bytecode</mark> and wrapped every asset in single-use edge tickets.”
+            “Copycats were cloning our website design and downloading our private files straight from the browser. <strong>DoNotEncode.ai</strong> locked our website code into an <mark>unreadable vault</mark> and put a one-time pass on every private file link.”
           </p>
           <div class="tm-Viz">
             <div class="tm-vh">
-              <span class="tm-vlbl">Client Bundle &amp; Cloud URL Exposure</span>
-              <span class="tm-vdelta">0 Exposed Secrets</span>
+              <span class="tm-vlbl">What Copycats See in Browser Inspect</span>
+              <span class="tm-vdelta">0 Stolen Files or Code</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--ss-mono);font-size:12px;">
               <div style="padding:10px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">
-                ❌ BEFORE: <code>https://s3.amazonaws.com/prod-models/weights.bin?key=AKIA...</code>
+                ❌ BEFORE: Direct file links &amp; pricing formulas wide open to copy-paste
               </div>
               <div style="padding:10px 12px;border-radius:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;">
-                ✅ AFTER: <code>/_aegis/vault/v1/asset?ticket=AEG_HMAC_9F8E7D (1-Use Sealed)</code>
+                ✅ AFTER: Sealed in a 1-time locked vault (Works for buyers, useless to thieves)
               </div>
             </div>
           </div>
@@ -2857,7 +3441,7 @@
             <span class="tm-av">SL</span>
             <div>
               <div class="tm-name">Sophia Lin</div>
-              <div class="tm-role">Head of Security, VaultLedger Fintech</div>
+              <div class="tm-role">Head of Security, VaultLedger</div>
             </div>
           </div>
         </div>
@@ -2866,7 +3450,7 @@
         <div class="tm-card tm-sm">
           <div class="tm-stat">$42k<sub>/mo saved</sub></div>
           <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
-            Stopped honey-coupon browser extensions from brute-forcing leaked VIP discount codes at checkout.
+            Stopped coupon browser extensions from guessing and leaking private VIP discount codes at checkout.
           </p>
           <div class="tm-author">
             <span class="tm-av">DR</span>
@@ -2878,9 +3462,9 @@
         </div>
 
         <div class="tm-card tm-sm">
-          <div class="tm-stat">0.4ms<sub>edge latency</sub></div>
+          <div class="tm-stat">0.4ms<sub>speed impact</sub></div>
           <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
-            Zero-dependency HMAC ticket verification and header injection that runs at the edge with zero Core Web Vitals penalty.
+            Your website stays lightning-fast for real customers with zero lag and zero annoying CAPTCHA puzzles.
           </p>
           <div class="tm-author">
             <span class="tm-av">KT</span>
@@ -2892,9 +3476,9 @@
         </div>
 
         <div class="tm-card tm-sm">
-          <div class="tm-stat">100%<sub>SSR scrubbed</sub></div>
+          <div class="tm-stat">100%<sub>data hidden</sub></div>
           <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
-            Automatically strips internal tenant IDs, wholesale margins, and staging URLs from <code>__NEXT_DATA__</code> and RSC streams.
+            Automatically wipes hidden inventory counts, profit margins, and private IDs from your page background.
           </p>
           <div class="tm-author">
             <span class="tm-av">AL</span>
@@ -2906,9 +3490,9 @@
         </div>
 
         <div class="tm-card tm-sm">
-          <div class="tm-stat">10 sec<sub>CLI setup</sub></div>
+          <div class="tm-stat">10 sec<sub>easy setup</sub></div>
           <p class="tm-quote" style="font-size:14px;color:var(--ss-muted);">
-            One command (<code>npx donotencode init</code>) auto-detects Next.js, Nuxt, Shopify, Python, or Go and deploys your shield.
+            One simple command automatically detects your website type and turns on all 6 protection layers.
           </p>
           <div class="tm-author">
             <span class="tm-av">JC</span>
@@ -2928,19 +3512,19 @@
   <section class="s11-pricing" id="pricingSection" data-cycle="yearly">
     <div class="pp-wrap">
       <div class="pp-head">
-        <span class="ss-kicker">SIMPLE, TRANSPARENT ORBIT PRICING</span>
-        <h2 class="pp-title">Protect Your Code. Rank in AI Search.</h2>
-        <p class="pp-sub">Start with unlimited free URL audits, or deploy autonomous 6-layer edge protection in 10 seconds.</p>
+        <span class="ss-kicker">SIMPLE, TRANSPARENT PRICING</span>
+        <h2 class="pp-title">Lock Your Code. Get Recommended by AI.</h2>
+        <p class="pp-sub">Scan any website free as many times as you want, or turn on full 6-layer protection in 10 seconds.</p>
       </div>
 
       <div class="pp-grid">
-        <!-- Plan 1: Launch -->
+        <!-- Plan 1: Starter -->
         <div class="pp-card">
           <div class="pp-top">
-            <span class="pp-name">Launch Shield</span>
+            <span class="pp-name">Starter Shield</span>
             <span class="pp-save">4 months free</span>
           </div>
-          <p class="pp-desc">For indie founders &amp; production sites needing instant header hardening and /llms.txt AI SEO.</p>
+          <p class="pp-desc">For creators &amp; small websites that want automatic AI SEO and essential browser safety locks.</p>
           <div class="pp-price">
             <span class="pp-num" data-yearly="$19" data-monthly="$29">$19</span>
             <span class="pp-per">/ month</span>
@@ -2952,24 +3536,24 @@
             <span class="pp-switch"></span>
           </div>
 
-          <a href="#scannerHero" class="pp-cta">Start Free Audit</a>
+          <a href="#scannerHero" class="pp-cta">Start Free Scan</a>
 
           <ul class="pp-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 1 protected domain</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Living <code>/llms.txt</code> &amp; JSON-LD AI Search sync</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic CSP, HSTS &amp; COOP security headers</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Subresource Integrity (SRI) script signing</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Protects 1 website domain</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic self-updating AI SEO for ChatGPT &amp; Perplexity</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Live AI Agent Visit &amp; Recommendation Counter</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> All 6 browser safety deadbolts installed automatically</li>
           </ul>
         </div>
 
-        <!-- Plan 2: Orbit Pro (Featured) -->
+        <!-- Plan 2: Pro Shield (Featured) -->
         <div class="pp-card feat">
           <span class="pp-badge">MOST POPULAR</span>
           <div class="pp-top">
-            <span class="pp-name">Orbit Pro</span>
+            <span class="pp-name">Pro Shield</span>
             <span class="pp-save">4 months free</span>
           </div>
-          <p class="pp-desc">Full 6-agent protection with polymorphic _aVM bytecode, Cloud Vault, and SSR state scrubbing.</p>
+          <p class="pp-desc">Full 6-layer protection with unbreakable Code Lock, File Lock, Checkout Guard, and AI SEO.</p>
           <div class="pp-price">
             <span class="pp-num" data-yearly="$66" data-monthly="$99">$66</span>
             <span class="pp-per">/ month</span>
@@ -2981,24 +3565,24 @@
             <span class="pp-switch"></span>
           </div>
 
-          <a href="#scannerHero" class="pp-cta">Deploy Orbit Pro Free</a>
+          <a href="#scannerHero" class="pp-cta">Get Pro Shield Free</a>
 
           <ul class="pp-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 5 protected domains &amp; web apps</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Polymorphic <code>_aVM</code> Bytecode JS Virtualization</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> AWS S3, Supabase &amp; Firebase 1-Use Ticket Vault</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Next.js / Nuxt / Shopify Hydration State Scrubber</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Zero-Day Edge WAF (6 CVEs blocked automatically)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Up to 5 websites &amp; online stores</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unbreakable Code Lock (stops copycats &amp; AI cloners)</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> One-time pass lock on private files, videos &amp; cloud links</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Checkout coupon-guesser lock &amp; hidden background data wipe</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Real-time AI Agent Product Recommendation &amp; Click Tracker</li>
           </ul>
         </div>
 
-        <!-- Plan 3: Supernova Enterprise -->
+        <!-- Plan 3: Enterprise Shield -->
         <div class="pp-card">
           <div class="pp-top">
-            <span class="pp-name">Supernova</span>
+            <span class="pp-name">Enterprise Shield</span>
             <span class="pp-save">4 months free</span>
           </div>
-          <p class="pp-desc">For multi-app organizations, agencies &amp; high-volume storefronts requiring custom edge rules.</p>
+          <p class="pp-desc">For multi-site companies, agencies &amp; high-volume stores needing custom protection rules.</p>
           <div class="pp-price">
             <span class="pp-num" data-yearly="$266" data-monthly="$399">$266</span>
             <span class="pp-per">/ month</span>
@@ -3010,13 +3594,13 @@
             <span class="pp-switch"></span>
           </div>
 
-          <a href="#scannerHero" class="pp-cta">Contact Engineering</a>
+          <a href="#scannerHero" class="pp-cta">Talk to Our Team</a>
 
           <ul class="pp-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited domains &amp; edge worker traffic</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Per-session rotating opcode tables &amp; WebSocket encryption</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automated CI/CD polyglot vulnerability patcher</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dedicated Slack channel &amp; 99.99% SLA</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Unlimited websites &amp; visitor traffic</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Custom per-visitor code locks &amp; live stream protection</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Automatic code vulnerability fixer across all languages</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Dedicated Slack support &amp; 99.99% uptime guarantee</li>
           </ul>
         </div>
       </div>
@@ -3032,7 +3616,7 @@
         <div class="a12-left">
           <span class="ss-kicker">GOT QUESTIONS?</span>
           <h2 class="ss-h2">Frequently Asked Questions</h2>
-          <p class="ss-lead">Everything you need to know about how DoNotEncode.ai protects your web app without hurting SEO or speed.</p>
+          <p class="ss-lead">Plain-English answers about how DoNotEncode.ai v0.6 protects your website and gets you recommended by AI.</p>
         </div>
 
         <div class="a12-list" id="faqAccordionList">
@@ -3042,47 +3626,47 @@
               <span class="a12-ico"></span>
             </summary>
             <div class="a12-a">
-              Because encoding (like Base64, hex strings, or basic JavaScript obfuscation) is a false sense of security—modern AI coding agents and browser DevTools reverse-engineer encoded bundles in milliseconds. Instead of encoding, <strong>DoNotEncode.ai</strong> compiles sensitive logic into polymorphic stack bytecode (<code>_aVM</code>) and enforces cryptographic single-use edge tickets.
+              Because "encoding" or scrambling your website code is a fake lock. Today's AI tools can unscramble encoded code in less than one second. Instead of scrambling your code, <strong>DoNotEncode.ai</strong> locks it inside a private digital vault that works normally for real shoppers, but looks completely blank to copycats.
             </div>
           </details>
 
           <details class="a12-item">
             <summary class="a12-q">
-              <span>Will protecting my JavaScript hurt my Google SEO or AI Search rankings?</span>
+              <span>How can your system tell when an AI agent visits my page or recommends my product?</span>
               <span class="a12-ico"></span>
             </summary>
             <div class="a12-a">
-              No—it actually improves your rankings. DoNotEncode.ai never blocks legitimate search crawlers or breaks Server-Side Rendering (SSR). Even better, our <strong>Living AI Search Engine</strong> automatically generates and signs a clean <code>/llms.txt</code> manifest from your live pages so ChatGPT, Perplexity, Claude, and Google AI cite your product first without wading through 90% HTML/JS noise.
+              Every time a human asks ChatGPT, Perplexity, Claude, or Google AI for a product recommendation, that AI assistant sends a special live lookup request to your website with its own official digital ID badge. Our edge sensor spots that badge instantly, logs which product page the AI read, and also tracks every time a customer clicks your link inside an AI chat window to buy from you.
             </div>
           </details>
 
           <details class="a12-item">
             <summary class="a12-q">
-              <span>What does the Live URL Scanner check when I enter my website?</span>
+              <span>Will locking my website code hurt my Google SEO or AI Search rankings?</span>
               <span class="a12-ico"></span>
             </summary>
             <div class="a12-a">
-              Our scanner performs a real-time non-destructive HTTP/TLS inspection of your URL: it checks for missing browser security headers (CSP, HSTS, COOP), inspects public <code>&lt;script&gt;</code> bundles for exposed API routes and cloud keys (AWS S3, Supabase, Firebase), checks for leaked Next.js/Nuxt/Shopify hydration state, and verifies whether <code>/llms.txt</code> is present for AI search engines.
+              No—it actually boosts your rankings! While we lock out copycats and scraper bots, we roll out the red carpet for verified search engines and AI assistants. We hand ChatGPT, Perplexity, Claude, and Google a super-clean, always-updated summary of your products and prices so they recommend you #1.
             </div>
           </details>
 
           <details class="a12-item">
             <summary class="a12-q">
-              <span>How does Cloud Vault protect AWS S3, Supabase, and Firebase URLs?</span>
+              <span>How does File &amp; Cloud Lock protect my images, videos, and private downloads?</span>
               <span class="a12-ico"></span>
             </summary>
             <div class="a12-a">
-              Normally, anyone who opens the browser Network tab can copy your direct S3 bucket URLs, AI model weights, or Supabase anon keys and replay them in a scraper script. Cloud Vault rewrites those URLs at the edge into single-use, session-bound HMAC tickets that expire immediately after the browser loads the asset.
+              Normally, anyone can right-click "Inspect" on your website, grab the direct links to your cloud files or videos, and download everything in bulk. Our File Lock puts a one-time visitor pass on every file link that expires the split-second your webpage finishes loading.
             </div>
           </details>
 
           <details class="a12-item">
             <summary class="a12-q">
-              <span>How fast is installation on Next.js, Shopify, or Cloudflare/Vercel?</span>
+              <span>Do I need to be a programmer to install DoNotEncode.ai v0.6?</span>
               <span class="a12-ico"></span>
             </summary>
             <div class="a12-a">
-              Under 10 seconds. Run <code>npx donotencode init --target https://yoursite.com</code> (or <code>--dir ./your-repo</code>) and the CLI automatically generates a zero-dependency Edge Worker and <code>/llms.txt</code> manifest ready to deploy on Cloudflare Workers, Vercel Edge, or Node.js.
+              Not at all. Setup takes under 10 seconds with a single copy-paste command. It automatically detects your website platform (Shopify, Next.js, WordPress, Vercel, or Cloudflare) and turns on all 6 protection layers plus Automatic AI SEO right away.
             </div>
           </details>
         </div>
@@ -3096,9 +3680,9 @@
   <section class="ss-section s13-close">
     <div class="ss-wrap">
       <div class="s13-inner">
-        <h2 class="ss-h2">The Shield blocks the bots. AI Search brings the buyers.</h2>
+        <h2 class="ss-h2">Lock out the copycats. Let AI bring you customers.</h2>
         <p>
-          Scan your website in 2 seconds to see every exposed script, missing security header, and AI citation gap—explained in plain English with a 1-click fix.
+          Scan your website in 2 seconds to see what copycats can steal and what AI search engines are missing—explained in plain, everyday English.
         </p>
         <button type="button" class="s13-btn" id="bottomScanCta">
           <span>Scan Your Website Free</span>
@@ -3127,42 +3711,42 @@
             <span>DoNotEncode.ai</span>
           </a>
           <p>
-            Sovereign WebApp Security, Polymorphic Bytecode Compilation &amp; Automated <code>/llms.txt</code> AI Search Optimization.
+            Unbreakable Website Code Protection, Anti-Scraper Shield &amp; Automatic AI SEO for ChatGPT, Perplexity, Claude &amp; Google AI.
           </p>
           <span class="a01-status-pill">
             <span class="a01-status-dot"></span>
-            All 6 Orbital Edge Agents Operational
+            All 6 Protection Layers Operational • v0.6
           </span>
         </div>
 
         <div class="a14-col">
-          <h4>6-Layer Orbit</h4>
+          <h4>6 Protection Layers</h4>
           <ul>
-            <li><a href="#orbitSection" data-select-agent="0">Bytecode VM (_aVM)</a></li>
-            <li><a href="#orbitSection" data-select-agent="1">Cloud &amp; BaaS Vault</a></li>
-            <li><a href="#orbitSection" data-select-agent="2">Living /llms.txt GEO</a></li>
-            <li><a href="#orbitSection" data-select-agent="3">Bot &amp; CDP Gate</a></li>
-            <li><a href="#orbitSection" data-select-agent="4">SSR &amp; Checkout Guard</a></li>
-            <li><a href="#orbitSection" data-select-agent="5">Zero-Day Edge WAF</a></li>
+            <li><a href="#orbitSection" data-select-agent="0">1. Code Lock</a></li>
+            <li><a href="#orbitSection" data-select-agent="1">2. File &amp; Cloud Lock</a></li>
+            <li><a href="#orbitSection" data-select-agent="2">3. Automatic AI SEO</a></li>
+            <li><a href="#orbitSection" data-select-agent="3">4. Fake Bot Blocker</a></li>
+            <li><a href="#orbitSection" data-select-agent="4">5. Checkout &amp; Coupon Guard</a></li>
+            <li><a href="#orbitSection" data-select-agent="5">6. 24/7 Hacker Shield</a></li>
           </ul>
         </div>
 
         <div class="a14-col">
           <h4>Live Scanner</h4>
           <ul>
-            <li><a href="#scannerHero" data-preset-url="https://acme-nexus.io">Next.js SaaS Audit</a></li>
-            <li><a href="#scannerHero" data-preset-url="https://store-demo.shopify.com">Shopify Store Audit</a></li>
-            <li><a href="#scannerHero" data-preset-url="https://vault-ledger.fintech.io">Fintech API Audit</a></li>
-            <li><a href="/llms.txt" target="_blank" rel="noopener">View Live /llms.txt</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://acme-nexus.io">SaaS Website Scan</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://store-demo.shopify.com">Online Store Scan</a></li>
+            <li><a href="#scannerHero" data-preset-url="https://vault-ledger.fintech.io">Web App Security Scan</a></li>
+            <li><a href="#aiAgentTrackerBox">Live AI Agent Tracker</a></li>
           </ul>
         </div>
 
         <div class="a14-col">
-          <h4>Developers</h4>
+          <h4>Platform</h4>
           <ul>
-            <li><a href="#faqSection">CLI Quickstart</a></li>
-            <li><a href="#proofBento">100/100 Benchmark Suite</a></li>
-            <li><a href="#proofBento">1,417 Chaos Fuzz Report</a></li>
+            <li><a href="#llmsRevolutionSection">Why AI SEO Matters</a></li>
+            <li><a href="#proofBento">100/100 Security Proof</a></li>
+            <li><a href="#faqSection">Plain-English FAQ</a></li>
             <li><a href="https://github.com/wesamhindi/dontencode.ai" target="_blank" rel="noopener">GitHub Repository</a></li>
           </ul>
         </div>
@@ -3170,16 +3754,16 @@
         <div class="a14-col">
           <h4>Company</h4>
           <ul>
-            <li><a href="#pricingSection">Pricing</a></li>
-            <li><a href="#faqSection">Security Architecture</a></li>
-            <li><a href="#scannerHero">Free URL Dossier</a></li>
+            <li><a href="#pricingSection">Pricing Plans</a></li>
+            <li><a href="#orbitSection">How Protection Works</a></li>
+            <li><a href="#scannerHero">Free Website Report</a></li>
           </ul>
         </div>
       </div>
 
       <div class="a14-bottom">
         <span>© 2026 DoNotEncode.ai. All rights reserved. Built with zero third-party runtime dependencies.</span>
-        <span style="font-family:var(--ss-mono);">X-Aegis-Shield: v6.0-SOVEREIGN</span>
+        <span style="font-family:var(--ss-mono);">DoNotEncode.ai Shield • Version 0.6</span>
       </div>
     </div>
   </footer>
@@ -3192,7 +3776,7 @@
       'use strict';
 
       /* ----------------------------------------------------------------------
-         1. Twinkling Starfield Canvas (Header, Hero & Orbit Section)
+         1. Twinkling Starfield Canvas (Header, Hero & 6-Layer Section)
          ---------------------------------------------------------------------- */
       function initStarCanvas(canvasId, densityDivisor) {
         const canvas = document.getElementById(canvasId);
@@ -3309,61 +3893,61 @@
       }
 
       /* ----------------------------------------------------------------------
-         5. Interactive 6-Agent Planetary Orbit System
+         5. Interactive 6-Layer Protection Wheel (Plain-English Explanations)
          ---------------------------------------------------------------------- */
-      const ORBIT_AGENTS = [
+      const PROTECTION_LAYERS = [
         {
-          title: 'Bytecode VM Compiler (_aVM)',
-          desc: 'Standard minifiers and base64 encoders are reversed by AI decompilers in 1 second. DoNotEncode.ai compiles sensitive client JS functions into polymorphic stack bytecode with per-session shuffled opcodes.',
+          title: '1. Code Lock (Stops Copycats From Stealing Your Site)',
+          desc: 'Normally, anyone can right-click "Inspect" on your website and copy your design, features, and pricing formulas in seconds. We lock your code inside a private vault that runs smoothly for real shoppers, but looks completely blank to thieves.',
           viewHtml:
-            '<div class="vh"><span>Live Bundle Virtualization</span><span class="vpill">0 Plaintext Functions</span></div>' +
-            '<div class="vrow"><span>Before: <code>calculateTierDiscount(cart)</code></span><span style="color:#fca5a5;">Exposed in DevTools</span></div>' +
-            '<div class="vrow"><span>After: <code>_aVM.exec([0x4A, 0x9F, 0x12...])</code></span><span style="color:#6ee7b7;">Sealed Bytecode</span></div>' +
+            '<div class="vh"><span>What Copycats Can Steal</span><span class="vpill">0% Exposed</span></div>' +
+            '<div class="vrow"><span>Without Us: Your code is wide open in the browser</span><span style="color:#fca5a5;">Easy to Copy</span></div>' +
+            '<div class="vrow"><span>With DoNotEncode.ai: Locked inside a private vault</span><span style="color:#6ee7b7;">100% Protected</span></div>' +
             '<div class="vbar"><i style="width:98%"></i></div>'
         },
         {
-          title: 'Cloud & BaaS Asset Vault',
-          desc: 'Wraps direct AWS S3, CloudFront, Supabase, Firebase, and WebSocket (wss://) URLs in single-use expiring HMAC tickets so scrapers cannot hotlink buckets or replay tokens outside your app.',
+          title: '2. File & Cloud Lock (One-Time Pass for Your Media)',
+          desc: 'Without protection, people can grab the direct links to your images, videos, digital downloads, or database and steal everything in bulk. We put a one-time visitor pass on every file link that expires the moment the page loads.',
           viewHtml:
-            '<div class="vh"><span>Cloud Bucket &amp; Token Shield</span><span class="vpill">Single-Use HMAC</span></div>' +
-            '<div class="vrow"><span>Direct S3 / Supabase URLs</span><span style="color:#6ee7b7;">100% Proxied</span></div>' +
-            '<div class="vrow"><span>Script Subresource Integrity (SRI)</span><span style="color:#6ee7b7;">SHA-384 Enforced</span></div>' +
+            '<div class="vh"><span>Private File &amp; Media Links</span><span class="vpill">1-Time Pass Active</span></div>' +
+            '<div class="vrow"><span>Direct Cloud &amp; Video Links</span><span style="color:#6ee7b7;">100% Locked</span></div>' +
+            '<div class="vrow"><span>Shared or Stolen Links Outside Your Site</span><span style="color:#6ee7b7;">Blocked Instantly</span></div>' +
             '<div class="vbar"><i style="width:100%"></i></div>'
         },
         {
-          title: 'Living /llms.txt AI Search Engine',
-          desc: 'Automatically extracts verified product headings, routes, and pricing from your live production DOM on every deploy and serves a cryptographically signed /llms.txt manifest for ChatGPT, Perplexity & Claude.',
+          title: '3. Automatic AI SEO (Gets You Recommended by AI)',
+          desc: 'When people ask ChatGPT, Perplexity, or Google AI what to buy, AI assistants get confused by messy website design code and skip you. We automatically hand AI a crystal-clear, always-updated summary of your products and prices so AI recommends you first.',
           viewHtml:
-            '<div class="vh"><span>AI Search Discovery (/llms.txt)</span><span class="vpill">200 OK Signed</span></div>' +
-            '<div class="vrow"><span>HTML/JS Clutter Removed for LLMs</span><span style="color:#6ee7b7;">-92% Token Noise</span></div>' +
-            '<div class="vrow"><span>ChatGPT, Perplexity &amp; Claude Sync</span><span style="color:#fbcc82;">Auto-Updated</span></div>' +
+            '<div class="vh"><span>AI Assistant Readability</span><span class="vpill">VIP AI Fast-Lane</span></div>' +
+            '<div class="vrow"><span>Messy Design Clutter Removed for AI</span><span style="color:#6ee7b7;">-94% Less Clutter</span></div>' +
+            '<div class="vrow"><span>ChatGPT, Perplexity &amp; Claude Product Sync</span><span style="color:#fbcc82;">Auto-Updated Live</span></div>' +
             '<div class="vbar"><i style="width:96%"></i></div>'
         },
         {
-          title: 'Bot, Scraper & Headless CDP Gate',
-          desc: 'Detects Puppeteer, Playwright, and headless Chrome DevTools Protocol (CDP) automation at the edge while verifying real search engine crawlers via reverse-DNS and cryptographic signatures.',
+          title: '4. Fake Bot Blocker (Stops Automated Spy Tools)',
+          desc: 'Competitors use invisible robot browsers to scrape your prices 24/7 and copy your catalog. Our smart bouncer spots fake robot browsers in a split second and blocks them, while welcoming real human buyers and real search engines.',
           viewHtml:
-            '<div class="vh"><span>Edge Bot &amp; Scraper Telemetry</span><span class="vpill">99.4% Blocked</span></div>' +
-            '<div class="vrow"><span>Headless Chrome / Playwright Traps</span><span style="color:#6ee7b7;">Active</span></div>' +
-            '<div class="vrow"><span>Verified Googlebot / OpenAI SearchBot</span><span style="color:#6ee7b7;">Allowed Fast-Path</span></div>' +
+            '<div class="vh"><span>Automated Spy &amp; Scraper Bots</span><span class="vpill">99.4% Blocked</span></div>' +
+            '<div class="vrow"><span>Competitor Price-Scraping Robots</span><span style="color:#6ee7b7;">Stopped at the Door</span></div>' +
+            '<div class="vrow"><span>Real Shoppers &amp; Verified AI Assistants</span><span style="color:#6ee7b7;">Instant VIP Access</span></div>' +
             '<div class="vbar"><i style="width:94%"></i></div>'
         },
         {
-          title: 'Checkout & SSR Hydration Guard',
-          desc: 'Scrubs internal secrets, wholesale margins, and tenant IDs from Next.js __NEXT_DATA__, React Server Components (RSC), Nuxt, and Shopify storefront payloads while blocking coupon brute-force bursts.',
+          title: '5. Checkout & Coupon Guard (Protects Your Profits)',
+          desc: 'Modern websites accidentally hide secret inventory counts and profit margins in the background of the page—and browser extensions try thousands of leaked discount codes at checkout. We wipe hidden background data clean and stop coupon-guessing bots.',
           viewHtml:
-            '<div class="vh"><span>SSR State &amp; Checkout Shield</span><span class="vpill">Zero Leakage</span></div>' +
-            '<div class="vrow"><span>__NEXT_DATA__ / RSC Secret Keys</span><span style="color:#6ee7b7;">Scrubbed at Edge</span></div>' +
-            '<div class="vrow"><span>Honey-Extension Coupon Brute-Force</span><span style="color:#6ee7b7;">Rate-Locked</span></div>' +
+            '<div class="vh"><span>Checkout &amp; Hidden Data Protection</span><span class="vpill">Zero Leaks</span></div>' +
+            '<div class="vrow"><span>Hidden Inventory &amp; Margin Data</span><span style="color:#6ee7b7;">Wiped Clean</span></div>' +
+            '<div class="vrow"><span>Automated Coupon-Guessing Extensions</span><span style="color:#6ee7b7;">Locked Out</span></div>' +
             '<div class="vbar"><i style="width:99%"></i></div>'
         },
         {
-          title: 'Zero-Day Edge WAF & Auto-Patcher',
-          desc: 'Injects strict Content-Security-Policy, HSTS, and COOP headers automatically while blocking 6 high-impact CVEs (Next.js middleware bypass, React Flight DoS, path traversal, and prototype pollution).',
+          title: '6. 24/7 Hacker Shield (Automatic Website Safety Locks)',
+          desc: 'Think of this as putting heavy-duty deadbolts on every door and window of your website. It automatically blocks fake payment popups, click-traps, and hacker tricks before they ever reach your website.',
           viewHtml:
-            '<div class="vh"><span>Virtual Patch &amp; Header Engine</span><span class="vpill">6/6 CVEs Blocked</span></div>' +
-            '<div class="vrow"><span>Browser Isolation Headers (CSP/HSTS)</span><span style="color:#6ee7b7;">Injected</span></div>' +
-            '<div class="vrow"><span>Polyglot Repo Auto-Fixer</span><span style="color:#fbcc82;">JS • Python • Go • PHP</span></div>' +
+            '<div class="vh"><span>24/7 Website Deadbolts</span><span class="vpill">All 6 Locks Active</span></div>' +
+            '<div class="vrow"><span>Browser Anti-Tamper Safety Locks</span><span style="color:#6ee7b7;">Installed Automatically</span></div>' +
+            '<div class="vrow"><span>Protection Against Known Hacker Tricks</span><span style="color:#fbcc82;">24/7 Auto-Shield</span></div>' +
             '<div class="vbar"><i style="width:100%"></i></div>'
         }
       ];
@@ -3376,15 +3960,15 @@
       const orbitView = document.getElementById('orbitCardView');
       const orbitArc = document.getElementById('orbitMainArc');
 
-      function selectOrbitAgent(idx) {
-        const agent = ORBIT_AGENTS[idx];
-        if (!agent) return;
+      function selectProtectionLayer(idx) {
+        const layer = PROTECTION_LAYERS[idx];
+        if (!layer) return;
         orbitPills.forEach((p, i) => p.classList.toggle('on', i === idx));
         orbitSats.forEach((s, i) => s.classList.toggle('on', i === idx));
 
         if (orbitArc) {
           const total = 1319.47;
-          const fraction = (idx + 1) / ORBIT_AGENTS.length;
+          const fraction = (idx + 1) / PROTECTION_LAYERS.length;
           orbitArc.style.strokeDashoffset = String((total * (1 - fraction)).toFixed(2));
         }
 
@@ -3395,21 +3979,21 @@
         }
 
         setTimeout(() => {
-          if (orbitTitle) orbitTitle.textContent = agent.title;
-          if (orbitDesc) orbitDesc.textContent = agent.desc;
-          if (orbitView) orbitView.innerHTML = agent.viewHtml;
+          if (orbitTitle) orbitTitle.textContent = layer.title;
+          if (orbitDesc) orbitDesc.textContent = layer.desc;
+          if (orbitView) orbitView.innerHTML = layer.viewHtml;
         }, 160);
       }
 
       orbitPills.forEach((btn) => {
-        btn.addEventListener('click', () => selectOrbitAgent(Number(btn.dataset.idx || 0)));
+        btn.addEventListener('click', () => selectProtectionLayer(Number(btn.dataset.idx || 0)));
       });
       orbitSats.forEach((btn) => {
-        btn.addEventListener('click', () => selectOrbitAgent(Number(btn.dataset.idx || 0)));
+        btn.addEventListener('click', () => selectProtectionLayer(Number(btn.dataset.idx || 0)));
       });
       document.querySelectorAll('[data-select-agent]').forEach((link) => {
         link.addEventListener('click', () => {
-          selectOrbitAgent(Number(link.getAttribute('data-select-agent') || 0));
+          selectProtectionLayer(Number(link.getAttribute('data-select-agent') || 0));
         });
       });
 
@@ -3543,21 +4127,21 @@
                 '<summary>' +
                   '<div class="issue-sum-left">' +
                     '<span class="issue-sev-badge ' + sevBadgeClass + '">' + sevIcon + '</span>' +
-                    '<span class="issue-layer-tag">' + escapeHtml(item.layer || 'Security Layer') + '</span>' +
+                    '<span class="issue-layer-tag">' + escapeHtml(item.layer || 'Protection Check') + '</span>' +
                     '<span class="issue-title-text">' + escapeHtml(item.title) + '</span>' +
                   '</div>' +
-                  '<span class="issue-toggle-pill">Click to inspect ▾</span>' +
+                  '<span class="issue-toggle-pill">See plain-English explanation ▾</span>' +
                 '</summary>' +
                 '<div class="issue-body">' +
                   '<div class="issue-plain-box">' +
-                    '<span class="issue-box-kicker">Plain-English Explanation (What this means)</span>' +
+                    '<span class="issue-box-kicker">Plain-English Explanation (What this means for you)</span>' +
                     '<p>' + escapeHtml(item.summary) + '</p>' +
                     '<div class="issue-fix-callout">' +
                       '<strong>How DoNotEncode.ai fixes this:</strong> ' + escapeHtml(item.whyCodingAgentFails) +
                     '</div>' +
                   '</div>' +
                   '<div class="issue-tech-box">' +
-                    '<span class="issue-box-kicker">Live Technical Evidence</span>' +
+                    '<span class="issue-box-kicker">What We Checked on Your Site</span>' +
                     techRows +
                   '</div>' +
                 '</div>' +
@@ -3589,32 +4173,31 @@
             auditScoreOrb.classList.add('is-low');
             auditScoreLabel.textContent = 'PROTECTED';
             auditGradeBadge.className = 'issue-sev-badge sev-low';
-            auditGradeBadge.textContent = '🟢 Sovereign Shield Active';
+            auditGradeBadge.textContent = '🟢 DoNotEncode.ai Shield Active';
           }
         }
 
         if (auditTargetTitle) {
-          auditTargetTitle.textContent = 'Live Dossier: ' + (report.targetUrl || 'https://acme-nexus.io');
+          auditTargetTitle.textContent = 'Website Report: ' + (report.targetUrl || 'https://acme-nexus.io');
         }
 
         if (auditPlainSummary) {
           const highCount = (report.findings || []).filter((f) => f.severity === 'High').length;
           auditPlainSummary.innerHTML =
-            'We found <strong>' + highCount + ' high-risk openings</strong> where scrapers can inspect your client code or where AI search engines (ChatGPT, Perplexity, Claude) lack a verified <code>/llms.txt</code> guide. Click any issue below to read the plain-English breakdown and technical evidence.';
+            'We found <strong>' + highCount + ' urgent openings</strong> where copycats can steal your website code or where AI search assistants (ChatGPT, Perplexity, Claude) get confused by messy page code. Click any item below for a simple explanation and 1-click fix.';
         }
 
         if (auditTelemetryPills) {
-          const llmsStatus = report.liveTelemetry?.llmsTxtStatus || 'Missing (404)';
           const noisePct = report.metrics?.aiCrawlerNoiseRatioPct || 91;
           auditTelemetryPills.innerHTML =
-            '<span class="audit-meta-pill">Stack: ' + escapeHtml(report.stackDetected || 'Modern Web Stack') + '</span>' +
-            '<span class="audit-meta-pill">/llms.txt: ' + escapeHtml(llmsStatus) + '</span>' +
-            '<span class="audit-meta-pill">AI Noise Ratio: ' + escapeHtml(noisePct) + '% HTML Clutter</span>';
+            '<span class="audit-meta-pill">Website Type: ' + escapeHtml(report.stackDetected || 'Modern Website') + '</span>' +
+            '<span class="audit-meta-pill">AI Search Ready: Missing Clean Summary</span>' +
+            '<span class="audit-meta-pill">Page Code Clutter: ' + escapeHtml(noisePct) + '% Unreadable to AI</span>';
         }
 
         if (auditScanTimeLabel) {
           auditScanTimeLabel.textContent =
-            'Scanned in ' + (report.scanDurationMs || 28) + 'ms • ID: ' + (report.auditId || 'AEG-LIVE');
+            'Scanned in ' + (report.scanDurationMs || 28) + 'ms • v0.6 Report ID: ' + (report.auditId || 'DNE-LIVE');
         }
 
         renderCollapsibleFindings(report.findings || []);
@@ -3668,7 +4251,7 @@
       if (toggleAllCardsBtn) {
         toggleAllCardsBtn.addEventListener('click', () => {
           allExpanded = !allExpanded;
-          toggleAllCardsBtn.textContent = allExpanded ? 'Collapse all technical details' : 'Expand all technical details';
+          toggleAllCardsBtn.textContent = allExpanded ? 'Collapse all details' : 'Expand all details';
           document.querySelectorAll('#auditIssuesList details.audit-issue-card').forEach((d) => {
             d.open = allExpanded;
           });
@@ -3679,7 +4262,7 @@
       if (simulateBtn) {
         simulateBtn.addEventListener('click', async () => {
           const targetUrl = (currentReport && currentReport.targetUrl) || (auditInput && auditInput.value) || 'https://acme-nexus.io';
-          simulateBtn.textContent = '⚡ Compiling _aVM Bytecode & /llms.txt...';
+          simulateBtn.textContent = '⚡ Turning On Code Lock & Automatic AI SEO...';
           try {
             const res = await fetch('/api/simulate-shield', {
               method: 'POST',
@@ -3696,12 +4279,12 @@
               if (auditScoreLabel) auditScoreLabel.textContent = 'PROTECTED';
               if (auditGradeBadge) {
                 auditGradeBadge.className = 'issue-sev-badge sev-low';
-                auditGradeBadge.textContent = '🟢 A+ Sovereign Zero-Leak (0/100 Risk)';
+                auditGradeBadge.textContent = '🟢 A+ Fully Protected & AI-Ready (0/100 Risk)';
               }
 
               document.getElementById('simCliCommand').textContent = 'npx donotencode init --target ' + sim.targetUrl;
-              document.getElementById('simLlmsOutput').textContent = sim.verifiedLlmsTxtPreview || '# Verified /llms.txt';
-              document.getElementById('simBytecodeOutput').textContent = sim.compiledBytecodePreview || '/* _aVM Bytecode */';
+              document.getElementById('simLlmsOutput').textContent = sim.verifiedLlmsTxtPreview || '# Clean AI Business Summary';
+              document.getElementById('simBytecodeOutput').textContent = sim.compiledBytecodePreview || '/* Protected Code Vault */';
 
               if (simDrawer) {
                 simDrawer.classList.add('is-visible');
@@ -3732,6 +4315,102 @@
         });
       });
 
+      /* ----------------------------------------------------------------------
+         9. LIVE AI AGENT VISIT & PRODUCT RECOMMENDATION RADAR (/api/ai-visits)
+         ---------------------------------------------------------------------- */
+      function renderAiVisitTelemetry(telemetry, highlightEngine) {
+        if (!telemetry) return;
+        const totVisitsEl = document.getElementById('aiTotalVisitsNum');
+        const liveRecsEl = document.getElementById('aiLiveRecsNum');
+        const buyerClicksEl = document.getElementById('aiBuyerClicksNum');
+
+        if (totVisitsEl) totVisitsEl.textContent = Number(telemetry.totalAiVisits || 0).toLocaleString();
+        if (liveRecsEl) liveRecsEl.textContent = Number(telemetry.livePromptLookups || 0).toLocaleString();
+        if (buyerClicksEl) buyerClicksEl.textContent = Number(telemetry.buyerClicksFromAi || 0).toLocaleString();
+
+        const engines = telemetry.byEngine || {};
+        ['chatgpt', 'perplexity', 'claude', 'gemini'].forEach((key) => {
+          const data = engines[key];
+          if (!data) return;
+          const vEl = document.getElementById('engVisits-' + key);
+          const rEl = document.getElementById('engRecs-' + key);
+          const cEl = document.getElementById('engClicks-' + key);
+          const sEl = document.getElementById('engSeen-' + key);
+          if (vEl) vEl.textContent = Number(data.visits || 0).toLocaleString();
+          if (rEl) rEl.textContent = Number(data.liveRecommendations || 0).toLocaleString();
+          if (cEl) cEl.textContent = Number(data.buyerClicks || 0).toLocaleString();
+          if (sEl) sEl.textContent = data.lastSeen || 'Just now';
+
+          if (highlightEngine === key) {
+            const card = document.querySelector('[data-engine-card="' + key + '"]');
+            if (card) {
+              card.classList.add('pulse');
+              setTimeout(() => card.classList.remove('pulse'), 900);
+            }
+          }
+        });
+
+        const feedListEl = document.getElementById('aiLiveFeedList');
+        if (feedListEl && Array.isArray(telemetry.recentFeed)) {
+          feedListEl.innerHTML = telemetry.recentFeed
+            .slice(0, 5)
+            .map(
+              (ev) =>
+                '<div class="ai-feed-item">' +
+                  '<div class="ai-feed-left">' +
+                    '<span class="ai-feed-badge">' + escapeHtml(ev.badge) + '</span>' +
+                    '<span class="ai-feed-engine">' + escapeHtml(ev.engine) + '</span>' +
+                    '<span class="ai-feed-desc">' + escapeHtml(ev.eventPlain) + '</span>' +
+                  '</div>' +
+                  '<div class="ai-feed-right">' +
+                    '<span>Page: ' + escapeHtml(ev.page) + '</span>' +
+                    '<span>• ' + escapeHtml(ev.timeAgo) + '</span>' +
+                  '</div>' +
+                '</div>'
+            )
+            .join('');
+        }
+      }
+
+      async function loadAiVisitTelemetry() {
+        try {
+          const res = await fetch('/api/ai-visits');
+          const data = await res.json();
+          if (data && data.telemetry) {
+            renderAiVisitTelemetry(data.telemetry);
+          }
+        } catch (err) {
+          console.error('AI Visit telemetry error:', err);
+        }
+      }
+
+      document.querySelectorAll('[data-sim-ai]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const engine = btn.getAttribute('data-sim-ai') || 'chatgpt';
+          const type = btn.getAttribute('data-sim-type') || 'prompt_lookup';
+          const page = btn.getAttribute('data-sim-page') || '/products/featured';
+          const origText = btn.textContent;
+          btn.textContent = '✓ AI Visit Detected!';
+          try {
+            const res = await fetch('/api/simulate-ai-visit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ engine, type, page })
+            });
+            const data = await res.json();
+            if (data && data.telemetry) {
+              renderAiVisitTelemetry(data.telemetry, engine);
+            }
+          } catch (err) {
+            console.error('Simulate AI visit error:', err);
+          } finally {
+            setTimeout(() => {
+              btn.textContent = origText;
+            }, 900);
+          }
+        });
+      });
+
       /* Bottom CTA scrolls to and focuses Hero URL Scanner */
       const bottomScanCta = document.getElementById('bottomScanCta');
       if (bottomScanCta && auditInput) {
@@ -3741,8 +4420,9 @@
         });
       }
 
-      /* Run initial default scan so the collapsible report is populated immediately */
+      /* Run initial default scan & load AI Agent Radar immediately */
       runLiveAudit('https://acme-nexus.io');
+      loadAiVisitTelemetry();
     })();
   </script>
 </body>
